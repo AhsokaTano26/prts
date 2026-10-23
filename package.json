@@ -1,0 +1,37 @@
+{
+  "name": "prts-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n WEB,API -c cyan,yellow \"vite --host 127.0.0.1\" \"npm run dev:server\"",
+    "dev:server": "node --env-file-if-exists=.env --watch server/index.mjs",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "start": "node --env-file-if-exists=.env server/index.mjs",
+    "test": "node --test tests/*.test.mjs tests/*.test.ts",
+    "test:e2e": "playwright test",
+    "format": "prettier --write src server tests *.ts *.json *.html docs README.md",
+    "format:check": "prettier --check src server tests *.ts *.json *.html docs README.md"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.4.0",
+    "concurrently": "^9.1.2",
+    "prettier": "^3.9.10",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.0"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

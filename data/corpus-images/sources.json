@@ -1,0 +1,3423 @@
+{
+  "schemaVersion": 1,
+  "upstream": {
+    "repository": "https://github.com/555me/EndfieldAssets",
+    "commit": "966ed92d2556386a37e4ec076a812ff46ca2fae9",
+    "readmeUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/readme.md",
+    "gameVersion": "1.6",
+    "resourceVersion": "initial_11262943-8_main_11262943-8",
+    "platform": "Android",
+    "server": "CN",
+    "license": null,
+    "copyrightNotice": "all rights reserved to Hypergryph.",
+    "coverageNote": "Upstream README states sprites are exported, and some Texture2D pictures are not included. This repository is a third-party extraction, not an official publication."
+  },
+  "corpusRelease": "agent-corpus-v2-20261018-endfield-1.6.3-release-v3",
+  "assets": [
+    {
+      "id": "Reading/collection_Hartman_badge",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_Hartman_badge.png",
+      "size": 288722,
+      "gitBlobSha1": "94800463301f9d896ddfb4ddd3d142d13d5254fd",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_Hartman_badge.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_Hartman_badge.png"
+    },
+    {
+      "id": "Reading/collection_e1m7_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_e1m7_1.png",
+      "size": 668541,
+      "gitBlobSha1": "24b641786e2e00a802d7ec4de21e1720fee7a584",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_e1m7_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_e1m7_1.png"
+    },
+    {
+      "id": "Reading/collection_ldz_bloodyhand",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_bloodyhand.png",
+      "size": 146013,
+      "gitBlobSha1": "8cc1c592992da8550eeacce2844a6768692dd0f0",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_bloodyhand.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_bloodyhand.png"
+    },
+    {
+      "id": "Reading/collection_ldz_bury",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_bury.png",
+      "size": 228031,
+      "gitBlobSha1": "cd1ba17f139f9214ad37d7c367d72f8f50ed876b",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_bury.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_bury.png"
+    },
+    {
+      "id": "Reading/collection_ldz_enemy",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_enemy.png",
+      "size": 247308,
+      "gitBlobSha1": "5709bb756be54fd361b48e547dfe4620ba0bb830",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_enemy.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_enemy.png"
+    },
+    {
+      "id": "Reading/collection_ldz_fire",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_fire.png",
+      "size": 237323,
+      "gitBlobSha1": "9aba5280c1a1e90dae4a5f75ed7480150e8983e1",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_fire.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_fire.png"
+    },
+    {
+      "id": "Reading/collection_ldz_full",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_full.png",
+      "size": 291489,
+      "gitBlobSha1": "5b56d1a7742ad86e3510b9b6f620aaffc8cae618",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_full.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_full.png"
+    },
+    {
+      "id": "Reading/collection_ldz_leader",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_leader.png",
+      "size": 140289,
+      "gitBlobSha1": "31c047f548460f18f223e1c3bfd7ebc768877f14",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_leader.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_leader.png"
+    },
+    {
+      "id": "Reading/collection_ldz_night",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_night.png",
+      "size": 263114,
+      "gitBlobSha1": "e2897ee63629026bccb9276b887603e2b4d6b4ba",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_night.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_night.png"
+    },
+    {
+      "id": "Reading/collection_ldz_rain",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_rain.png",
+      "size": 261976,
+      "gitBlobSha1": "2dc35ab2337168879de38642ca6d5394a662b968",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_rain.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_rain.png"
+    },
+    {
+      "id": "Reading/collection_ldz_refuge",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_refuge.png",
+      "size": 168044,
+      "gitBlobSha1": "4df082543be4ecf942953dba59088dd66c25cb6a",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_refuge.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_refuge.png"
+    },
+    {
+      "id": "Reading/collection_ldz_sun",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_sun.png",
+      "size": 371552,
+      "gitBlobSha1": "059d513cde72375ab1c2a8d858af3c49d88d6bc3",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_sun.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_sun.png"
+    },
+    {
+      "id": "Reading/collection_ldz_team",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_team.png",
+      "size": 209650,
+      "gitBlobSha1": "f96c9caf25b593495a9938ff838be1ca64915aac",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_team.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_team.png"
+    },
+    {
+      "id": "Reading/collection_ldz_trash",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_trash.png",
+      "size": 271496,
+      "gitBlobSha1": "67b0882d9009b416bde8ce7af39e6e2dc40e169c",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_trash.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_trash.png"
+    },
+    {
+      "id": "Reading/collection_ldz_treasure",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_treasure.png",
+      "size": 269606,
+      "gitBlobSha1": "6cc0b561f3e1642056374fef8c42954b59598cb7",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_treasure.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_treasure.png"
+    },
+    {
+      "id": "Reading/collection_ldz_worship",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_worship.png",
+      "size": 258721,
+      "gitBlobSha1": "87d3d2221ad6e39f4ed66670ac9c4b410afd6df9",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_worship.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_ldz_worship.png"
+    },
+    {
+      "id": "Reading/collection_listen_record",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_listen_record.png",
+      "size": 162083,
+      "gitBlobSha1": "33cda57575564ac31312b64c05ef7b4f7a128bfc",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_listen_record.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_listen_record.png"
+    },
+    {
+      "id": "Reading/collection_read_letter",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_read_letter.png",
+      "size": 250345,
+      "gitBlobSha1": "193b8dedc97ea6b33539db8bfc9eefc30b98f771",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_read_letter.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_read_letter.png"
+    },
+    {
+      "id": "Reading/collection_read_note",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_read_note.png",
+      "size": 182906,
+      "gitBlobSha1": "5ab38f6f348348334addb07084fdab29d7a75aa6",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_read_note.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_read_note.png"
+    },
+    {
+      "id": "Reading/collection_sm1l1m4_arrowrelic",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_sm1l1m4_arrowrelic.png",
+      "size": 134005,
+      "gitBlobSha1": "0b1e6afc47792567960520892194b26ce81d7f2f",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_sm1l1m4_arrowrelic.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_sm1l1m4_arrowrelic.png"
+    },
+    {
+      "id": "Reading/collection_sm1l5m2_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_sm1l5m2_1.png",
+      "size": 168596,
+      "gitBlobSha1": "28500c33a0cebe348f28476353b0eb742371c4fc",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_sm1l5m2_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/collection_sm1l5m2_1.png"
+    },
+    {
+      "id": "Reading/docuement_WulingArea_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/docuement_WulingArea_intro.png",
+      "size": 1070333,
+      "gitBlobSha1": "70d1ff9c8745ec94e98d0bc63133be93ff136c23",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/docuement_WulingArea_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/docuement_WulingArea_intro.png"
+    },
+    {
+      "id": "Reading/document_AIC_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_AIC_intro.png",
+      "size": 1351038,
+      "gitBlobSha1": "68d813139955608c7a1986794f1fd0498b724e17",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_AIC_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_AIC_intro.png"
+    },
+    {
+      "id": "Reading/document_Aburrey_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Aburrey_intro.png",
+      "size": 1252525,
+      "gitBlobSha1": "fb30e2bbb52b4ededf77fb8b60983c9ac4eab14f",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Aburrey_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Aburrey_intro.png"
+    },
+    {
+      "id": "Reading/document_AncestralSpring_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_AncestralSpring_intro.png",
+      "size": 1129808,
+      "gitBlobSha1": "eb36d6b61d5b2840144078e1914a3ac8deb46bbc",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_AncestralSpring_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_AncestralSpring_intro.png"
+    },
+    {
+      "id": "Reading/document_BeastLords_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_BeastLords_intro.png",
+      "size": 762754,
+      "gitBlobSha1": "569a2d2488df9da8db7967699be51f0a07c786cb",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_BeastLords_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_BeastLords_intro.png"
+    },
+    {
+      "id": "Reading/document_Blightshade_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Blightshade_intro.png",
+      "size": 988171,
+      "gitBlobSha1": "8913ca8bd4e702441d17428932b9f00860e64680",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Blightshade_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Blightshade_intro.png"
+    },
+    {
+      "id": "Reading/document_Dijiang_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Dijiang_intro.png",
+      "size": 1088852,
+      "gitBlobSha1": "bd0d554a8d2df708d49c75a38f8b66e853e374b9",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Dijiang_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Dijiang_intro.png"
+    },
+    {
+      "id": "Reading/document_Endfield_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Endfield_intro.png",
+      "size": 303204,
+      "gitBlobSha1": "04961eac2efb9462e8f7ac013fd28ab9e75b6111",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Endfield_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Endfield_intro.png"
+    },
+    {
+      "id": "Reading/document_EtherTestSite_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_EtherTestSite_intro.png",
+      "size": 1187751,
+      "gitBlobSha1": "1a921933035c784441147e8851efed3ef36e46b7",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_EtherTestSite_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_EtherTestSite_intro.png"
+    },
+    {
+      "id": "Reading/document_Ether_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Ether_intro.png",
+      "size": 1082977,
+      "gitBlobSha1": "7728473eb3db4ac6f1dbb0bc541244a3d11799ec",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Ether_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Ether_intro.png"
+    },
+    {
+      "id": "Reading/document_Feranmuts_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Feranmuts_intro.png",
+      "size": 758644,
+      "gitBlobSha1": "48fc4f60bb94d9a39f6bd05691d0b1851a4b5787",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Feranmuts_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Feranmuts_intro.png"
+    },
+    {
+      "id": "Reading/document_HAS_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_HAS_intro.png",
+      "size": 574803,
+      "gitBlobSha1": "0b57afb4acc95c241fb5f8c11ab62e1a8f13002c",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_HAS_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_HAS_intro.png"
+    },
+    {
+      "id": "Reading/document_HannabtCircuit_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_HannabtCircuit_intro.png",
+      "size": 170572,
+      "gitBlobSha1": "60929fd7e992bd47d3a9ed7fae71930370cc6ca1",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_HannabtCircuit_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_HannabtCircuit_intro.png"
+    },
+    {
+      "id": "Reading/document_HongshanBureauofSwordmancers_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_HongshanBureauofSwordmancers_intro.png",
+      "size": 975603,
+      "gitBlobSha1": "7496e39e0989e787256c9672ad1d46c1f99d9222",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_HongshanBureauofSwordmancers_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_HongshanBureauofSwordmancers_intro.png"
+    },
+    {
+      "id": "Reading/document_Huawu_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Huawu_intro.png",
+      "size": 833378,
+      "gitBlobSha1": "efca5209e4898673497f1f893610797b6d2c5fba",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Huawu_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Huawu_intro.png"
+    },
+    {
+      "id": "Reading/document_ITheFoundationI_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_ITheFoundationI_intro.png",
+      "size": 613624,
+      "gitBlobSha1": "95751efc987d5df99533a55e881d51f25089e2c8",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_ITheFoundationI_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_ITheFoundationI_intro.png"
+    },
+    {
+      "id": "Reading/document_MarkerStone_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_MarkerStone_intro.png",
+      "size": 922635,
+      "gitBlobSha1": "fe529139b641dbf2b4d813214488f0b5ff223fc4",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_MarkerStone_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_MarkerStone_intro.png"
+    },
+    {
+      "id": "Reading/document_NorthWulingExclusionZone_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_NorthWulingExclusionZone_intro.png",
+      "size": 1075772,
+      "gitBlobSha1": "701a70af109105da7802406e66c29161296b202a",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_NorthWulingExclusionZone_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_NorthWulingExclusionZone_intro.png"
+    },
+    {
+      "id": "Reading/document_QingboHeroes_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_QingboHeroes_intro.png",
+      "size": 784737,
+      "gitBlobSha1": "ba15a295c14a0fbd242ef9f58fa3ee3a287fe63d",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_QingboHeroes_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_QingboHeroes_intro.png"
+    },
+    {
+      "id": "Reading/document_Qingbo_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Qingbo_intro.png",
+      "size": 1194070,
+      "gitBlobSha1": "dd4e55b38b07c294a465ced81f1a9fe4545a1367",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Qingbo_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Qingbo_intro.png"
+    },
+    {
+      "id": "Reading/document_Sipainting_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Sipainting_intro.png",
+      "size": 1016398,
+      "gitBlobSha1": "0fd92eec75bdd92e5cdabf1676d6b4b886c21528",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Sipainting_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Sipainting_intro.png"
+    },
+    {
+      "id": "Reading/document_SwordVaultDale_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_SwordVaultDale_intro.png",
+      "size": 1153099,
+      "gitBlobSha1": "6f689a407a864cc689942b75ccc1f9775a663e5a",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_SwordVaultDale_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_SwordVaultDale_intro.png"
+    },
+    {
+      "id": "Reading/document_TALOSII_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_TALOSII_intro.png",
+      "size": 920436,
+      "gitBlobSha1": "36252477f7a79295340d89a777a05c38a4cb0251",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_TALOSII_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_TALOSII_intro.png"
+    },
+    {
+      "id": "Reading/document_TGCC_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_TGCC_intro.png",
+      "size": 183247,
+      "gitBlobSha1": "d3690686336115c615f8bfb340cbfe8ff867b0be",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_TGCC_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_TGCC_intro.png"
+    },
+    {
+      "id": "Reading/document_Terra_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Terra_intro.png",
+      "size": 731835,
+      "gitBlobSha1": "aad6ca7f07d647071594542e1745f2a2ca132fa6",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Terra_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Terra_intro.png"
+    },
+    {
+      "id": "Reading/document_UWST_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_UWST_intro.png",
+      "size": 98945,
+      "gitBlobSha1": "81ad2e8869dfd4e3f8e45852c8f22c6183fb4cee",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_UWST_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_UWST_intro.png"
+    },
+    {
+      "id": "Reading/document_Valley4_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Valley4_intro.png",
+      "size": 1210316,
+      "gitBlobSha1": "b4996958df971ca9ce7e70bb36f0ab8760a43ef3",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Valley4_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Valley4_intro.png"
+    },
+    {
+      "id": "Reading/document_WulingTianshiBureauAcademy_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_WulingTianshiBureauAcademy_intro.png",
+      "size": 1160861,
+      "gitBlobSha1": "8b00a6d0120e91a9f6b01a85bdd4022a9224b556",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_WulingTianshiBureauAcademy_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_WulingTianshiBureauAcademy_intro.png"
+    },
+    {
+      "id": "Reading/document_Wuling_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Wuling_intro.png",
+      "size": 1366487,
+      "gitBlobSha1": "e1d2eff63ec23d7ef9e9d046db3f95bcf3574708",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Wuling_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Wuling_intro.png"
+    },
+    {
+      "id": "Reading/document_XiraniteNexus_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_XiraniteNexus_intro.png",
+      "size": 627814,
+      "gitBlobSha1": "be0f3898b6897a470f9f096f93f8c9f5c2194eb1",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_XiraniteNexus_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_XiraniteNexus_intro.png"
+    },
+    {
+      "id": "Reading/document_Yan_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Yan_intro.png",
+      "size": 288552,
+      "gitBlobSha1": "e55dd84b3100fc8e0b02306be070b1616efe1d95",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Yan_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_Yan_intro.png"
+    },
+    {
+      "id": "Reading/document_YinglungPass_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_YinglungPass_intro.png",
+      "size": 970432,
+      "gitBlobSha1": "10c64440e7681826e49e5269cff8363688ab1b99",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_YinglungPass_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_YinglungPass_intro.png"
+    },
+    {
+      "id": "Reading/document_YinglungSpecialTaskForce_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_YinglungSpecialTaskForce_intro.png",
+      "size": 957532,
+      "gitBlobSha1": "4fc875246119951bba822d2aa921157d60ff6a77",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_YinglungSpecialTaskForce_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_YinglungSpecialTaskForce_intro.png"
+    },
+    {
+      "id": "Reading/document_angel_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_angel_intro.png",
+      "size": 966002,
+      "gitBlobSha1": "ccc537c008f1dde248a1aeef59f3098e4c93d02a",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_angel_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_angel_intro.png"
+    },
+    {
+      "id": "Reading/document_aurora_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_aurora_intro.png",
+      "size": 990522,
+      "gitBlobSha1": "b8edfee8836133a4028c039850dfa0611ff99401",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_aurora_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_aurora_intro.png"
+    },
+    {
+      "id": "Reading/document_blight_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_blight_intro.png",
+      "size": 1078671,
+      "gitBlobSha1": "bb0abe7eafe497f4f699ea45432b101c4f147f92",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_blight_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_blight_intro.png"
+    },
+    {
+      "id": "Reading/document_civilizationBand_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_civilizationBand_intro.png",
+      "size": 1222235,
+      "gitBlobSha1": "bc299fe6c38e4983828753e244135e1119964f4d",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_civilizationBand_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_civilizationBand_intro.png"
+    },
+    {
+      "id": "Reading/document_cosmicGate_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_cosmicGate_intro.png",
+      "size": 1013810,
+      "gitBlobSha1": "4d392c596a46ece61de240b8a2ee86e895298f0c",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_cosmicGate_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_cosmicGate_intro.png"
+    },
+    {
+      "id": "Reading/document_cradleOfTheAges_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_cradleOfTheAges_intro.png",
+      "size": 1059067,
+      "gitBlobSha1": "327f449229e7f8a4c35ef90d5950a1006d9bfc5b",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_cradleOfTheAges_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_cradleOfTheAges_intro.png"
+    },
+    {
+      "id": "Reading/document_denstack_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_denstack_intro.png",
+      "size": 1020028,
+      "gitBlobSha1": "3b5fef90d833f4bbb2f269dfd2f44f16bbd957d8",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_denstack_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_denstack_intro.png"
+    },
+    {
+      "id": "Reading/document_ethnicity_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_ethnicity_intro.png",
+      "size": 931324,
+      "gitBlobSha1": "779c0ca65fa8be6ff80c96aac40c3bd869a7fd4d",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_ethnicity_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_ethnicity_intro.png"
+    },
+    {
+      "id": "Reading/document_firstAngelWar_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_firstAngelWar_intro.png",
+      "size": 986887,
+      "gitBlobSha1": "e2d8f1495885806494d79d045983cc85e01be8a1",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_firstAngelWar_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_firstAngelWar_intro.png"
+    },
+    {
+      "id": "Reading/document_hubBase_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_hubBase_intro.png",
+      "size": 1028014,
+      "gitBlobSha1": "efc062575b81d8335f887b0af8c22b25dda2f764",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_hubBase_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_hubBase_intro.png"
+    },
+    {
+      "id": "Reading/document_landbreaker_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_landbreaker_intro.png",
+      "size": 909460,
+      "gitBlobSha1": "b287e69cefa5e377cf1e1391d03bd18869838654",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_landbreaker_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_landbreaker_intro.png"
+    },
+    {
+      "id": "Reading/document_originiumTALOSII_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_originiumTALOSII_intro.png",
+      "size": 1140636,
+      "gitBlobSha1": "4b3949db81144cab0df32516bab34c0505004d3f",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_originiumTALOSII_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_originiumTALOSII_intro.png"
+    },
+    {
+      "id": "Reading/document_originiumTech_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_originiumTech_intro.png",
+      "size": 238908,
+      "gitBlobSha1": "023059d1833bf3f324f6b00f244e125084160261",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_originiumTech_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_originiumTech_intro.png"
+    },
+    {
+      "id": "Reading/document_originium_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_originium_intro.png",
+      "size": 827671,
+      "gitBlobSha1": "6cdc3e5c8b318fd1ab248f464dee88981128456a",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_originium_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_originium_intro.png"
+    },
+    {
+      "id": "Reading/document_protocolOriginium_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_protocolOriginium_intro.png",
+      "size": 187519,
+      "gitBlobSha1": "fc3dd8e22d170a93501a1d9c5ec153240894dc95",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_protocolOriginium_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_protocolOriginium_intro.png"
+    },
+    {
+      "id": "Reading/document_reconvener_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_reconvener_intro.png",
+      "size": 791797,
+      "gitBlobSha1": "f54bbb28cd265eb6763b4f60f9efded85bc64dd3",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_reconvener_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_reconvener_intro.png"
+    },
+    {
+      "id": "Reading/document_samitheferanmut_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_samitheferanmut_intro.png",
+      "size": 861815,
+      "gitBlobSha1": "ad5f6fd48925c77fc671c3d309305b7001c462a6",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_samitheferanmut_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_samitheferanmut_intro.png"
+    },
+    {
+      "id": "Reading/document_stragglersGrove_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_stragglersGrove_intro.png",
+      "size": 1204570,
+      "gitBlobSha1": "d6b908c08728c9217fc0e3b2f3d9e21874076cbf",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_stragglersGrove_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_stragglersGrove_intro.png"
+    },
+    {
+      "id": "Reading/document_tianshiPillar_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_tianshiPillar_intro.png",
+      "size": 1100166,
+      "gitBlobSha1": "1b5ed4bcc97a93fff60c25ac750955bdc1c82c50",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_tianshiPillar_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_tianshiPillar_intro.png"
+    },
+    {
+      "id": "Reading/document_utjugOrder_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_utjugOrder_intro.png",
+      "size": 295657,
+      "gitBlobSha1": "7fe09cee83435ef7ab673762f5ae03d6e80e96e9",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_utjugOrder_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_utjugOrder_intro.png"
+    },
+    {
+      "id": "Reading/document_xiranite_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_xiranite_intro.png",
+      "size": 863224,
+      "gitBlobSha1": "b61f18bc1d68fb6d126b9491f832f8ef2683ce65",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_xiranite_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_xiranite_intro.png"
+    },
+    {
+      "id": "Reading/document_zerothDirective_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_zerothDirective_intro.png",
+      "size": 823027,
+      "gitBlobSha1": "3a7e024df51b66cdacaccdf8b4e1b85fa1fafa55",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_zerothDirective_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/document_zerothDirective_intro.png"
+    },
+    {
+      "id": "Reading/ducument_WulingVeryLargeRift_intro",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/ducument_WulingVeryLargeRift_intro.png",
+      "size": 1228033,
+      "gitBlobSha1": "e4ff074c45b578858e8f65f5f2c36899d3169ac1",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/ducument_WulingVeryLargeRift_intro.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/ducument_WulingVeryLargeRift_intro.png"
+    },
+    {
+      "id": "Reading/f_reading_sm2l10m3_photo",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/f_reading_sm2l10m3_photo.png",
+      "size": 926325,
+      "gitBlobSha1": "b62f90a73a71c859cbf5254ec54ab2e700f7b8c8",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/f_reading_sm2l10m3_photo.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/f_reading_sm2l10m3_photo.png"
+    },
+    {
+      "id": "Reading/gm01m16_bottle",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/gm01m16_bottle.png",
+      "size": 144508,
+      "gitBlobSha1": "9cc0696f1aa2779ffdf3ec2f2d83ff4b0375561f",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/gm01m16_bottle.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/gm01m16_bottle.png"
+    },
+    {
+      "id": "Reading/m_reading_sm2l10m3_photo",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/m_reading_sm2l10m3_photo.png",
+      "size": 916011,
+      "gitBlobSha1": "a9ab5e2b1eedc60f97285721a7a4faea288283bf",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/m_reading_sm2l10m3_photo.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/m_reading_sm2l10m3_photo.png"
+    },
+    {
+      "id": "Reading/reading_002_settlement_sns",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_002_settlement_sns.png",
+      "size": 1362945,
+      "gitBlobSha1": "7ad2e6e2083d35718b89ed7696c914d3661bb6a6",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_002_settlement_sns.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_002_settlement_sns.png"
+    },
+    {
+      "id": "Reading/reading_c13m3_letter",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c13m3_letter.png",
+      "size": 165268,
+      "gitBlobSha1": "e78b9f3f827440fbac4b6cf74ee5a4bf35e22124",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c13m3_letter.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c13m3_letter.png"
+    },
+    {
+      "id": "Reading/reading_c16m2_notebook",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c16m2_notebook.png",
+      "size": 282835,
+      "gitBlobSha1": "60031d653caf28187465eeb28b17eaed0da2021d",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c16m2_notebook.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c16m2_notebook.png"
+    },
+    {
+      "id": "Reading/reading_c17m3_paintcan",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c17m3_paintcan.png",
+      "size": 188647,
+      "gitBlobSha1": "cb901aedd1ed9bfb51cadde7fc6f8472f2317498",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c17m3_paintcan.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c17m3_paintcan.png"
+    },
+    {
+      "id": "Reading/reading_c27m2_tangtangticket",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c27m2_tangtangticket.png",
+      "size": 310065,
+      "gitBlobSha1": "b9306ead2512447900209b0bd7dcf724fa25dc47",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c27m2_tangtangticket.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c27m2_tangtangticket.png"
+    },
+    {
+      "id": "Reading/reading_c31m3_photo",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c31m3_photo.png",
+      "size": 159475,
+      "gitBlobSha1": "5e4404c1aa7f29cde1f415330b42e525266893a9",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c31m3_photo.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c31m3_photo.png"
+    },
+    {
+      "id": "Reading/reading_c34m_forestmap",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c34m_forestmap.png",
+      "size": 1056417,
+      "gitBlobSha1": "e5f32fe2cda3966c62e6bc94f579b6cb85c97bd5",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c34m_forestmap.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_c34m_forestmap.png"
+    },
+    {
+      "id": "Reading/reading_collection_amulet",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_collection_amulet.png",
+      "size": 231357,
+      "gitBlobSha1": "9163416365cba4f06b7f1b3f481b2c0bea0cdefd",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_collection_amulet.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_collection_amulet.png"
+    },
+    {
+      "id": "Reading/reading_e1m3_painting",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e1m3_painting.png",
+      "size": 737559,
+      "gitBlobSha1": "720ec81931611f4d943530ba067d2e6424d08c3b",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e1m3_painting.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e1m3_painting.png"
+    },
+    {
+      "id": "Reading/reading_e6m3_zhuangfygift",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e6m3_zhuangfygift.png",
+      "size": 123338,
+      "gitBlobSha1": "15fc00e214cd43b8fe694b5c98365ff15d487d1c",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e6m3_zhuangfygift.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e6m3_zhuangfygift.png"
+    },
+    {
+      "id": "Reading/reading_e6m5_tangtanggift",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e6m5_tangtanggift.png",
+      "size": 252734,
+      "gitBlobSha1": "6a06c7a3eb232bc823772098bd6134055a70041e",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e6m5_tangtanggift.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e6m5_tangtanggift.png"
+    },
+    {
+      "id": "Reading/reading_e8m1_suishou",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e8m1_suishou.png",
+      "size": 705249,
+      "gitBlobSha1": "2f9977f29629720b0a9ed23e37d1ce93dc5cad8e",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e8m1_suishou.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e8m1_suishou.png"
+    },
+    {
+      "id": "Reading/reading_e8m4_coin",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e8m4_coin.png",
+      "size": 250066,
+      "gitBlobSha1": "81173614f4bc6f77ac7a44d7741d48854881daeb",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e8m4_coin.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_e8m4_coin.png"
+    },
+    {
+      "id": "Reading/reading_f1m19d1_pic01",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m19d1_pic01.png",
+      "size": 1043483,
+      "gitBlobSha1": "6bd08e559d03afa2acc38b1a72c728384fd229ba",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m19d1_pic01.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m19d1_pic01.png"
+    },
+    {
+      "id": "Reading/reading_f1m19d1_pic02",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m19d1_pic02.png",
+      "size": 976750,
+      "gitBlobSha1": "05e1f43c071a63c9b64c2344b2167847744eeda5",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m19d1_pic02.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m19d1_pic02.png"
+    },
+    {
+      "id": "Reading/reading_f1m19d1_pic03",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m19d1_pic03.png",
+      "size": 1071426,
+      "gitBlobSha1": "cc85ee0b86743f51b57bd24bd7b08d82d6e78480",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m19d1_pic03.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m19d1_pic03.png"
+    },
+    {
+      "id": "Reading/reading_f1m19d1_pic04",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m19d1_pic04.png",
+      "size": 620726,
+      "gitBlobSha1": "1aa3d80ddadaa71bc35d4389805746ae4ca1f2db",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m19d1_pic04.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m19d1_pic04.png"
+    },
+    {
+      "id": "Reading/reading_f1m4_can",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m4_can.png",
+      "size": 382081,
+      "gitBlobSha1": "cabb37614f073a9e67d13871ff15ab3b6c9ecc80",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m4_can.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m4_can.png"
+    },
+    {
+      "id": "Reading/reading_f1m4_painting",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m4_painting.png",
+      "size": 4625999,
+      "gitBlobSha1": "a8d9ceb5674d5928b29303d24e5bdd347a04d116",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m4_painting.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_f1m4_painting.png"
+    },
+    {
+      "id": "Reading/reading_gm01m17_robot",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_gm01m17_robot.png",
+      "size": 275089,
+      "gitBlobSha1": "dcd2b64e620b403000a5a8469819a89ecb45c2fe",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_gm01m17_robot.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_gm01m17_robot.png"
+    },
+    {
+      "id": "Reading/reading_gm02m27_cangbaotu",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_gm02m27_cangbaotu.png",
+      "size": 950717,
+      "gitBlobSha1": "ee88292377fb72f16f07b710623be51a02d9a857",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_gm02m27_cangbaotu.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_gm02m27_cangbaotu.png"
+    },
+    {
+      "id": "Reading/reading_prts_001_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_prts_001_1.png",
+      "size": 1094814,
+      "gitBlobSha1": "f9740acd7b9eaa0bd9e65a13b599beeae7227444",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_prts_001_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_prts_001_1.png"
+    },
+    {
+      "id": "Reading/reading_prts_001_2",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_prts_001_2.png",
+      "size": 1073464,
+      "gitBlobSha1": "9a8d48ed87d6eb9af181959f45c2afdf47d26f10",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_prts_001_2.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_prts_001_2.png"
+    },
+    {
+      "id": "Reading/reading_prts_lottery",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_prts_lottery.png",
+      "size": 278253,
+      "gitBlobSha1": "791815dc9243116c9a47307110fc0e0bce2241e3",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_prts_lottery.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_prts_lottery.png"
+    },
+    {
+      "id": "Reading/reading_read_file",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_read_file.png",
+      "size": 289789,
+      "gitBlobSha1": "ad4333a63e96337b6aaa53918f50d76b45025eee",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_read_file.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_read_file.png"
+    },
+    {
+      "id": "Reading/reading_sm1l3m3_flag",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm1l3m3_flag.png",
+      "size": 326819,
+      "gitBlobSha1": "33da62f3e8699b3c85f8d4e975a2835d8727626c",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm1l3m3_flag.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm1l3m3_flag.png"
+    },
+    {
+      "id": "Reading/reading_sm2l1m5_photo",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l1m5_photo.png",
+      "size": 1133143,
+      "gitBlobSha1": "6ccaedcab080b8695bac53dc691adeb68c6d540f",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l1m5_photo.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l1m5_photo.png"
+    },
+    {
+      "id": "Reading/reading_sm2l3m4_bamboobell",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l3m4_bamboobell.png",
+      "size": 1256836,
+      "gitBlobSha1": "00831af942f83444aa69c5c1984646b796e3524b",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l3m4_bamboobell.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l3m4_bamboobell.png"
+    },
+    {
+      "id": "Reading/reading_sm2l3m5_madina_f",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l3m5_madina_f.png",
+      "size": 999704,
+      "gitBlobSha1": "e16eacd58cb25135e63cf42bc229f7aa69aee6fb",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l3m5_madina_f.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l3m5_madina_f.png"
+    },
+    {
+      "id": "Reading/reading_sm2l3m5_madina_m",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l3m5_madina_m.png",
+      "size": 1000540,
+      "gitBlobSha1": "c4e9dc0862bf7c95a07e603492abaa3b206e0cd2",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l3m5_madina_m.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l3m5_madina_m.png"
+    },
+    {
+      "id": "Reading/reading_sm2l6m1_yujian",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l6m1_yujian.png",
+      "size": 81506,
+      "gitBlobSha1": "cf221c54af5675ecfc9708db14fe47e4a0b59b70",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l6m1_yujian.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/reading_sm2l6m1_yujian.png"
+    },
+    {
+      "id": "Reading/sm1l1m6_4_f",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_4_f.png",
+      "size": 1637603,
+      "gitBlobSha1": "666190aecf3a3dfb174ce1d5b72dcc3ed4b98151",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_4_f.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_4_f.png"
+    },
+    {
+      "id": "Reading/sm1l1m6_4_m",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_4_m.png",
+      "size": 1724403,
+      "gitBlobSha1": "6a48ece5ca63223a6dcf1d5e78d7309752aacd4e",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_4_m.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_4_m.png"
+    },
+    {
+      "id": "Reading/sm1l1m6_5_f",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_5_f.png",
+      "size": 1849983,
+      "gitBlobSha1": "08a4ae6b4cdef377ccd7f8efc8acf92fc88dd28a",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_5_f.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_5_f.png"
+    },
+    {
+      "id": "Reading/sm1l1m6_5_m",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_5_m.png",
+      "size": 1921830,
+      "gitBlobSha1": "a5099339ed14818554febfd0e572a1bc7a292d2c",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_5_m.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_5_m.png"
+    },
+    {
+      "id": "Reading/sm1l1m6_Alexander_photo",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_Alexander_photo.png",
+      "size": 310637,
+      "gitBlobSha1": "7b67284681e0b1927fa1ad67bb81d202c8261bd6",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_Alexander_photo.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_Alexander_photo.png"
+    },
+    {
+      "id": "Reading/sm1l1m6_Hans_photo",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_Hans_photo.png",
+      "size": 301154,
+      "gitBlobSha1": "47df46bc7b1fb408d434a590f728df22d1cc767d",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_Hans_photo.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_Hans_photo.png"
+    },
+    {
+      "id": "Reading/sm1l1m6_Hatman_photo",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_Hatman_photo.png",
+      "size": 305894,
+      "gitBlobSha1": "26885be7a3a3716039eba79c8c6912b7e08465a4",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_Hatman_photo.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l1m6_Hatman_photo.png"
+    },
+    {
+      "id": "Reading/sm1l7m1_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l7m1_1.png",
+      "size": 1158273,
+      "gitBlobSha1": "f27362fc037e04fcd3a21d0fa0dc882a3ba90a6f",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l7m1_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l7m1_1.png"
+    },
+    {
+      "id": "Reading/sm1l7m1_2",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l7m1_2.png",
+      "size": 1254804,
+      "gitBlobSha1": "3a0b2b7ff0afcc7d1f29aeef8ef8c1e80678d6c1",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l7m1_2.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l7m1_2.png"
+    },
+    {
+      "id": "Reading/sm1l7m1_3",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l7m1_3.png",
+      "size": 693198,
+      "gitBlobSha1": "d1b407ca2c93b8c75e872d41984cd6fe2514797c",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l7m1_3.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l7m1_3.png"
+    },
+    {
+      "id": "Reading/sm1l7m1_4",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l7m1_4.png",
+      "size": 837750,
+      "gitBlobSha1": "16252177b551297e92da883d451209ebf8089764",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l7m1_4.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/reading/sm1l7m1_4.png"
+    },
+    {
+      "id": "WalletIcon/item_domain_tundra_coupon",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/walleticon/item_domain_tundra_coupon.png",
+      "size": 2886,
+      "gitBlobSha1": "1cadcf35c860bbd801861ba33bfc42b903faef27",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/walleticon/item_domain_tundra_coupon.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/walleticon/item_domain_tundra_coupon.png"
+    },
+    {
+      "id": "sns_002_settlement",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_002_settlement.png",
+      "size": 4420322,
+      "gitBlobSha1": "8b702f72102ba719bc4adb847852b23118effbd6",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_002_settlement.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_002_settlement.png"
+    },
+    {
+      "id": "sns_image_c13m1_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_c13m1_1.png",
+      "size": 2059862,
+      "gitBlobSha1": "1edbb7e38f3dc06ca969c55f4e61db96f2404bbe",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_c13m1_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_c13m1_1.png"
+    },
+    {
+      "id": "sns_image_c28m1_sample",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_c28m1_sample.png",
+      "size": 3870905,
+      "gitBlobSha1": "025346d800eefc2d1452d91b68dba0ea65e2e0a1",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_c28m1_sample.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_c28m1_sample.png"
+    },
+    {
+      "id": "sns_image_c35m1_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_c35m1_1.png",
+      "size": 2843403,
+      "gitBlobSha1": "52124ca73b7476c29dc31d8a8fdb5e34a9b7af45",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_c35m1_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_c35m1_1.png"
+    },
+    {
+      "id": "sns_image_chr_0034_1_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_chr_0034_1_1.png",
+      "size": 2766590,
+      "gitBlobSha1": "8e60c0dbea9845521f4aa2f3dcc730ecc50898c5",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_chr_0034_1_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_chr_0034_1_1.png"
+    },
+    {
+      "id": "sns_image_chr_0034_2_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_chr_0034_2_1.png",
+      "size": 2375377,
+      "gitBlobSha1": "d5dc3a3d8ba4da3602093a0bff006752b34319d7",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_chr_0034_2_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_chr_0034_2_1.png"
+    },
+    {
+      "id": "sns_image_chr_0035_3_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_chr_0035_3_1.png",
+      "size": 2461048,
+      "gitBlobSha1": "deddbdcae1976c832b9467fcede51857fc8846a2",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_chr_0035_3_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_chr_0035_3_1.png"
+    },
+    {
+      "id": "sns_image_e7m4_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_e7m4_1.png",
+      "size": 3055232,
+      "gitBlobSha1": "fa08efd1beddc135874ebc64231eaa0e10297397",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_e7m4_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_e7m4_1.png"
+    },
+    {
+      "id": "sns_image_f1m19d3_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_f1m19d3_1.png",
+      "size": 2065320,
+      "gitBlobSha1": "0fdc1e4286c8c12d0b0f69fe3e234b9304120da6",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_f1m19d3_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_f1m19d3_1.png"
+    },
+    {
+      "id": "sns_image_f1m29_001",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_f1m29_001.png",
+      "size": 4291523,
+      "gitBlobSha1": "a6e25222b263a6fc198195989e75058423a727a2",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_f1m29_001.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_f1m29_001.png"
+    },
+    {
+      "id": "sns_image_f1m29_002",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_f1m29_002.png",
+      "size": 4043042,
+      "gitBlobSha1": "4f6278e6172c18a39669a0ba029d78cdae249c40",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_f1m29_002.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_f1m29_002.png"
+    },
+    {
+      "id": "sns_image_f1m29_004",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_f1m29_004.png",
+      "size": 4656021,
+      "gitBlobSha1": "b0dcedb2672fd295e3abc4dc4b67b4b4b9b3c703",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_f1m29_004.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_f1m29_004.png"
+    },
+    {
+      "id": "sns_image_gm02m12_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_gm02m12_1.png",
+      "size": 2725558,
+      "gitBlobSha1": "a7614a28c6cf622f0a50b81cb1dc46925b90059f",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_gm02m12_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_gm02m12_1.png"
+    },
+    {
+      "id": "sns_image_m1m24_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_m1m24_1.png",
+      "size": 2343218,
+      "gitBlobSha1": "b6a1165b113b5c8fd0218229694e4b74a8db9e19",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_m1m24_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_m1m24_1.png"
+    },
+    {
+      "id": "sns_image_sm1l1m6_4_f",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sm1l1m6_4_f.png",
+      "size": 1758220,
+      "gitBlobSha1": "00e79fe103780fedc8709e337dd9ebbc3ee1368b",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sm1l1m6_4_f.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sm1l1m6_4_f.png"
+    },
+    {
+      "id": "sns_image_sm1l1m6_4_m",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sm1l1m6_4_m.png",
+      "size": 1841788,
+      "gitBlobSha1": "59f44a4c3ea34692a83f1124d3907a471307a9d1",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sm1l1m6_4_m.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sm1l1m6_4_m.png"
+    },
+    {
+      "id": "sns_image_sm1l3m2_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sm1l3m2_1.png",
+      "size": 3661567,
+      "gitBlobSha1": "2072cef04c2588c396b1ee082045bfe6355c4e1a",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sm1l3m2_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sm1l3m2_1.png"
+    },
+    {
+      "id": "sns_image_sm1l6m1_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sm1l6m1_1.png",
+      "size": 4176112,
+      "gitBlobSha1": "95fbd54b76002e47d1ed58c7d7ae24b8e0d77d26",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sm1l6m1_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sm1l6m1_1.png"
+    },
+    {
+      "id": "sns_image_sns_map02_lv005_3_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv005_3_1.png",
+      "size": 3557759,
+      "gitBlobSha1": "b8557535bfc9c56596092c9c98e9b57c1d4996d3",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv005_3_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv005_3_1.png"
+    },
+    {
+      "id": "sns_image_sns_map02_lv005_3_2",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv005_3_2.png",
+      "size": 3417079,
+      "gitBlobSha1": "14ce44407fab0f23e61a46c7648c3422d1c6c39f",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv005_3_2.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv005_3_2.png"
+    },
+    {
+      "id": "sns_image_sns_map02_lv005_3_3",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv005_3_3.png",
+      "size": 3911968,
+      "gitBlobSha1": "0f6de56c1c90ed792e37c209536349cb8823c5cb",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv005_3_3.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv005_3_3.png"
+    },
+    {
+      "id": "sns_image_sns_map02_lv009_3_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv009_3_1.png",
+      "size": 3892123,
+      "gitBlobSha1": "96914782f516fd26b2dd1a85640a8d6971546a9c",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv009_3_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv009_3_1.png"
+    },
+    {
+      "id": "sns_image_sns_map02_lv009_3_2",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv009_3_2.png",
+      "size": 3399867,
+      "gitBlobSha1": "4d9f75efd4d6dcc4c8dcfd6124e305edf42ecde6",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv009_3_2.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_sns_map02_lv009_3_2.png"
+    },
+    {
+      "id": "sns_image_topic_chr_0024_deepfin_1_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0024_deepfin_1_1.png",
+      "size": 3121507,
+      "gitBlobSha1": "42563c763ee1afbbdbb5ae94891642ac8384aa2e",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0024_deepfin_1_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0024_deepfin_1_1.png"
+    },
+    {
+      "id": "sns_image_topic_chr_0024_deepfin_1_2",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0024_deepfin_1_2.png",
+      "size": 3153648,
+      "gitBlobSha1": "6525a8e0187e020c3095553f8e852fb1f790a527",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0024_deepfin_1_2.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0024_deepfin_1_2.png"
+    },
+    {
+      "id": "sns_image_topic_chr_0024_deepfin_1_3",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0024_deepfin_1_3.png",
+      "size": 3116845,
+      "gitBlobSha1": "8bc7e26b45cc07c5e72344d69c132d972cdbdbea",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0024_deepfin_1_3.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0024_deepfin_1_3.png"
+    },
+    {
+      "id": "sns_image_topic_chr_0025_ardelia_1_1",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0025_ardelia_1_1.png",
+      "size": 3141309,
+      "gitBlobSha1": "8b4db25f13b393e9a8738dfe7dff67b9d36bfb35",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0025_ardelia_1_1.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0025_ardelia_1_1.png"
+    },
+    {
+      "id": "sns_image_topic_chr_0025_ardelia_1_2",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0025_ardelia_1_2.png",
+      "size": 3016951,
+      "gitBlobSha1": "a38d511aac1d9c21a628538f9edbb86162f40cab",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0025_ardelia_1_2.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0025_ardelia_1_2.png"
+    },
+    {
+      "id": "sns_image_topic_chr_0025_ardelia_1_3",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0025_ardelia_1_3.png",
+      "size": 3026028,
+      "gitBlobSha1": "3d6133743dd8daabd4ffbb4167349854df85e7d3",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0025_ardelia_1_3.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_image_topic_chr_0025_ardelia_1_3.png"
+    },
+    {
+      "id": "sns_sm1l5m2",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_sm1l5m2.png",
+      "size": 4596620,
+      "gitBlobSha1": "0983e5b1aaaf3d2d3451eb557f8192f21a29e2c8",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_sm1l5m2.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/picture/sns_sm1l5m2.png"
+    },
+    {
+      "id": "sns_emoji_001",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_001.png",
+      "size": 2107,
+      "gitBlobSha1": "f643d5f537d4c4947bd10bd65c8d14ac3be559b9",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_001.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_001.png"
+    },
+    {
+      "id": "sns_emoji_002",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_002.png",
+      "size": 3795,
+      "gitBlobSha1": "113000695755091f7c1a4cdb29e7720531980f01",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_002.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_002.png"
+    },
+    {
+      "id": "sns_emoji_003",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_003.png",
+      "size": 2108,
+      "gitBlobSha1": "a45b2eb75a3a0bcb6f51cf3e2962654b80a1fc78",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_003.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_003.png"
+    },
+    {
+      "id": "sns_emoji_004",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_004.png",
+      "size": 2542,
+      "gitBlobSha1": "30f43416c1ea3b66536d7c0acaac649022a1b339",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_004.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_004.png"
+    },
+    {
+      "id": "sns_emoji_005",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_005.png",
+      "size": 2083,
+      "gitBlobSha1": "666aea43308b6e1d923a03acdacca8ebc7b2b9b9",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_005.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_005.png"
+    },
+    {
+      "id": "sns_emoji_006",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_006.png",
+      "size": 3152,
+      "gitBlobSha1": "b15a9747d8b78058c92da8476632eb9b06d463fc",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_006.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_006.png"
+    },
+    {
+      "id": "sns_emoji_008",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_008.png",
+      "size": 2766,
+      "gitBlobSha1": "accc570875344985bde610e248bb04d7871f7b77",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_008.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_008.png"
+    },
+    {
+      "id": "sns_emoji_009",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_009.png",
+      "size": 2539,
+      "gitBlobSha1": "a8ff331e5e160a3f63c489d63ba41593ab67ae25",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_009.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_009.png"
+    },
+    {
+      "id": "sns_emoji_011",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_011.png",
+      "size": 2960,
+      "gitBlobSha1": "a42cdf00fe5981be7ad6fb957e70e3e1c1eb577a",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_011.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_011.png"
+    },
+    {
+      "id": "sns_emoji_012",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_012.png",
+      "size": 2594,
+      "gitBlobSha1": "c7d4566cc498e71bcad737d92ccd4934b19fd6b2",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_012.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_012.png"
+    },
+    {
+      "id": "sns_emoji_013",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_013.png",
+      "size": 2875,
+      "gitBlobSha1": "71bf1179d8da1116dcfbd1c86e63a0338473dbcf",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_013.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_013.png"
+    },
+    {
+      "id": "sns_emoji_014",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_014.png",
+      "size": 2632,
+      "gitBlobSha1": "5c85466e3b2205cf798d6cabd15cd6a2cbcb9524",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_014.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_014.png"
+    },
+    {
+      "id": "sns_emoji_015",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_015.png",
+      "size": 2062,
+      "gitBlobSha1": "46eae404921f6ed457cd4b24033d73812b88c6db",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_015.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_015.png"
+    },
+    {
+      "id": "sns_emoji_016",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_016.png",
+      "size": 3090,
+      "gitBlobSha1": "797b46d6921a23ed86271ad95114c742b30bf75b",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_016.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_016.png"
+    },
+    {
+      "id": "sns_emoji_017",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_017.png",
+      "size": 2125,
+      "gitBlobSha1": "c8dac1da307c8a3a0578570d99488c8b0c2b11bf",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_017.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_017.png"
+    },
+    {
+      "id": "sns_emoji_018",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_018.png",
+      "size": 3281,
+      "gitBlobSha1": "e8cfc5e51aa2e39a92cd737cdd1f6e34c58e8230",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_018.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_018.png"
+    },
+    {
+      "id": "sns_emoji_019",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_019.png",
+      "size": 2820,
+      "gitBlobSha1": "1d5c796d0fa90beaf5527b2fb62ec95915019859",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_019.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_019.png"
+    },
+    {
+      "id": "sns_emoji_020",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_020.png",
+      "size": 3429,
+      "gitBlobSha1": "95dce0ed33c984737bec82af198b0456f1ca921c",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_020.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_020.png"
+    },
+    {
+      "id": "sns_emoji_021",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_021.png",
+      "size": 1362,
+      "gitBlobSha1": "a04c0af9c0d9317a33655f0dcd6713c0ea0bec87",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_021.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_021.png"
+    },
+    {
+      "id": "sns_emoji_022",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_022.png",
+      "size": 1838,
+      "gitBlobSha1": "d54efcea8c258ebf9d70a1f3af75278ca994931c",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_022.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_022.png"
+    },
+    {
+      "id": "sns_emoji_023",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_023.png",
+      "size": 2841,
+      "gitBlobSha1": "43dea7dc2e9655e874418d0d2815e4483aaea159",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_023.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_023.png"
+    },
+    {
+      "id": "sns_emoji_024",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_024.png",
+      "size": 2783,
+      "gitBlobSha1": "9f286778b6e8d50a6c3943a61af446c6bc94c3a5",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_024.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_024.png"
+    },
+    {
+      "id": "sns_emoji_026",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_026.png",
+      "size": 2432,
+      "gitBlobSha1": "f8fb70452cb1c6480b00b16b76b4fc86130bf9da",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_026.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_026.png"
+    },
+    {
+      "id": "sns_emoji_027",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_027.png",
+      "size": 1904,
+      "gitBlobSha1": "111ea15b76bcc3496f4c7ba897bdd51b9ea2bce8",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_027.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_027.png"
+    },
+    {
+      "id": "sns_emoji_028",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_028.png",
+      "size": 2562,
+      "gitBlobSha1": "92cfcb91e5bddede0e462a4ad1063e79b9e04b06",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_028.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_028.png"
+    },
+    {
+      "id": "sns_emoji_030",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_030.png",
+      "size": 3076,
+      "gitBlobSha1": "8bdae54bd4c9fdcf578ed05c060128feafa13a81",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_030.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_030.png"
+    },
+    {
+      "id": "sns_emoji_031",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_031.png",
+      "size": 3244,
+      "gitBlobSha1": "1452e19cbe533cc9703357bb34765af92c6848fe",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_031.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_031.png"
+    },
+    {
+      "id": "sns_emoji_032",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_032.png",
+      "size": 3315,
+      "gitBlobSha1": "f63a99a0c04cc0007bedf3d80cbc7f2164e2e9ad",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_032.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_032.png"
+    },
+    {
+      "id": "sns_emoji_035",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_035.png",
+      "size": 2306,
+      "gitBlobSha1": "d463c9ae063ec8197d8e0c563b8252b7c2dac756",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_035.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_035.png"
+    },
+    {
+      "id": "sns_emoji_036",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_036.png",
+      "size": 2358,
+      "gitBlobSha1": "649930880c87dad6e345cf665ca083955a4e758c",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_036.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_036.png"
+    },
+    {
+      "id": "sns_emoji_037",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_037.png",
+      "size": 1876,
+      "gitBlobSha1": "60f1682cdc4d94292212a0b8f307f6e935a9023c",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_037.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_037.png"
+    },
+    {
+      "id": "sns_emoji_038",
+      "path": "assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_038.png",
+      "size": 2746,
+      "gitBlobSha1": "5cb9e2f0b9031cd9fa8f6990c6fbf7f330668b4f",
+      "downloadUrl": "https://raw.githubusercontent.com/555me/EndfieldAssets/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_038.png",
+      "sourceUrl": "https://github.com/555me/EndfieldAssets/blob/966ed92d2556386a37e4ec076a812ff46ca2fae9/assets/beyond/dynamicassets/gameplay/ui/sprites/sns/emoji/sns_emoji_038.png"
+    }
+  ],
+  "mappings": [
+    {
+      "resource": "fm//Reading/reading_sm2l3m5_madina",
+      "assets": ["Reading/reading_sm2l3m5_madina_f", "Reading/reading_sm2l3m5_madina_m"],
+      "kind": "image",
+      "alt": "与玛蒂娜的合影",
+      "match": "gender-variants",
+      "documentIds": [
+        "endfield:archive:nar_digital_map02_11125_1",
+        "endfield:story:text_sm2l3m6_3"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "fm//Reading/sm1l1m6_4",
+      "assets": ["Reading/sm1l1m6_4_f", "Reading/sm1l1m6_4_m"],
+      "kind": "image",
+      "alt": "哈特曼档案",
+      "match": "gender-variants",
+      "documentIds": [
+        "endfield:archive:nar_sm1l1m6_Hatman_doc",
+        "endfield:story:text_map01_lv001_sm1l1m6_8",
+        "endfield:story:text_sm1l1m6_Hatman_doc"
+      ],
+      "occurrences": 3
+    },
+    {
+      "resource": "fm//Reading/sm1l1m6_5",
+      "assets": ["Reading/sm1l1m6_5_f", "Reading/sm1l1m6_5_m"],
+      "kind": "image",
+      "alt": "亚历山大档案",
+      "match": "gender-variants",
+      "documentIds": [
+        "endfield:archive:nar_sm1l1m6_Alexander_doc",
+        "endfield:story:text_map01_lv001_sm1l1m6_9",
+        "endfield:story:text_sm1l1m6_Alexander_doc"
+      ],
+      "occurrences": 3
+    },
+    {
+      "resource": "Reading/collection_e1m7_1",
+      "assets": ["Reading/collection_e1m7_1"],
+      "kind": "image",
+      "alt": "很酷的画",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_e1m7_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/collection_Hartman_badge",
+      "assets": ["Reading/collection_Hartman_badge"],
+      "kind": "image",
+      "alt": "哈特曼工牌的记录",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_sm1l1m4_2",
+        "endfield:story:text_map01_lv001_sm1l1m4_2"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_bloodyhand",
+      "assets": ["Reading/collection_ldz_bloodyhand"],
+      "kind": "image",
+      "alt": "乔斯特的记录",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_4", "endfield:story:text_sm1l1m2_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_bury",
+      "assets": ["Reading/collection_ldz_bury"],
+      "kind": "image",
+      "alt": "《试论碾骨氏族印记的源流及特色》",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_1", "endfield:story:text_sm1l1m2_1"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_enemy",
+      "assets": ["Reading/collection_ldz_enemy"],
+      "kind": "image",
+      "alt": "乔斯特的记录",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_4", "endfield:story:text_sm1l1m2_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_fire",
+      "assets": ["Reading/collection_ldz_fire"],
+      "kind": "image",
+      "alt": "乔斯特的记录",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_4", "endfield:story:text_sm1l1m2_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_full",
+      "assets": ["Reading/collection_ldz_full"],
+      "kind": "image",
+      "alt": "《试论碾骨氏族印记的源流及特色》",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_1", "endfield:story:text_sm1l1m2_1"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_leader",
+      "assets": ["Reading/collection_ldz_leader"],
+      "kind": "image",
+      "alt": "《试论碾骨氏族印记的源流及特色》",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_1", "endfield:story:text_sm1l1m2_1"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_night",
+      "assets": ["Reading/collection_ldz_night"],
+      "kind": "image",
+      "alt": "乔斯特的记录",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_4", "endfield:story:text_sm1l1m2_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_rain",
+      "assets": ["Reading/collection_ldz_rain"],
+      "kind": "image",
+      "alt": "乔斯特的记录",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_4", "endfield:story:text_sm1l1m2_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_refuge",
+      "assets": ["Reading/collection_ldz_refuge"],
+      "kind": "image",
+      "alt": "乔斯特的记录",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_4", "endfield:story:text_sm1l1m2_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_sun",
+      "assets": ["Reading/collection_ldz_sun"],
+      "kind": "image",
+      "alt": "乔斯特的记录",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_4", "endfield:story:text_sm1l1m2_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_team",
+      "assets": ["Reading/collection_ldz_team"],
+      "kind": "image",
+      "alt": "乔斯特的记录",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_4", "endfield:story:text_sm1l1m2_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_trash",
+      "assets": ["Reading/collection_ldz_trash"],
+      "kind": "image",
+      "alt": "乔斯特的记录",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_4", "endfield:story:text_sm1l1m2_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_treasure",
+      "assets": ["Reading/collection_ldz_treasure"],
+      "kind": "image",
+      "alt": "《试论碾骨氏族印记的源流及特色》",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_1", "endfield:story:text_sm1l1m2_1"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_ldz_worship",
+      "assets": ["Reading/collection_ldz_worship"],
+      "kind": "image",
+      "alt": "《试论碾骨氏族印记的源流及特色》",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_1", "endfield:story:text_sm1l1m2_1"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_listen_record",
+      "assets": ["Reading/collection_listen_record"],
+      "kind": "image",
+      "alt": "阿杜的录音带",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_f1m4d3_2"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/collection_read_letter",
+      "assets": ["Reading/collection_read_letter"],
+      "kind": "image",
+      "alt": "给管理员的信",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_paper_map02_12147_1", "endfield:story:text_e10m3_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_read_note",
+      "assets": ["Reading/collection_read_note"],
+      "kind": "image",
+      "alt": "源石副产物中心的观察结果（三）",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_paper_map01_16_1",
+        "endfield:story:text_map01_lv001_82"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_sm1l1m4_arrowrelic",
+      "assets": ["Reading/collection_sm1l1m4_arrowrelic"],
+      "kind": "image",
+      "alt": "弩箭残片的记录",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_sm1l1m4_1",
+        "endfield:story:text_map01_lv001_sm1l1m4_1"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/collection_sm1l5m2_1",
+      "assets": ["Reading/collection_sm1l5m2_1"],
+      "kind": "image",
+      "alt": "艾维文娜的私人名片",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l5m2_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/docuement_WulingArea_intro",
+      "assets": ["Reading/docuement_WulingArea_intro"],
+      "kind": "image",
+      "alt": "武陵地区",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_23_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Aburrey_intro",
+      "assets": ["Reading/document_Aburrey_intro"],
+      "kind": "image",
+      "alt": "英雄阿伯莉",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_12_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_AIC_intro",
+      "assets": ["Reading/document_AIC_intro"],
+      "kind": "image",
+      "alt": "集成工业系统（AIC）",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_33_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_AncestralSpring_intro",
+      "assets": ["Reading/document_AncestralSpring_intro"],
+      "kind": "image",
+      "alt": "祖泉",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d2_8_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_angel_intro",
+      "assets": ["Reading/document_angel_intro"],
+      "kind": "image",
+      "alt": "天使",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_37_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_aurora_intro",
+      "assets": ["Reading/document_aurora_intro"],
+      "kind": "image",
+      "alt": "塔卫二的极光",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_39_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_BeastLords_intro",
+      "assets": ["Reading/document_BeastLords_intro"],
+      "kind": "image",
+      "alt": "兽主",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d5_3_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_blight_intro",
+      "assets": ["Reading/document_blight_intro"],
+      "kind": "image",
+      "alt": "侵蚀",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_35_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Blightshade_intro",
+      "assets": ["Reading/document_Blightshade_intro"],
+      "kind": "image",
+      "alt": "蚀影",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d4_3_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_civilizationBand_intro",
+      "assets": ["Reading/document_civilizationBand_intro"],
+      "kind": "image",
+      "alt": "文明环带",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_7_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_cosmicGate_intro",
+      "assets": ["Reading/document_cosmicGate_intro"],
+      "kind": "image",
+      "alt": "星门",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_5_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_cradleOfTheAges_intro",
+      "assets": ["Reading/document_cradleOfTheAges_intro"],
+      "kind": "image",
+      "alt": "世代摇篮",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_14_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_denstack_intro",
+      "assets": ["Reading/document_denstack_intro"],
+      "kind": "image",
+      "alt": "巢雕",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_11_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Dijiang_intro",
+      "assets": ["Reading/document_Dijiang_intro"],
+      "kind": "image",
+      "alt": "帝江号",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_30_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Endfield_intro",
+      "assets": ["Reading/document_Endfield_intro"],
+      "kind": "image",
+      "alt": "终末地工业",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_26_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Ether_intro",
+      "assets": ["Reading/document_Ether_intro"],
+      "kind": "image",
+      "alt": "超域",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_8_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_EtherTestSite_intro",
+      "assets": ["Reading/document_EtherTestSite_intro"],
+      "kind": "image",
+      "alt": "超域试验场",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_15_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_ethnicity_intro",
+      "assets": ["Reading/document_ethnicity_intro"],
+      "kind": "image",
+      "alt": "种族",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_4_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Feranmuts_intro",
+      "assets": ["Reading/document_Feranmuts_intro"],
+      "kind": "image",
+      "alt": "巨兽",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d5_2_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_firstAngelWar_intro",
+      "assets": ["Reading/document_firstAngelWar_intro"],
+      "kind": "image",
+      "alt": "第一次天使战争",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_6_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_HannabtCircuit_intro",
+      "assets": ["Reading/document_HannabtCircuit_intro"],
+      "kind": "image",
+      "alt": "众生长地",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d2_2_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_HAS_intro",
+      "assets": ["Reading/document_HAS_intro"],
+      "kind": "image",
+      "alt": "宏山科学院",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_28_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_HongshanBureauofSwordmancers_intro",
+      "assets": ["Reading/document_HongshanBureauofSwordmancers_intro"],
+      "kind": "image",
+      "alt": "宏山选剑局",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d2_10_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Huawu_intro",
+      "assets": ["Reading/document_Huawu_intro"],
+      "kind": "image",
+      "alt": "化物",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d6_2_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_hubBase_intro",
+      "assets": ["Reading/document_hubBase_intro"],
+      "kind": "image",
+      "alt": "枢纽区基地",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_10_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_ITheFoundationI_intro",
+      "assets": ["Reading/document_ITheFoundationI_intro"],
+      "kind": "image",
+      "alt": "基石",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d4_4_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_landbreaker_intro",
+      "assets": ["Reading/document_landbreaker_intro"],
+      "kind": "image",
+      "alt": "裂地者",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_38_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_MarkerStone_intro",
+      "assets": ["Reading/document_MarkerStone_intro"],
+      "kind": "image",
+      "alt": "首墩",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d2_9_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_NorthWulingExclusionZone_intro",
+      "assets": ["Reading/document_NorthWulingExclusionZone_intro"],
+      "kind": "image",
+      "alt": "北部禁区",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d4_5_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_originium_intro",
+      "assets": ["Reading/document_originium_intro"],
+      "kind": "image",
+      "alt": "源石",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_2_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_originiumTALOSII_intro",
+      "assets": ["Reading/document_originiumTALOSII_intro"],
+      "kind": "image",
+      "alt": "源石在塔卫二",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_31_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_originiumTech_intro",
+      "assets": ["Reading/document_originiumTech_intro"],
+      "kind": "image",
+      "alt": "源石技艺和源石技术",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_3_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_protocolOriginium_intro",
+      "assets": ["Reading/document_protocolOriginium_intro"],
+      "kind": "image",
+      "alt": "协议源石",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_32_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Qingbo_intro",
+      "assets": ["Reading/document_Qingbo_intro"],
+      "kind": "image",
+      "alt": "清波寨",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d1_1_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_QingboHeroes_intro",
+      "assets": ["Reading/document_QingboHeroes_intro"],
+      "kind": "image",
+      "alt": "清波豪杰",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d3_1_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_reconvener_intro",
+      "assets": ["Reading/document_reconvener_intro"],
+      "kind": "image",
+      "alt": "再旅者",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_40_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_SamitheFeranmut_intro",
+      "assets": ["Reading/document_samitheferanmut_intro"],
+      "kind": "image",
+      "alt": "萨米维格",
+      "match": "case-insensitive-alias",
+      "documentIds": ["endfield:archive:nar_document_v1d5_1_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Sipainting_intro",
+      "assets": ["Reading/document_Sipainting_intro"],
+      "kind": "image",
+      "alt": "祀的画",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d6_1_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_stragglersGrove_intro",
+      "assets": ["Reading/document_stragglersGrove_intro"],
+      "kind": "image",
+      "alt": "迷踪林与竹林虫",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_17_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_SwordVaultDale_intro",
+      "assets": ["Reading/document_SwordVaultDale_intro"],
+      "kind": "image",
+      "alt": "藏剑谷",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d3_2_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_TALOSII_intro",
+      "assets": ["Reading/document_TALOSII_intro"],
+      "kind": "image",
+      "alt": "塔卫二",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_25_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Terra_intro",
+      "assets": ["Reading/document_Terra_intro"],
+      "kind": "image",
+      "alt": "泰拉",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_1_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_TGCC_intro",
+      "assets": ["Reading/document_TGCC_intro"],
+      "kind": "image",
+      "alt": "环塔商会",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_29_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_tianshiPillar_intro",
+      "assets": ["Reading/document_tianshiPillar_intro"],
+      "kind": "image",
+      "alt": "天师桩",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_18_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_utjugOrder_intro",
+      "assets": ["Reading/document_utjugOrder_intro"],
+      "kind": "image",
+      "alt": "烙铁指令",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_16_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_UWST_intro",
+      "assets": ["Reading/document_UWST_intro"],
+      "kind": "image",
+      "alt": "联盟工团",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_27_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Valley4_intro",
+      "assets": ["Reading/document_Valley4_intro"],
+      "kind": "image",
+      "alt": "四号谷地",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_34_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Wuling_intro",
+      "assets": ["Reading/document_Wuling_intro"],
+      "kind": "image",
+      "alt": "武陵城",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_19_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_WulingTianshiBureauAcademy_intro",
+      "assets": ["Reading/document_WulingTianshiBureauAcademy_intro"],
+      "kind": "image",
+      "alt": "天师府学院",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d2_7_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_xiranite_intro",
+      "assets": ["Reading/document_xiranite_intro"],
+      "kind": "image",
+      "alt": "息壤",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_24_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_XiraniteNexus_intro",
+      "assets": ["Reading/document_XiraniteNexus_intro"],
+      "kind": "image",
+      "alt": "枢壤仪",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d2_12_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_Yan_intro",
+      "assets": ["Reading/document_Yan_intro"],
+      "kind": "image",
+      "alt": "炎国",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d2_6_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_YinglungPass_intro",
+      "assets": ["Reading/document_YinglungPass_intro"],
+      "kind": "image",
+      "alt": "应龙关",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d4_2_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_YinglungSpecialTaskForce_intro",
+      "assets": ["Reading/document_YinglungSpecialTaskForce_intro"],
+      "kind": "image",
+      "alt": "应龙特勤队",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v1d2_1_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/document_zerothDirective_intro",
+      "assets": ["Reading/document_zerothDirective_intro"],
+      "kind": "image",
+      "alt": "零号委托",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_9_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/ducument_WulingVeryLargeRift_intro",
+      "assets": ["Reading/ducument_WulingVeryLargeRift_intro"],
+      "kind": "image",
+      "alt": "武陵甚大裂隙",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_document_v0d8_21_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/f_reading_sm2l10m3_photo",
+      "assets": ["Reading/f_reading_sm2l10m3_photo"],
+      "kind": "image",
+      "alt": "纪念日 · text 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:text_sm2l10m3_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/gm01m16_bottle",
+      "assets": ["Reading/gm01m16_bottle"],
+      "kind": "image",
+      "alt": "幻觉 · text 7",
+      "match": "exact",
+      "documentIds": ["endfield:story:text_gm01m16_7"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/m_reading_sm2l10m3_photo",
+      "assets": ["Reading/m_reading_sm2l10m3_photo"],
+      "kind": "image",
+      "alt": "纪念日 · text 2",
+      "match": "exact",
+      "documentIds": ["endfield:story:text_sm2l10m3_2"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/reading_002_settlement_sns",
+      "assets": ["Reading/reading_002_settlement_sns"],
+      "kind": "image",
+      "alt": "定居地全貌",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_002_settlement"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/reading_c13m3_letter",
+      "assets": ["Reading/reading_c13m3_letter"],
+      "kind": "image",
+      "alt": "空白的信纸",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_c13m3_2", "endfield:story:text_c13m3_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_c16m2_notebook",
+      "assets": ["Reading/reading_c16m2_notebook"],
+      "kind": "image",
+      "alt": "莱万汀的笔记本",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_collection_map01_129_1", "endfield:story:text_c16m4_8"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_c17m3_paintcan",
+      "assets": ["Reading/reading_c17m3_paintcan"],
+      "kind": "image",
+      "alt": "伊冯的颜料罐",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_collection_map01_100_1", "endfield:story:text_c17m3_2"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_c27m2_tangtangticket",
+      "assets": ["Reading/reading_c27m2_tangtangticket"],
+      "kind": "image",
+      "alt": "一筐汤汤券",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_collection_map02_11124_1",
+        "endfield:story:text_c27m2_1"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_c31m3_photo",
+      "assets": ["Reading/reading_c31m3_photo"],
+      "kind": "image",
+      "alt": "弭弗的拳套",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_collection_map02_13007_1",
+        "endfield:story:text_c31m3_1"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_c34m_forestmap",
+      "assets": ["Reading/reading_c34m_forestmap"],
+      "kind": "image",
+      "alt": "绘在墙壁上的林地地图",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_collection_map02_15020_1",
+        "endfield:story:text_c34m1_8",
+        "endfield:story:text_c34m1_9"
+      ],
+      "occurrences": 3
+    },
+    {
+      "resource": "Reading/reading_collection_amulet",
+      "assets": ["Reading/reading_collection_amulet"],
+      "kind": "image",
+      "alt": "护身符",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_collection_map02_95_1",
+        "endfield:story:text_sm2l3m2_2"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_e1m3_painting",
+      "assets": ["Reading/reading_e1m3_painting"],
+      "kind": "image",
+      "alt": "线条潦草的涂画",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_paper_map01_121_1", "endfield:story:text_e1m3_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_e6m3_zhuangfygift",
+      "assets": ["Reading/reading_e6m3_zhuangfygift"],
+      "kind": "image",
+      "alt": "“幸运签”",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_collection_map02_68_1", "endfield:story:text_e6m3_4"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_e6m5_tangtanggift",
+      "assets": ["Reading/reading_e6m5_tangtanggift"],
+      "kind": "image",
+      "alt": "寨民的礼物",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_collection_map02_69_1", "endfield:story:text_e6m5_1"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_e8m1_suishou",
+      "assets": ["Reading/reading_e8m1_suishou"],
+      "kind": "image",
+      "alt": "巨兽研究天师的留言",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_paper_map02_12146_1", "endfield:story:text_e8m1_1"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_e8m4_coin",
+      "assets": ["Reading/reading_e8m4_coin"],
+      "kind": "image",
+      "alt": "古老的第纳尔金币",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_collection_map02_12136_1",
+        "endfield:story:text_e8m4_1"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_f1m19d1_pic01",
+      "assets": ["Reading/reading_f1m19d1_pic01"],
+      "kind": "image",
+      "alt": "方兴衢-被追捧的龙泡泡",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_digital_map02_12138_1",
+        "endfield:story:text_f1m19d1_6"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_f1m19d1_pic02",
+      "assets": ["Reading/reading_f1m19d1_pic02"],
+      "kind": "image",
+      "alt": "市民广场-迁徙的羽兽",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_digital_map02_12139_1",
+        "endfield:story:text_f1m19d1_5"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_f1m19d1_pic03",
+      "assets": ["Reading/reading_f1m19d1_pic03"],
+      "kind": "image",
+      "alt": "天师府学院-天师考校挂幅",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_digital_map02_12140_1",
+        "endfield:story:text_f1m19d1_7"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_f1m19d1_pic04",
+      "assets": ["Reading/reading_f1m19d1_pic04"],
+      "kind": "image",
+      "alt": "材料研究所-苦恼的天师",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_digital_map02_12141_1",
+        "endfield:story:text_f1m19d1_8"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_f1m4_can",
+      "assets": ["Reading/reading_f1m4_can"],
+      "kind": "image",
+      "alt": "索斯的柑实罐头",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_f1m4d3_3"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/reading_f1m4_painting",
+      "assets": ["Reading/reading_f1m4_painting"],
+      "kind": "image",
+      "alt": "阿吉的画",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_f1m4d3_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/reading_gm01m17_robot",
+      "assets": ["Reading/reading_gm01m17_robot"],
+      "kind": "image",
+      "alt": "布龙泽的工具包",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_col_gm01m17", "endfield:story:text_gm01m17_1"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_gm02m27_cangbaotu",
+      "assets": ["Reading/reading_gm02m27_cangbaotu"],
+      "kind": "image",
+      "alt": "map02_research11 · text 3",
+      "match": "exact",
+      "documentIds": ["endfield:story:text_map02_research11_3"],
+      "occurrences": 1
+    },
+    {
+      "resource": "Reading/reading_prts_001_1",
+      "assets": ["Reading/reading_prts_001_1"],
+      "kind": "image",
+      "alt": "源石副产物中心的观察结果（一）",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_digital_map01_14_1",
+        "endfield:story:text_map01_lv001_85"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_prts_001_2",
+      "assets": ["Reading/reading_prts_001_2"],
+      "kind": "image",
+      "alt": "源石副产物中心的观察结果（二）",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_digital_map01_15_1",
+        "endfield:story:text_map01_lv001_83"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_prts_lottery",
+      "assets": ["Reading/reading_prts_lottery"],
+      "kind": "image",
+      "alt": "高威力爆炸物套组兑换券",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_collection_map01_10_1",
+        "endfield:story:text_map01_lv001_81"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_read_file",
+      "assets": ["Reading/reading_read_file"],
+      "kind": "image",
+      "alt": "《裂地者秘宝传说》之《无色印记》",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_sm1l1m2_2", "endfield:story:text_sm1l1m2_2"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_sm1l3m3_flag",
+      "assets": ["Reading/reading_sm1l3m3_flag"],
+      "kind": "image",
+      "alt": "工团荣誉锦旗",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_collection_map01_82_1",
+        "endfield:story:text_sm1l3m3_1"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_sm2l1m5_photo",
+      "assets": ["Reading/reading_sm2l1m5_photo"],
+      "kind": "image",
+      "alt": "小吴与蟠兽的合照",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_collection_map02_96_1",
+        "endfield:story:text_sm2l1m5_1"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_sm2l3m4_bamboobell",
+      "assets": ["Reading/reading_sm2l3m4_bamboobell"],
+      "kind": "image",
+      "alt": "水竹铃的照片",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_digital_map02_11126_1",
+        "endfield:story:text_sm2l3m6_4"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/reading_sm2l6m1_yujian",
+      "assets": ["Reading/reading_sm2l6m1_yujian"],
+      "kind": "image",
+      "alt": "古旧玉简",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_collection_map02_13006_1",
+        "endfield:story:text_map02_lv006_13001"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/sm1l1m6_Alexander_photo",
+      "assets": ["Reading/sm1l1m6_Alexander_photo"],
+      "kind": "image",
+      "alt": "亚历山大档案",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_sm1l1m5_Alexander_1",
+        "endfield:archive:nar_sm1l1m5_Alexander_2",
+        "endfield:archive:nar_sm1l1m5_Alexander_3",
+        "endfield:archive:nar_sm1l1m6_Alexander_doc",
+        "endfield:story:text_sm1l1m5_Alexander_1",
+        "endfield:story:text_sm1l1m5_Alexander_2",
+        "endfield:story:text_sm1l1m5_Alexander_3",
+        "endfield:story:text_sm1l1m6_Alexander_doc"
+      ],
+      "occurrences": 8
+    },
+    {
+      "resource": "Reading/sm1l1m6_Hans_photo",
+      "assets": ["Reading/sm1l1m6_Hans_photo"],
+      "kind": "image",
+      "alt": "老汉斯档案",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_sm1l1m5_Hans_1",
+        "endfield:archive:nar_sm1l1m5_Hans_2",
+        "endfield:archive:nar_sm1l1m5_Hans_3",
+        "endfield:archive:nar_sm1l1m6_Hans_doc",
+        "endfield:story:text_sm1l1m5_Hans_1",
+        "endfield:story:text_sm1l1m5_Hans_2",
+        "endfield:story:text_sm1l1m5_Hans_3",
+        "endfield:story:text_sm1l1m6_Hans_doc"
+      ],
+      "occurrences": 8
+    },
+    {
+      "resource": "Reading/sm1l1m6_Hatman_photo",
+      "assets": ["Reading/sm1l1m6_Hatman_photo"],
+      "kind": "image",
+      "alt": "哈特曼档案",
+      "match": "exact",
+      "documentIds": [
+        "endfield:archive:nar_sm1l1m4_hatman_1",
+        "endfield:archive:nar_sm1l1m4_hatman_2",
+        "endfield:archive:nar_sm1l1m4_hatman_3",
+        "endfield:archive:nar_sm1l1m5_hatman_1",
+        "endfield:archive:nar_sm1l1m5_hatman_2",
+        "endfield:archive:nar_sm1l1m5_hatman_3",
+        "endfield:archive:nar_sm1l1m6_Hatman_doc",
+        "endfield:story:text_sm1l1m4_hatman_1",
+        "endfield:story:text_sm1l1m4_hatman_2",
+        "endfield:story:text_sm1l1m4_hatman_3",
+        "endfield:story:text_sm1l1m5_hatman_1",
+        "endfield:story:text_sm1l1m5_hatman_2",
+        "endfield:story:text_sm1l1m5_hatman_3",
+        "endfield:story:text_sm1l1m6_Hatman_doc"
+      ],
+      "occurrences": 14
+    },
+    {
+      "resource": "Reading/sm1l7m1_1",
+      "assets": ["Reading/sm1l7m1_1"],
+      "kind": "image",
+      "alt": "监控图（一）",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_digital_map01_103_2", "endfield:story:text_sm1l7m1_6"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/sm1l7m1_2",
+      "assets": ["Reading/sm1l7m1_2"],
+      "kind": "image",
+      "alt": "监控图（二）",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_digital_map01_103_3", "endfield:story:text_sm1l7m1_7"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/sm1l7m1_3",
+      "assets": ["Reading/sm1l7m1_3"],
+      "kind": "image",
+      "alt": "监控图（三）",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_digital_map01_103_4", "endfield:story:text_sm1l7m1_8"],
+      "occurrences": 2
+    },
+    {
+      "resource": "Reading/sm1l7m1_4",
+      "assets": ["Reading/sm1l7m1_4"],
+      "kind": "image",
+      "alt": "叛徒的价码",
+      "match": "exact",
+      "documentIds": ["endfield:archive:nar_paper_map01_107_1", "endfield:story:text_sm1l7m1_10"],
+      "occurrences": 2
+    },
+    {
+      "resource": "WalletIcon/item_domain_tundra_coupon",
+      "assets": ["WalletIcon/item_domain_tundra_coupon"],
+      "kind": "icon",
+      "alt": "调度券",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:dlg_f1m3_1",
+        "endfield:story:dlg_f1m3_3",
+        "endfield:story:dlg_f1m3d1_1"
+      ],
+      "occurrences": 7
+    },
+    {
+      "resource": "sns_002_settlement",
+      "assets": ["sns_002_settlement"],
+      "kind": "image",
+      "alt": "据点建设·难民暂居处·其一 · SNS 对话 4",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_f1m4d1_4"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_emoji_001",
+      "assets": ["sns_emoji_001"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_f1m4d1_4",
+        "endfield:story:sns_topic_chr_0035_liino_14002",
+        "endfield:story:sns_topic_map01_lv001_5",
+        "endfield:story:sns_topic_map01_lv003_2"
+      ],
+      "occurrences": 6
+    },
+    {
+      "resource": "sns_emoji_002",
+      "assets": ["sns_emoji_002"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_topic_chr_0013_aglina_3",
+        "endfield:story:sns_topic_chr_0021_whiten_1"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "sns_emoji_003",
+      "assets": ["sns_emoji_003"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_f1m4d1_1", "endfield:story:sns_topic_chr_0004_pelica_3"],
+      "occurrences": 2
+    },
+    {
+      "resource": "sns_emoji_004",
+      "assets": ["sns_emoji_004"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_a1m15_1",
+        "endfield:story:sns_topic_chr_0022_bounda_2",
+        "endfield:story:sns_topic_chr_0022_bounda_3",
+        "endfield:story:sns_topic_chr_0035_liino_14001"
+      ],
+      "occurrences": 4
+    },
+    {
+      "resource": "sns_emoji_005",
+      "assets": ["sns_emoji_005"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_f1m4d1_2",
+        "endfield:story:sns_f1m4d1_4",
+        "endfield:story:sns_topic_chr_0004_pelica_2",
+        "endfield:story:sns_topic_chr_0005_chen_2",
+        "endfield:story:sns_topic_map01_lv002_4"
+      ],
+      "occurrences": 7
+    },
+    {
+      "resource": "sns_emoji_006",
+      "assets": ["sns_emoji_006"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_topic_chr_0014_aurora_3",
+        "endfield:story:sns_topic_chr_0017_yvonne_3",
+        "endfield:story:sns_topic_chr_0035_liino_14001",
+        "endfield:story:sns_topic_chr_0035_liino_14002",
+        "endfield:story:sns_topic_chr_0038_purrchena_15002",
+        "endfield:story:sns_topic_map01_lv006_1"
+      ],
+      "occurrences": 9
+    },
+    {
+      "resource": "sns_emoji_008",
+      "assets": ["sns_emoji_008"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_f1m19d3_1",
+        "endfield:story:sns_topic_chr_0013_aglina_2",
+        "endfield:story:sns_topic_chr_0017_yvonne_2",
+        "endfield:story:sns_topic_chr_0026_lastrite_2",
+        "endfield:story:sns_topic_chr_0028_wulfa_3",
+        "endfield:story:sns_topic_chr_0038_purrchena_15003",
+        "endfield:story:sns_topic_map01_lv002_7",
+        "endfield:story:sns_topic_map01_lv003_2",
+        "endfield:story:sns_topic_map02_lv001_4"
+      ],
+      "occurrences": 15
+    },
+    {
+      "resource": "sns_emoji_009",
+      "assets": ["sns_emoji_009"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_f1m9d2_1",
+        "endfield:story:sns_topic_chr_0015_lifeng_2",
+        "endfield:story:sns_topic_chr_0026_lastrite_1",
+        "endfield:story:sns_topic_chr_0026_lastrite_2"
+      ],
+      "occurrences": 5
+    },
+    {
+      "resource": "sns_emoji_011",
+      "assets": ["sns_emoji_011"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_gm02m12_1",
+        "endfield:story:sns_m1m24_1",
+        "endfield:story:sns_topic_chr_0004_pelica_2",
+        "endfield:story:sns_topic_chr_0005_chen_2",
+        "endfield:story:sns_topic_chr_0017_yvonne_2",
+        "endfield:story:sns_topic_chr_0024_deepfin_1",
+        "endfield:story:sns_topic_map02_lv006_13002"
+      ],
+      "occurrences": 7
+    },
+    {
+      "resource": "sns_emoji_012",
+      "assets": ["sns_emoji_012"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_topic_chr_0017_yvonne_1",
+        "endfield:story:sns_topic_chr_0017_yvonne_2",
+        "endfield:story:sns_topic_chr_0017_yvonne_3",
+        "endfield:story:sns_topic_chr_0023_antal_3",
+        "endfield:story:sns_topic_chr_0038_purrchena_15003"
+      ],
+      "occurrences": 10
+    },
+    {
+      "resource": "sns_emoji_013",
+      "assets": ["sns_emoji_013"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_f1m18d1_2",
+        "endfield:story:sns_f1m19d3_1",
+        "endfield:story:sns_f1m4d1_3",
+        "endfield:story:sns_topic_chr_0015_lifeng_1",
+        "endfield:story:sns_topic_chr_0019_karin_2"
+      ],
+      "occurrences": 6
+    },
+    {
+      "resource": "sns_emoji_014",
+      "assets": ["sns_emoji_014"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_a1m16d2_1",
+        "endfield:story:sns_a1m6d1_1",
+        "endfield:story:sns_topic_chr_0038_purrchena_15003",
+        "endfield:story:sns_topic_map01_lv007_2"
+      ],
+      "occurrences": 4
+    },
+    {
+      "resource": "sns_emoji_015",
+      "assets": ["sns_emoji_015"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_sm2l6m1_1",
+        "endfield:story:sns_topic_chr_0011_seraph_3",
+        "endfield:story:sns_topic_chr_0015_lifeng_3",
+        "endfield:story:sns_topic_map01_lv001_4",
+        "endfield:story:sns_topic_map01_lv002_4",
+        "endfield:story:sns_topic_map01_lv002_7"
+      ],
+      "occurrences": 7
+    },
+    {
+      "resource": "sns_emoji_016",
+      "assets": ["sns_emoji_016"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_a1m15_1",
+        "endfield:story:sns_c13m3_2",
+        "endfield:story:sns_sm1l6m1_1",
+        "endfield:story:sns_topic_chr_0013_aglina_2"
+      ],
+      "occurrences": 4
+    },
+    {
+      "resource": "sns_emoji_017",
+      "assets": ["sns_emoji_017"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_topic_chr_0004_pelica_3",
+        "endfield:story:sns_topic_chr_0017_yvonne_3",
+        "endfield:story:sns_topic_chr_0019_karin_2",
+        "endfield:story:sns_topic_chr_0038_purrchena_15003",
+        "endfield:story:sns_topic_map01_lv001_4"
+      ],
+      "occurrences": 5
+    },
+    {
+      "resource": "sns_emoji_018",
+      "assets": ["sns_emoji_018"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0004_pelica_3"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_emoji_019",
+      "assets": ["sns_emoji_019"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_topic_chr_0011_seraph_1",
+        "endfield:story:sns_topic_chr_0011_seraph_2",
+        "endfield:story:sns_topic_chr_0011_seraph_3",
+        "endfield:story:sns_topic_chr_0024_deepfin_3",
+        "endfield:story:sns_topic_chr_0026_lastrite_2",
+        "endfield:story:sns_topic_chr_0026_lastrite_3",
+        "endfield:story:sns_topic_chr_0028_wulfa_3",
+        "endfield:story:sns_topic_chr_0035_liino_14003",
+        "endfield:story:sns_topic_map01_lv001_2",
+        "endfield:story:sns_topic_map01_lv006_1"
+      ],
+      "occurrences": 11
+    },
+    {
+      "resource": "sns_emoji_020",
+      "assets": ["sns_emoji_020"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0017_yvonne_2"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_emoji_021",
+      "assets": ["sns_emoji_021"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0017_yvonne_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_emoji_022",
+      "assets": ["sns_emoji_022"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_f1m4d2_1",
+        "endfield:story:sns_topic_chr_0017_yvonne_1",
+        "endfield:story:sns_topic_chr_0017_yvonne_2",
+        "endfield:story:sns_topic_chr_0017_yvonne_3",
+        "endfield:story:sns_topic_chr_0026_lastrite_3",
+        "endfield:story:sns_topic_chr_0035_liino_14001",
+        "endfield:story:sns_topic_chr_0035_liino_14002",
+        "endfield:story:sns_topic_chr_0035_liino_14003"
+      ],
+      "occurrences": 13
+    },
+    {
+      "resource": "sns_emoji_023",
+      "assets": ["sns_emoji_023"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_f1m4d1_3",
+        "endfield:story:sns_sm1l1m5_2",
+        "endfield:story:sns_topic_chr_0024_deepfin_3"
+      ],
+      "occurrences": 3
+    },
+    {
+      "resource": "sns_emoji_024",
+      "assets": ["sns_emoji_024"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_topic_map01_lv002_3",
+        "endfield:story:sns_topic_map01_lv002_4",
+        "endfield:story:sns_topic_map01_lv003_2"
+      ],
+      "occurrences": 3
+    },
+    {
+      "resource": "sns_emoji_026",
+      "assets": ["sns_emoji_026"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0031_mifu_13001"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_emoji_027",
+      "assets": ["sns_emoji_027"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_topic_chr_0022_bounda_1",
+        "endfield:story:sns_topic_chr_0022_bounda_2"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "sns_emoji_028",
+      "assets": ["sns_emoji_028"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0026_lastrite_2"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_emoji_030",
+      "assets": ["sns_emoji_030"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_f1m18d3_2",
+        "endfield:story:sns_topic_chr_0011_seraph_2",
+        "endfield:story:sns_topic_chr_0017_yvonne_1",
+        "endfield:story:sns_topic_chr_0017_yvonne_2",
+        "endfield:story:sns_topic_chr_0017_yvonne_3",
+        "endfield:story:sns_topic_chr_0026_lastrite_3"
+      ],
+      "occurrences": 8
+    },
+    {
+      "resource": "sns_emoji_031",
+      "assets": ["sns_emoji_031"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_topic_chr_0011_seraph_1",
+        "endfield:story:sns_topic_chr_0036_jsspsi_16002"
+      ],
+      "occurrences": 5
+    },
+    {
+      "resource": "sns_emoji_032",
+      "assets": ["sns_emoji_032"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_f1m18d1_2",
+        "endfield:story:sns_f1m18d2_1",
+        "endfield:story:sns_f1m18d2_2",
+        "endfield:story:sns_f1m4d1_1",
+        "endfield:story:sns_topic_chr_0009_azrila_2",
+        "endfield:story:sns_topic_chr_0013_aglina_3",
+        "endfield:story:sns_topic_chr_0016_laevat_2",
+        "endfield:story:sns_topic_chr_0026_lastrite_3",
+        "endfield:story:sns_topic_chr_0038_purrchena_15002"
+      ],
+      "occurrences": 18
+    },
+    {
+      "resource": "sns_emoji_035",
+      "assets": ["sns_emoji_035"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_f1m4d2_1",
+        "endfield:story:sns_topic_chr_0026_lastrite_3"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "sns_emoji_036",
+      "assets": ["sns_emoji_036"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_topic_chr_0004_pelica_3",
+        "endfield:story:sns_topic_chr_0017_yvonne_2"
+      ],
+      "occurrences": 2
+    },
+    {
+      "resource": "sns_emoji_037",
+      "assets": ["sns_emoji_037"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_f1m7d1_2",
+        "endfield:story:sns_sm1l3m1_1",
+        "endfield:story:sns_topic_chr_0004_pelica_3",
+        "endfield:story:sns_topic_chr_0025_ardelia_3",
+        "endfield:story:sns_topic_chr_0031_mifu_13002",
+        "endfield:story:sns_topic_chr_0031_mifu_13003",
+        "endfield:story:sns_topic_map01_lv002_4"
+      ],
+      "occurrences": 9
+    },
+    {
+      "resource": "sns_emoji_038",
+      "assets": ["sns_emoji_038"],
+      "kind": "icon",
+      "alt": "社交表情",
+      "match": "exact",
+      "documentIds": [
+        "endfield:story:sns_f1m18d2_2",
+        "endfield:story:sns_f1m18d3_2",
+        "endfield:story:sns_f1m4d1_4",
+        "endfield:story:sns_sm1l1m5_2",
+        "endfield:story:sns_topic_chr_0013_aglina_2",
+        "endfield:story:sns_topic_chr_0017_yvonne_3",
+        "endfield:story:sns_topic_chr_0026_lastrite_2",
+        "endfield:story:sns_topic_chr_0026_lastrite_3",
+        "endfield:story:sns_topic_map01_lv002_6",
+        "endfield:story:sns_topic_map01_lv003_3",
+        "endfield:story:sns_topic_map02_lv006_13002"
+      ],
+      "occurrences": 11
+    },
+    {
+      "resource": "sns_image_c13m1_1",
+      "assets": ["sns_image_c13m1_1"],
+      "kind": "image",
+      "alt": "sns_test_pic · SNS 对话",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_test_pic"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_c28m1_sample",
+      "assets": ["sns_image_c28m1_sample"],
+      "kind": "image",
+      "alt": "跟着红色的影子 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_c28m1_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_c35m1_1",
+      "assets": ["sns_image_c35m1_1"],
+      "kind": "image",
+      "alt": "晨星降临 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_c35m1_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_chr_0034_1_1",
+      "assets": ["sns_image_chr_0034_1_1"],
+      "kind": "image",
+      "alt": "提弗洛斯 · SNS 对话 15001",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0034_typhoea_15001"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_chr_0034_2_1",
+      "assets": ["sns_image_chr_0034_2_1"],
+      "kind": "image",
+      "alt": "提弗洛斯 · SNS 对话 15002",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0034_typhoea_15002"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_chr_0035_3_1",
+      "assets": ["sns_image_chr_0035_3_1"],
+      "kind": "image",
+      "alt": "梨诺 · SNS 对话 14003",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0035_liino_14003"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_e7m4_1",
+      "assets": ["sns_image_e7m4_1"],
+      "kind": "image",
+      "alt": "旧泉涸处新潮生 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_e7m4_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_f1m19d3_1",
+      "assets": ["sns_image_f1m19d3_1"],
+      "kind": "image",
+      "alt": "据点建设·心脏修缮站·三 · SNS 对话 2",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_f1m19d3_2"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_f1m29_001",
+      "assets": ["sns_image_f1m29_001"],
+      "kind": "image",
+      "alt": "据点部署·盈天台建设站 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_f1m29d1_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_f1m29_002",
+      "assets": ["sns_image_f1m29_002"],
+      "kind": "image",
+      "alt": "据点部署·盈天台建设站 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_f1m29d1_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_f1m29_004",
+      "assets": ["sns_image_f1m29_004"],
+      "kind": "image",
+      "alt": "据点部署·盈天台建设站 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_f1m29d1_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_gm02m12_1",
+      "assets": ["sns_image_gm02m12_1"],
+      "kind": "image",
+      "alt": "致后来人 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_gm02m12_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_m1m24_1",
+      "assets": ["sns_image_m1m24_1"],
+      "kind": "image",
+      "alt": "生产工业爆炸物 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_m1m24_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_sm1l1m6_4_f",
+      "assets": ["sns_image_sm1l1m6_4_f"],
+      "kind": "image",
+      "alt": "sns_test_pic · SNS 对话",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_test_pic"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_sm1l1m6_4_m",
+      "assets": ["sns_image_sm1l1m6_4_m"],
+      "kind": "image",
+      "alt": "sns_test_pic · SNS 对话",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_test_pic"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_sm1l3m2_1",
+      "assets": ["sns_image_sm1l3m2_1"],
+      "kind": "image",
+      "alt": "修复大型起重机 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_sm1l3m2_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_sm1l6m1_1",
+      "assets": ["sns_image_sm1l6m1_1"],
+      "kind": "image",
+      "alt": "紧急救助 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_sm1l6m1_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_sns_map02_lv005_3_1",
+      "assets": ["sns_image_sns_map02_lv005_3_1"],
+      "kind": "image",
+      "alt": "陈千语 · SNS 对话 12002",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_map02_lv005_12002"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_sns_map02_lv005_3_2",
+      "assets": ["sns_image_sns_map02_lv005_3_2"],
+      "kind": "image",
+      "alt": "陈千语 · SNS 对话 12002",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_map02_lv005_12002"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_sns_map02_lv005_3_3",
+      "assets": ["sns_image_sns_map02_lv005_3_3"],
+      "kind": "image",
+      "alt": "陈千语 · SNS 对话 12002",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_map02_lv005_12002"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_sns_map02_lv009_3_1",
+      "assets": ["sns_image_sns_map02_lv009_3_1"],
+      "kind": "image",
+      "alt": "终其一生 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_sm2l9m1_1", "endfield:story:sns_topic_map02_lv009_15003"],
+      "occurrences": 2
+    },
+    {
+      "resource": "sns_image_sns_map02_lv009_3_2",
+      "assets": ["sns_image_sns_map02_lv009_3_2"],
+      "kind": "image",
+      "alt": "终其一生 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_sm2l9m1_1", "endfield:story:sns_topic_map02_lv009_15003"],
+      "occurrences": 2
+    },
+    {
+      "resource": "sns_image_topic_chr_0024_deepfin_1_1",
+      "assets": ["sns_image_topic_chr_0024_deepfin_1_1"],
+      "kind": "image",
+      "alt": "阿列什 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0024_deepfin_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_topic_chr_0024_deepfin_1_2",
+      "assets": ["sns_image_topic_chr_0024_deepfin_1_2"],
+      "kind": "image",
+      "alt": "阿列什 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0024_deepfin_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_topic_chr_0024_deepfin_1_3",
+      "assets": ["sns_image_topic_chr_0024_deepfin_1_3"],
+      "kind": "image",
+      "alt": "阿列什 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0024_deepfin_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_topic_chr_0025_ardelia_1_1",
+      "assets": ["sns_image_topic_chr_0025_ardelia_1_1"],
+      "kind": "image",
+      "alt": "艾尔黛拉 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0025_ardelia_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_topic_chr_0025_ardelia_1_2",
+      "assets": ["sns_image_topic_chr_0025_ardelia_1_2"],
+      "kind": "image",
+      "alt": "艾尔黛拉 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0025_ardelia_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_image_topic_chr_0025_ardelia_1_3",
+      "assets": ["sns_image_topic_chr_0025_ardelia_1_3"],
+      "kind": "image",
+      "alt": "艾尔黛拉 · SNS 对话 1",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_topic_chr_0025_ardelia_1"],
+      "occurrences": 1
+    },
+    {
+      "resource": "sns_sm1l5m2",
+      "assets": ["sns_sm1l5m2"],
+      "kind": "image",
+      "alt": "环带来客·其二 · SNS 对话 3",
+      "match": "exact",
+      "documentIds": ["endfield:story:sns_sm1l5m2_3"],
+      "occurrences": 1
+    }
+  ],
+  "unresolved": [
+    {
+      "corpusId": "sns_image_c13m3_1_f",
+      "occurrenceCount": 1,
+      "match": "unresolved",
+      "assets": [],
+      "candidates": ["Reading/read_c13m3_1_f", "Reading/reading_c13m3_photo_f"],
+      "note": "Related chapter images exist, but no exact SNS asset or verified alias was found. These are candidates only; do not substitute automatically."
+    },
+    {
+      "corpusId": "sns_image_c13m3_1_m",
+      "occurrenceCount": 1,
+      "match": "unresolved",
+      "assets": [],
+      "candidates": ["Reading/read_c13m3_1_m", "Reading/reading_c13m3_photo_m"],
+      "note": "Related chapter images exist, but no exact SNS asset or verified alias was found. These are candidates only; do not substitute automatically."
+    }
+  ]
+}

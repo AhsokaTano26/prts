@@ -1,0 +1,3 @@
+# Downloaded corpus payloads remain local; release and source manifests are reviewable.
+*.gz
+*.partial-*

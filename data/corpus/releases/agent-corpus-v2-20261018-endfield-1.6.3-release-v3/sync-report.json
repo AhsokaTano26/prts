@@ -1,0 +1,65 @@
+{
+  "release_id": "agent-corpus-v2-20261018-endfield-1.6.3-release-v3",
+  "data_version": "08bba055746faa4eb5c2cf0c8fd5e4e1e96c2c2d920114af39aab7a949cee8af",
+  "verified_at": "2026-10-23T03:26:25.836Z",
+  "file_count": 1597,
+  "verified_bytes": 260111213,
+  "gzip_file_count": 1590,
+  "gzip_bytes": 259762666,
+  "downloaded": 0,
+  "downloaded_bytes": 0,
+  "reused": 1597,
+  "document_count": 34007,
+  "line_count": 1133511,
+  "packs": [
+    {
+      "pack_id": "official_game",
+      "file_count": 437,
+      "compressed_bytes": 93760060,
+      "document_count": 8250,
+      "line_count": 636217
+    },
+    {
+      "pack_id": "endfield_official_game",
+      "file_count": 450,
+      "compressed_bytes": 75327304,
+      "document_count": 12585,
+      "line_count": 57439
+    },
+    {
+      "pack_id": "endfield_reviewed_knowledge",
+      "file_count": 157,
+      "compressed_bytes": 11904129,
+      "document_count": 3621,
+      "line_count": 33232
+    },
+    {
+      "pack_id": "reviewed_wiki",
+      "file_count": 362,
+      "compressed_bytes": 63896748,
+      "document_count": 5731,
+      "line_count": 328958
+    },
+    {
+      "pack_id": "terra_journey",
+      "file_count": 26,
+      "compressed_bytes": 3399647,
+      "document_count": 172,
+      "line_count": 3117
+    },
+    {
+      "pack_id": "entities",
+      "file_count": 152,
+      "compressed_bytes": 10853328,
+      "document_count": 3644,
+      "line_count": 74078
+    },
+    {
+      "pack_id": "references",
+      "file_count": 6,
+      "compressed_bytes": 621450,
+      "document_count": 4,
+      "line_count": 470
+    }
+  ]
+}

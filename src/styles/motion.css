@@ -1,0 +1,567 @@
+/*
+ * PRTS motion calibration surface.
+ * These are original interface timings, pending frame-by-frame reference calibration.
+ * Keep changes here: 140 ms feedback, 240 ms reveals, no spring or large displacement.
+ * BootSequence reads the four phase tokens below, so CSS and JS share one timeline.
+ * Import after the layout styles. Animation never supplies an element's resting layout.
+ */
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-mechanical: cubic-bezier(0.22, 0.8, 0.2, 1);
+  --motion-fast: 140ms;
+  --motion-feedback: 180ms;
+  --motion-panel: 240ms;
+  --motion-page: 240ms;
+  --motion-breathe: 7200ms;
+  --motion-orbit: 36000ms;
+  --motion-scan: 8000ms;
+  --motion-spin: 960ms;
+  --motion-thinking-offset: 120ms;
+  --motion-boot-duration: 1600ms;
+  --motion-boot-prepare-at: 560ms;
+  --motion-boot-ready-at: 1120ms;
+  --motion-boot-exit-at: 1420ms;
+  --motion-boot-draw: 640ms;
+  --motion-boot-line-delay: 80ms;
+  --motion-boot-fill-delay: 200ms;
+  --motion-boot-subtitle-delay: 320ms;
+  --motion-boot-wordmark: 420ms;
+  --motion-boot-wordmark-delay: 160ms;
+  --motion-boot-scan: 420ms;
+  --motion-boot-scan-delay: 600ms;
+  --motion-boot-rule: 1280ms;
+  --motion-boot-exit: 180ms;
+}
+
+/* Frequent interactions retain short, interruptible feedback. */
+.button,
+.icon-button,
+.nav-item,
+.segmented button,
+.boot-skip {
+  transition-property: color, background-color, border-color, transform;
+  transition-duration: var(--motion-fast);
+  transition-timing-function: var(--ease-out);
+}
+
+.button:active:not(:disabled),
+.boot-skip:active {
+  transform: translateY(1px);
+}
+
+.switch::before,
+.timer-progress,
+.task-progress > span {
+  transition-duration: var(--motion-panel);
+  transition-timing-function: var(--ease-out);
+}
+
+.motion-page {
+  animation: prts-page-reveal var(--motion-page) var(--ease-out) backwards;
+}
+
+@keyframes prts-page-reveal {
+  from {
+    opacity: 0.4;
+    clip-path: inset(0 0 10% 0);
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0);
+    transform: translateY(0);
+  }
+}
+
+/* Ambient movement stays inside the core. Only its dashed circle rotates. */
+.hero-panel .core-crystal {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: prts-core-breathe var(--motion-breathe) var(--ease-in-out) infinite;
+}
+
+.hero-panel .core-orbit > circle[stroke-dasharray] {
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  animation: prts-orbit-scan var(--motion-orbit) linear infinite;
+}
+
+.hero-panel .core-visual::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  top: 22%;
+  left: 26%;
+  width: 48%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e9eeec70, transparent);
+  opacity: 0;
+  animation: prts-core-scan var(--motion-scan) linear infinite;
+}
+
+@keyframes prts-core-breathe {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(0.994);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.008);
+  }
+}
+
+@keyframes prts-orbit-scan {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes prts-core-scan {
+  0%,
+  62% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  66% {
+    opacity: 0.65;
+  }
+  80% {
+    opacity: 0.45;
+  }
+  84%,
+  100% {
+    opacity: 0;
+    transform: translateY(105px);
+  }
+}
+
+.modal[open]:not(.command-modal) {
+  animation: prts-panel-reveal var(--motion-panel) var(--ease-out) backwards;
+}
+
+.modal[open]:not(.command-modal)::backdrop {
+  animation: prts-opacity-in var(--motion-feedback) var(--ease-out) backwards;
+}
+
+/* Search is a repeated keyboard action and remains immediate. */
+.modal.command-modal,
+.modal.command-modal::backdrop {
+  animation: none;
+}
+
+.toast {
+  animation: none;
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity var(--motion-feedback) var(--ease-out),
+    translate var(--motion-feedback) var(--ease-out);
+}
+
+@starting-style {
+  .toast {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+.chat-message {
+  animation: prts-opacity-in var(--motion-feedback) var(--ease-out) backwards;
+}
+
+.chat-thinking > span {
+  animation: prts-thinking var(--motion-spin) var(--ease-in-out) infinite;
+}
+
+.chat-thinking > span:nth-child(2) {
+  animation-delay: var(--motion-thinking-offset);
+}
+.chat-thinking > span:nth-child(3) {
+  animation-delay: calc(var(--motion-thinking-offset) * 2);
+}
+.spin,
+.workspace-spin {
+  animation-duration: var(--motion-spin);
+}
+
+@keyframes prts-panel-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    clip-path: inset(0 0 4% 0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0);
+  }
+}
+
+@keyframes prts-opacity-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes prts-thinking {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  45% {
+    opacity: 1;
+  }
+}
+
+/* One optional, interruptible opening. No sound, simulated network or access checks. */
+.boot-sequence {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #070809;
+  color: #f1f2ef;
+  --boot-inset: clamp(22px, 4vw, 64px);
+  --boot-subtle: #7d8487;
+}
+
+.boot-sequence[data-phase='exit'] {
+  animation: prts-boot-exit var(--motion-boot-exit) linear forwards;
+}
+
+.boot-topline,
+.boot-bottomline {
+  position: absolute;
+  left: var(--boot-inset);
+  right: var(--boot-inset);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  color: var(--boot-subtle);
+  font-size: 10px;
+  letter-spacing: 1.7px;
+  line-height: 1.6;
+}
+
+.boot-topline {
+  top: var(--boot-inset);
+}
+.boot-topline > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.boot-topline i {
+  display: block;
+  width: 5px;
+  height: 5px;
+  background: #d8dedb;
+}
+.boot-bottomline {
+  bottom: var(--boot-inset);
+  right: calc(var(--boot-inset) + 164px);
+  font-size: 10px;
+  color: #565e62;
+  overflow-wrap: anywhere;
+}
+
+.boot-corner {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border: solid #4a5052;
+  pointer-events: none;
+}
+
+.boot-corner-tl {
+  top: calc(var(--boot-inset) + 38px);
+  left: var(--boot-inset);
+  border-width: 1px 0 0 1px;
+}
+.boot-corner-tr {
+  top: calc(var(--boot-inset) + 38px);
+  right: var(--boot-inset);
+  border-width: 1px 1px 0 0;
+}
+.boot-corner-bl {
+  bottom: calc(var(--boot-inset) + 44px);
+  left: var(--boot-inset);
+  border-width: 0 0 1px 1px;
+}
+.boot-corner-br {
+  bottom: calc(var(--boot-inset) + 44px);
+  right: var(--boot-inset);
+  border-width: 0 1px 1px 0;
+}
+
+.boot-center {
+  width: min(440px, calc(100% - 64px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 6px;
+}
+
+.boot-identity {
+  position: relative;
+  width: 100%;
+}
+.boot-emblem {
+  width: clamp(92px, 14vw, 132px);
+  margin: 0 auto 24px;
+}
+.boot-emblem .brand-symbol {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: #e9eeeb;
+}
+.boot-emblem .brand-symbol > path:first-child {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 0;
+  animation: prts-logo-draw var(--motion-boot-draw) var(--ease-mechanical) backwards;
+}
+.boot-emblem .brand-symbol > path:nth-child(2) {
+  stroke-dasharray: 300;
+  stroke-dashoffset: 0;
+  animation: prts-logo-draw var(--motion-boot-draw) var(--ease-mechanical)
+    var(--motion-boot-line-delay) backwards;
+}
+.boot-emblem .brand-symbol > path:nth-child(n + 3) {
+  animation: prts-opacity-in var(--motion-boot-wordmark) var(--ease-out)
+    var(--motion-boot-fill-delay) backwards;
+}
+
+.boot-wordmark {
+  font-size: clamp(66px, 12vw, 100px);
+  font-weight: 550;
+  letter-spacing: 0.2em;
+  line-height: 1;
+  padding-left: 0.2em;
+  animation: prts-wordmark-reveal var(--motion-boot-wordmark) var(--ease-out)
+    var(--motion-boot-wordmark-delay) backwards;
+}
+
+.boot-subtitle {
+  margin-top: 19px;
+  color: #9ba3a4;
+  font-size: 10px;
+  letter-spacing: 4px;
+  animation: prts-opacity-in var(--motion-boot-wordmark) var(--ease-out)
+    var(--motion-boot-subtitle-delay) backwards;
+}
+
+.boot-scanline {
+  position: absolute;
+  top: 16%;
+  left: 7%;
+  width: 86%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, #e4eceb99 38%, #e4eceb99 62%, transparent);
+  opacity: 0;
+  animation: prts-boot-scan var(--motion-boot-scan) linear var(--motion-boot-scan-delay) backwards;
+}
+
+.boot-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 18px;
+  margin-top: 36px;
+  color: #a8b0b1;
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+.boot-status-light {
+  width: 3px;
+  height: 3px;
+  flex: 0 0 3px;
+  background: #adb7b3;
+}
+.boot-rule {
+  width: 180px;
+  height: 1px;
+  margin-top: 16px;
+  background: #292f31;
+  overflow: hidden;
+}
+.boot-rule > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #c2cdca;
+  transform-origin: left;
+  animation: prts-boot-rule var(--motion-boot-rule) var(--ease-mechanical) backwards;
+}
+
+.boot-enter {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  min-height: 16px;
+  margin-top: 22px;
+  color: #e4e8e4;
+  font-size: 12px;
+  letter-spacing: 2px;
+  opacity: 0;
+}
+
+.boot-sequence:is([data-phase='ready'], [data-phase='exit']) .boot-enter {
+  opacity: 1;
+}
+
+.boot-skip {
+  position: absolute;
+  bottom: calc(var(--boot-inset) - 9px);
+  right: var(--boot-inset);
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  min-height: 40px;
+  padding: 9px 12px;
+  border: 1px solid #3c4447;
+  border-radius: 0;
+  background: transparent;
+  color: #bbc3c3;
+  font-size: 12px;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.boot-skip:focus-visible {
+  outline: 1px solid #d8dfdc;
+  outline-offset: 4px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .boot-skip:hover {
+    border-color: #bbc3c3;
+    color: #fff;
+    background: #ffffff08;
+  }
+}
+
+@keyframes prts-logo-draw {
+  from {
+    stroke-dashoffset: 300;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes prts-wordmark-reveal {
+  from {
+    opacity: 0.25;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0);
+  }
+}
+
+@keyframes prts-boot-scan {
+  0% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  12%,
+  80% {
+    opacity: 0.65;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(170px);
+  }
+}
+
+@keyframes prts-boot-rule {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes prts-boot-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .boot-topline {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .boot-topline > span:first-child {
+    gap: 8px;
+  }
+  .boot-bottomline > span:last-child {
+    display: none;
+  }
+  .boot-bottomline {
+    font-size: 10px;
+    letter-spacing: 0.7px;
+  }
+  .boot-subtitle {
+    font-size: 10px;
+    letter-spacing: 3px;
+  }
+}
+
+@media (max-height: 580px) {
+  .boot-emblem {
+    width: 72px;
+    margin-bottom: 14px;
+  }
+  .boot-wordmark {
+    font-size: 64px;
+  }
+  .boot-subtitle {
+    margin-top: 12px;
+  }
+  .boot-status {
+    margin-top: 18px;
+  }
+  .boot-enter {
+    margin-top: 12px;
+  }
+}
+
+/* Static resting styles remain visible when any animation is disabled. */
+html[data-motion='off'] *,
+html[data-motion='off'] *::before,
+html[data-motion='off'] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

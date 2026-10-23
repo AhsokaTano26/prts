@@ -1,0 +1,184 @@
+.knowledge-results .corpus-markdown {
+  color: #bfc8cd;
+}
+.corpus-markdown :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--text);
+  font-weight: 600;
+  line-height: 1.6;
+  margin: 18px 0 8px;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+.corpus-markdown :is(h1, h2) {
+  font-size: 17px;
+}
+.corpus-markdown h3 {
+  font-size: 15px;
+}
+.corpus-markdown :is(h4, h5, h6) {
+  font-size: 13px;
+}
+.corpus-markdown > :first-child {
+  margin-top: 0;
+}
+.corpus-markdown > :last-child {
+  margin-bottom: 0;
+}
+.corpus-markdown ul {
+  list-style: disc outside;
+}
+.corpus-markdown ol {
+  list-style: decimal outside;
+}
+.corpus-markdown :is(ul, ol) {
+  padding-inline-start: 22px;
+  margin: 8px 0 12px;
+}
+.corpus-markdown li {
+  margin: 5px 0;
+}
+/* Official dialogue lines retain line breaks; Markdown blocks still control spacing. */
+.corpus-markdown p,
+.corpus-markdown li {
+  white-space: pre-line;
+}
+.corpus-markdown pre {
+  white-space: pre;
+}
+.corpus-markdown pre code {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+.corpus-image {
+  display: inline-block;
+  width: min(640px, 100%);
+  max-width: 100%;
+  margin: 5px 0 12px;
+  vertical-align: top;
+  white-space: normal;
+}
+.corpus-markdown .corpus-image-link {
+  display: block;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--muted);
+  text-decoration: none;
+}
+.corpus-image-link:hover {
+  border-color: var(--accent);
+}
+.corpus-image-link > img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+.corpus-image-variants {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.corpus-image-variants > span {
+  margin-right: 5px;
+}
+.corpus-image-variants > button {
+  min-height: 32px;
+  padding: 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.corpus-image-variants > button:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+.corpus-image-variants > button[aria-pressed='true'] {
+  color: var(--text);
+  border-color: var(--accent);
+  background: #ff6b3510;
+}
+.corpus-image--icon {
+  display: inline-flex;
+  width: auto;
+  margin: 0 3px;
+  vertical-align: middle;
+}
+.corpus-markdown .corpus-image-link--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+}
+.corpus-image-link--icon:hover {
+  background: var(--surface-raised);
+}
+.corpus-image-link--icon > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.corpus-image-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 9px 11px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.corpus-image-caption > span:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.corpus-image-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.corpus-markdown .corpus-image-placeholder {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  max-width: 100%;
+  padding: 8px 11px;
+  margin: 3px 0 8px;
+  border: 1px dashed var(--border);
+  color: var(--subtle);
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.corpus-image-placeholder svg {
+  flex-shrink: 0;
+}
+.corpus-image-placeholder span {
+  min-width: 0;
+}
+.corpus-markdown .corpus-image-placeholder--icon {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
