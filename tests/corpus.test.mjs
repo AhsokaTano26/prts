@@ -219,6 +219,15 @@ async function app(t, options = {}) {
   assert.equal(login.status, 200)
   const cookie = login.headers.get('set-cookie').split(';')[0]
   await login.json()
+  if (options.ai) {
+    const settings = await (await fetch(`${base}/api/settings/ai`, { headers: { cookie } })).json()
+    const saved = await fetch(`${base}/api/settings/ai`, {
+      method: 'PUT',
+      headers: { cookie, 'content-type': 'application/json' },
+      body: JSON.stringify({ ...settings, ...options.ai }),
+    })
+    assert.equal(saved.status, 200)
+  }
   return {
     base,
     get: (pathname) => fetch(`${base}${pathname}`, { headers: { cookie } }),
@@ -383,7 +392,7 @@ test('chat sends the selected personality and bounded cited evidence to the real
   )
   const client = await app(t, {
     corpusDir: await fixture(t),
-    env: { OPENAI_API_KEY: 'test-key', OPENAI_BASE_URL: upstream },
+    ai: { apiKey: 'test-key', baseUrl: upstream },
   })
   const response = await client.chat({
     persona: 'amiya',
@@ -426,7 +435,7 @@ test('ordinary questions and explicit knowledge=none do not receive unrelated ga
   )
   const client = await app(t, {
     corpusDir: await fixture(t),
-    env: { OPENAI_API_KEY: 'test-key', OPENAI_BASE_URL: upstream },
+    ai: { apiKey: 'test-key', baseUrl: upstream },
   })
   for (const payload of [
     { persona: 'kaltsit', messages: [{ role: 'user', content: '帮我安排今天的会议' }] },

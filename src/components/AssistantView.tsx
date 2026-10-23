@@ -17,6 +17,13 @@ import { buildChatHistory, runLocalCommand } from '../lib/chat'
 import { Logo, Modal } from './UI'
 import KnowledgePanel, { KnowledgeSources } from './KnowledgePanel'
 import PrtsSelect from './PrtsSelect'
+import AssistantActions from './AssistantActions'
+import {
+  parseAssistantActions,
+  parseToolUsage,
+  type AssistantAction,
+  type ToolUsage,
+} from '../lib/assistantTools'
 import {
   PERSONALITIES,
   parseKnowledgeResults,
@@ -34,6 +41,8 @@ type Message = {
   pending?: boolean
   persona?: PersonaId
   sources?: KnowledgeResult[]
+  actions?: AssistantAction[]
+  toolsUsed?: ToolUsage[]
 }
 import { apiFetch } from '../lib/api'
 
@@ -256,6 +265,8 @@ export default function AssistantView({
         mode: 'ai',
         persona: preferences.persona,
         sources: parseKnowledgeResults(data.sources),
+        actions: parseAssistantActions(data.actions),
+        toolsUsed: parseToolUsage(data.toolsUsed),
       }
       setMessages((p) => [
         ...p.map((m) => (m.id === user.id ? { ...m, pending: false } : m)),
@@ -411,6 +422,12 @@ export default function AssistantView({
                 </p>
               </div>
             )}
+            {mode === 'ai' && (
+              <p className="assistant-access-note">
+                已连接工作台：可按需读取任务、笔记与文本附件，相关内容会发送给你配置的 AI
+                服务。修改需在操作卡片中确认。
+              </p>
+            )}
             <div className="chat-messages" aria-live="polite" aria-relevant="additions">
               {!loaded && !historyError && <p role="status">正在读取对话记录…</p>}
               {historyError && (
@@ -442,7 +459,7 @@ export default function AssistantView({
                     {mode === 'local'
                       ? '查看今天的任务，找回一个想法，或记录新的目标。'
                       : health.configured
-                        ? '关于写作、计划与思考，我们可以从任何地方开始。'
+                        ? '查看工作台、整理任务与笔记，或为你准备一项待确认的操作。'
                         : '连接你自己的 AI 服务，开启与 PRTS 的对话。'}
                   </p>
                   {mode === 'ai' && !health.configured ? (
@@ -455,9 +472,9 @@ export default function AssistantView({
                       {(mode === 'local'
                         ? ['查看今日任务', '查看笔记', '专注状态']
                         : [
-                            '帮我制定一个切实可行的周计划',
+                            '根据我的未完成任务安排今天的计划',
                             '阿米娅与罗德岛有什么关系？',
-                            '帮我梳理一个新项目的思路',
+                            '帮我新建一个高优先级任务：整理本周计划',
                           ]
                       ).map((s) => (
                         <button onClick={() => send(s)} key={s}>
@@ -486,6 +503,9 @@ export default function AssistantView({
                     <div className="markdown-content">
                       <ReactMarkdown disallowedElements={['img']}>{m.content}</ReactMarkdown>
                     </div>
+                    {m.role === 'assistant' && (
+                      <AssistantActions actions={m.actions} toolsUsed={m.toolsUsed} />
+                    )}
                     {!!m.sources?.length && (
                       <details className="message-sources">
                         <summary>参考资料 · {m.sources.length} 条</summary>

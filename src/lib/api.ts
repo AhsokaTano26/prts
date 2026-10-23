@@ -1,4 +1,5 @@
 export const SESSION_EXPIRED_EVENT = 'prts:session-expired'
+export const WORKSPACE_UPDATED_EVENT = 'prts:workspace-updated'
 let sessionEpoch = 0
 
 export function advanceSessionEpoch() {

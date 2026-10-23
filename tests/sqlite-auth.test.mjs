@@ -89,9 +89,18 @@ test('password changes invalidate stored sessions, and logout revocation survive
   const { start } = await setup(t)
   let app = await start()
   const old = await login(app)
-  await app.stop()
   const newPassword = 'different-sqlite-auth-test-password'
-  app = await start(newPassword)
+  const changed = await call(app, '/api/auth/password', {
+    cookie: old.cookie,
+    method: 'POST',
+    headers: { 'content-type': 'application/json', origin: app.base },
+    body: JSON.stringify({ currentPassword: PASSWORD, newPassword }),
+  })
+  assert.equal(changed.status, 200)
+  assert.match(changed.headers.get('set-cookie'), /Max-Age=0/)
+  assert.deepEqual(await changed.json(), { authenticated: false })
+  await app.stop()
+  app = await start(PASSWORD)
   assert.equal(
     (await (await call(app, '/api/auth/session', { cookie: old.cookie })).json()).authenticated,
     false,
@@ -104,7 +113,7 @@ test('password changes invalidate stored sessions, and logout revocation survive
   assert.match(logout.headers.get('set-cookie'), /Max-Age=0/)
   await logout.json()
   await app.stop()
-  app = await start(newPassword)
+  app = await start('another-environment-password-is-ignored')
   assert.equal(
     (await (await call(app, '/api/auth/session', { cookie: current.cookie })).json()).authenticated,
     false,

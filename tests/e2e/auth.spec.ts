@@ -2,7 +2,7 @@ import { test, expect, waitSaved, type Page } from './fixture'
 
 async function login(page: Page) {
   const password = process.env.PRTS_PASSWORD
-  if (!password) throw new Error('请在 .env 或环境变量中配置 PRTS_PASSWORD 后运行 Edge 验收。')
+  if (!password) throw new Error('隔离浏览器测试密码未初始化，请检查 Playwright 配置。')
   await expect(page.getByRole('heading', { name: '终端访问验证', exact: true })).toBeVisible()
   await page.getByLabel('访问密码', { exact: true }).fill(password)
   await page.getByRole('button', { name: '验证并进入', exact: true }).click()
@@ -162,13 +162,15 @@ for (const width of [1440, 390, 320]) {
   })
 }
 
-test('missing server password and unavailable auth service remain locked', async ({ page }) => {
+test('unavailable password configuration and auth service remain locked', async ({ page }) => {
   await page.route('**/api/auth/session', (route) =>
     route.fulfill({ json: { configured: false, authenticated: false } }),
   )
   await page.goto('/')
   await expect(page.locator('.sidebar')).toHaveCount(0)
-  await expect(page.getByText(/PRTS_PASSWORD/)).toBeVisible()
+  await expect(
+    page.getByText('请检查服务器数据库和服务启动日志，恢复后重新检查连接。'),
+  ).toBeVisible()
   await expect(page.getByRole('button', { name: '验证并进入', exact: true })).toHaveCount(0)
   await page.unroute('**/api/auth/session')
   await page.route('**/api/auth/session', (route) => route.abort())

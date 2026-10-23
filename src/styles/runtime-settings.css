@@ -1,0 +1,79 @@
+.runtime-settings {
+  min-width: 0;
+}
+.runtime-settings fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.runtime-settings .field {
+  width: 100%;
+  min-width: 0;
+}
+.runtime-settings .field-hint,
+.runtime-settings .privacy-note,
+.runtime-feedback {
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.runtime-settings .api-state > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.runtime-clear-key {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  cursor: pointer;
+}
+.runtime-clear-key input {
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+.runtime-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+.runtime-actions .button {
+  white-space: normal;
+  min-height: 40px;
+}
+.runtime-feedback {
+  margin-top: 15px;
+  color: var(--muted);
+}
+.runtime-feedback.error {
+  color: var(--danger);
+}
+.runtime-feedback.success {
+  color: var(--success);
+}
+.runtime-intro {
+  margin-top: 20px;
+}
+.password-settings {
+  grid-column: 1 / -1;
+}
+.runtime-password-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+@media (max-width: 600px) {
+  .runtime-password-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .runtime-actions .button {
+    flex: 1 1 auto;
+  }
+}

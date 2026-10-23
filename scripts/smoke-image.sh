@@ -22,10 +22,9 @@ trap 'exit 143' TERM
 
 # No host mounts, published ports, credentials, or outbound network access.
 container=$(docker run --detach --pull never --network none \
-  --env PRTS_PASSWORD=prts-image-smoke-test-only \
-  --env PRTS_COOKIE_SECURE=false \
   "$1")
 
+check_container() {
 docker exec --interactive "$container" node --input-type=module <<'NODE'
 import assert from 'node:assert/strict'
 import { existsSync, readdirSync, statSync } from 'node:fs'
@@ -70,3 +69,18 @@ assert.deepEqual(readdirSync('/app').filter((name) => /^\.env(?:\.|$)/.test(name
 assert.equal(existsSync('/app/public/assets'), false, 'Game assets must not be bundled')
 console.log('Image smoke check passed: HTTP, authentication, SQLite, and empty resource storage.')
 NODE
+}
+
+check_container
+docker restart "$container" >/dev/null
+check_container
+# The generated test-container password must appear once, including after restart.
+# Consume logs without printing the password into the CI step output.
+docker logs "$container" 2>/dev/null | node --input-type=module -e '
+import assert from "node:assert/strict";
+let logs = "";
+for await (const part of process.stdin) logs += part;
+const generated = logs.match(/PRTS 初始访问密码（仅显示一次）：[A-Za-z0-9_-]{32,}/g) || [];
+assert.equal(generated.length, 1, "First-run password must be generated and logged exactly once");
+console.log("Password bootstrap check passed: no environment file and one-time log across restart.");
+'

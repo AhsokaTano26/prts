@@ -6,19 +6,21 @@
 
 ```sh
 npm ci
-cp .env.example .env
-# 编辑 .env，设置独立的 PRTS_PASSWORD；按需设置 AI API。
 npm run build
 npm start
 ```
 
+无需 `.env` 即可启动。数据库尚无密码时，服务生成随机初始密码，并在启动日志中输出一次；使用该密码登录后，在「系统设置」修改密码和填写 AI 服务配置。如果希望自行指定初始密码，可在首次启动前复制 `.env.example` 为 `.env` 并填写 `PRTS_PASSWORD`。
+
+访问密码初始化后只以数据库为准，后续修改 `.env` 中的 `PRTS_PASSWORD` 不会重置密码。修改密码需在设置页验证当前密码，成功后立即撤销全部设备会话。数据库只存密码的盐与 scrypt 哈希。AI 密钥、地址和模型也全部存入数据库，设置页保存后立即生效；不再读取或导入 `OPENAI_*` 环境变量。旧版升级后需在设置页配置 AI 服务一次。
+
 默认仅监听 `127.0.0.1:8787`，建议由 Caddy 或 Nginx 提供 HTTPS。HTTPS 部署设置 `PRTS_COOKIE_SECURE=true`，并原样传递 Host。不要把 `.env`、数据库或 `data` 目录设为静态站点根目录。
 
-首次启动只建立空 SQLite 数据库。登录后创建工作台，或从旧浏览器迁移个人数据。**启动和构建不会自动下载资源**：进入「系统设置」，手动点击「首次下载语料」和「首次下载图片」；以后使用各自的检查更新按钮。未下载时检索显示未安装，立绘/配图显示占位。
+首次启动建立 SQLite 并初始化访问密码，个人工作台和资源尚未填充。登录后创建工作台，或从旧浏览器迁移个人数据。**启动和构建不会自动下载资源**：进入「系统设置」，手动点击「首次下载语料」和「首次下载图片」；以后使用各自的检查更新按钮。未下载时检索显示未安装，立绘/配图显示占位。
 
 ```text
 data/
-  prts.sqlite        # 结构化个人数据、会话和文件元信息
+  prts.sqlite        # 个人数据、会话、文件元信息、密码哈希与 AI 配置
   prts.sqlite-wal    # SQLite 运行期间的日志，不要单独删除
   prts.sqlite-shm
   uploads/           # 用户附件，应用只通过受认证 API 读取
@@ -30,11 +32,14 @@ data/
 
 ## Docker Compose
 
+需要 **Docker Compose 2.24.0 或更高版本**，以支持可选的 `.env` 文件；参见 [Docker Compose 的可选 env_file 说明](https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/#additional-information-1)。
+
 ```sh
-cp .env.example .env
-# 编辑密码及 AI 配置
 docker compose up -d --build
+docker compose logs prts
 ```
+
+没有 `.env` 也可运行。第一次使用新数据卷时，从日志获取随机初始密码，登录后在设置页修改密码和配置 AI。初始密码只输出一次，不会在后续启动日志中重复显示。需要 HTTPS Cookie 等部署参数时，再按 `.env.example` 创建 `.env`。
 
 镜像构建不包含本机 `.env`、数据库、上传文件、语料或原始配图。首次部署的数据卷为空；`prts-data` 卷保存运行数据，更新容器不会丢失。不要使用 `docker compose down -v`，它会删除数据卷。
 
@@ -52,7 +57,7 @@ docker compose up -d --build
    | ----------------- | -------------------------------- |
    | `DOCKERHUB_TOKEN` | 上一步生成的 Docker Hub 访问令牌 |
 
-用户名 `tano26` 已写入工作流，不需要 `DOCKERHUB_USERNAME`；也不需要添加 `GITHUB_TOKEN`。应用的访问密码及 AI 密钥只在 VPS 的 `.env` 配置，不用于镜像构建。
+用户名 `tano26` 已写入工作流，不需要 `DOCKERHUB_USERNAME`；也不需要添加 `GITHUB_TOKEN`。应用的访问密码和 AI 配置在运行时保存在 VPS 数据库中，不用于镜像构建。
 
 将代码及工作流提交并推送到 GitHub 后，触发规则如下：
 
@@ -77,14 +82,15 @@ git push origin v1.0.0
 
 ## 从 Docker Hub 部署
 
-使用仓库内的 `compose.hub.yaml` 和 `.env.example`，不需要在 VPS 安装 Node.js 或编译源码：
+使用仓库内的 `compose.hub.yaml`，不需要在 VPS 安装 Node.js 或编译源码；`.env` 可选，Compose 版本要求同上：
 
 ```sh
-cp .env.example .env
-# 编辑 .env，填写 PRTS_PASSWORD 及需要的 AI 配置。
 docker compose -f compose.hub.yaml pull
 docker compose -f compose.hub.yaml up -d
+docker compose -f compose.hub.yaml logs prts
 ```
+
+首次使用新数据卷时，从日志获取随机初始密码；然后登录设置页修改密码并配置 AI。若首次初始化前已经通过 `.env` 指定 `PRTS_PASSWORD`，则使用该密码，日志不会输出它。
 
 默认拉取 `tano26/prts:latest`，需先成功发布至少一个正式版本标签。若仅推送过 `main`，可在 `.env` 中添加 `PRTS_IMAGE_TAG=edge`；正式部署建议填写固定版本，例如 `PRTS_IMAGE_TAG=1.0.0`。私有 Docker Hub 仓库需要先在 VPS 登录 Docker Hub。
 
@@ -125,4 +131,4 @@ npm run db:backup -- backups/prts-manual.sqlite
 
 恢复时停止服务，把一致的数据库备份放回 `PRTS_DB_PATH`，恢复对应的 `uploads/` 并设置正确的属主/权限，再启动。图片和语料丢失时可重新手动下载；它们不会因为登录或重启而自动恢复。
 
-AI API 密钥与访问密码仍通过服务器环境配置，不放进前端或普通数据接口。备份文件包含个人内容及会话信息，请与服务器数据目录使用相同访问保护。
+AI API 密钥存入 SQLite，但设置接口不回传已有密钥；访问密码只保存盐与哈希。数据库备份包含 AI 密钥、密码哈希、个人内容及会话信息，请与服务器数据目录使用相同访问保护。恢复数据库也会恢复对应的密码及 AI 配置，环境变量不会覆盖恢复后的配置。

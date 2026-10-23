@@ -1,11 +1,12 @@
 import { useRef, useState, type FormEvent } from 'react'
-import { Save, Download, Upload, RefreshCw, ShieldCheck, ExternalLink, Check } from 'lucide-react'
+import { Save, Download, Upload, RefreshCw, Check } from 'lucide-react'
 import type { Workspace, Settings } from '../lib/workspace'
 import { validateWorkspace } from '../lib/workspace'
 import { Modal, SectionTitle } from './UI'
 import type { ApiHealth } from './AssistantView'
 import CorpusSettings from './CorpusSettings'
 import AssetSettings from './AssetSettings'
+import { AIConnectionSettings, PasswordSettings } from './RuntimeSettings'
 export default function SettingsView({
   workspace,
   health,
@@ -30,8 +31,7 @@ export default function SettingsView({
   const [name, setName] = useState(workspace.settings.name),
     [minutes, setMinutes] = useState(workspace.settings.focusMinutes),
     [sound, setSound] = useState(workspace.settings.sound),
-    [pendingImport, setPendingImport] = useState<Workspace | null>(null),
-    [refreshing, setRefreshing] = useState(false)
+    [pendingImport, setPendingImport] = useState<Workspace | null>(null)
   const fileInput = useRef<HTMLInputElement>(null)
   function submit(e: FormEvent) {
     e.preventDefault()
@@ -137,68 +137,8 @@ export default function SettingsView({
             </div>
           </form>
         </section>
-        <section className="panel settings-section">
-          <SectionTitle title="AI 服务连接" english="AI CONNECTION" />
-          <div className={`api-state ${health.configured ? 'connected' : ''}`}>
-            <span className="status-led" />
-            <div>
-              <strong>
-                {health.configured
-                  ? 'AI 服务已配置'
-                  : health.reachable
-                    ? '等待配置 AI 服务'
-                    : 'AI 服务未启动'}
-              </strong>
-              <p>
-                {health.configured
-                  ? `${health.provider} · ${health.model}`
-                  : '本地指令模式随时可用'}
-              </p>
-            </div>
-            <button
-              className="icon-button"
-              disabled={refreshing}
-              aria-label="刷新 AI 连接状态"
-              onClick={async () => {
-                setRefreshing(true)
-                await onRefresh()
-                setRefreshing(false)
-              }}
-            >
-              <RefreshCw size={16} className={refreshing ? 'spin' : ''} />
-            </button>
-          </div>
-          <p className="settings-copy">
-            在项目根目录创建 <code>.env</code>，填入你的服务密钥并重启服务，即可开始 AI 对话。
-          </p>
-          <div className="config-example mono">
-            <div>
-              OPENAI_API_KEY=<span>你的服务密钥</span>
-            </div>
-            <div>
-              OPENAI_MODEL=<span>gpt-4.1-mini</span>
-            </div>
-            <div>
-              OPENAI_BASE_URL=<span>https://api.openai.com/v1</span>
-            </div>
-          </div>
-          <div className="privacy-note">
-            <ShieldCheck size={18} />
-            <p>
-              密钥仅存于服务端。AI 接收当前对话、所选性格与相关语料，任务、笔记和文件不会自动发送给
-              AI 供应商。
-            </p>
-          </div>
-          <a
-            className="text-button"
-            href="https://platform.openai.com/api-keys"
-            target="_blank"
-            rel="noreferrer"
-          >
-            管理 OpenAI API 密钥
-            <ExternalLink size={13} />
-          </a>
-        </section>
+        <AIConnectionSettings health={health} onRefresh={onRefresh} />
+        <PasswordSettings />
         <CorpusSettings />
         <AssetSettings />
         <section className="panel settings-section data-section">

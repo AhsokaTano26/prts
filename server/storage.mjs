@@ -16,6 +16,7 @@ import {
 import path from 'node:path'
 import os from 'node:os'
 import { HttpError } from './errors.mjs'
+import { parseAssistantActions, parseToolUsage } from '../src/lib/assistantTools.ts'
 import { validateWorkspace } from '../src/lib/workspace.ts'
 import { parseKnowledgeResults } from '../src/lib/assistant.ts'
 
@@ -137,6 +138,12 @@ function validateMessage(value) {
     result.sources = parseKnowledgeResults(value.sources)
     if (result.sources.length !== value.sources.length) invalid('消息引用格式无效。')
   }
+  try {
+    if (value.actions !== undefined) result.actions = parseAssistantActions(value.actions)
+    if (value.toolsUsed !== undefined) result.toolsUsed = parseToolUsage(value.toolsUsed)
+  } catch {
+    invalid('消息工具记录格式无效。')
+  }
   return result
 }
 
@@ -211,15 +218,22 @@ export function createStorage(
       }
     }
   }
+  let transactionDepth = 0
   function transaction(callback) {
-    db.exec('BEGIN IMMEDIATE')
+    const savepoint = `prts_store_${transactionDepth}`
+    const nested = transactionDepth > 0
+    db.exec(nested ? `SAVEPOINT ${savepoint}` : 'BEGIN IMMEDIATE')
+    transactionDepth += 1
     try {
       const result = callback()
-      db.exec('COMMIT')
+      db.exec(nested ? `RELEASE SAVEPOINT ${savepoint}` : 'COMMIT')
       return result
     } catch (error) {
-      db.exec('ROLLBACK')
+      db.exec(nested ? `ROLLBACK TO SAVEPOINT ${savepoint}` : 'ROLLBACK')
+      if (nested) db.exec(`RELEASE SAVEPOINT ${savepoint}`)
       throw error
+    } finally {
+      transactionDepth -= 1
     }
   }
   // Preserve any files written by the earlier development schema before dropping its BLOB column.
@@ -557,6 +571,7 @@ export function createStorage(
     })
   }
   return {
+    atomic: transaction,
     getState,
     getDocument,
     putDocument,
@@ -639,7 +654,7 @@ function readJson(request, maxBytes = MAX_DOCUMENT_BYTES + 1024) {
 }
 
 /** Call only after authentication and same-origin checks in the main router. */
-export async function storageRoute(request, response, pathname, store) {
+export async function storageRoute(request, response, pathname, store, authorize = () => {}) {
   if (pathname === '/api/state') {
     method(request, ['GET'])
     json(response, 200, store.getState())
@@ -647,13 +662,17 @@ export async function storageRoute(request, response, pathname, store) {
   }
   if (pathname === '/api/state/import') {
     method(request, ['POST'])
-    json(response, 200, store.importDocuments(await readJson(request)))
+    const payload = await readJson(request)
+    authorize()
+    json(response, 200, store.importDocuments(payload))
     return true
   }
   const documentMatch = /^\/api\/state\/([^/]+)$/.exec(pathname)
   if (documentMatch) {
     method(request, ['PUT'])
-    json(response, 200, store.putDocument(documentMatch[1], await readJson(request)))
+    const payload = await readJson(request)
+    authorize()
+    json(response, 200, store.putDocument(documentMatch[1], payload))
     return true
   }
   if (pathname === '/api/messages') {
@@ -668,10 +687,13 @@ export async function storageRoute(request, response, pathname, store) {
           before: query.get('before'),
         }),
       )
-    } else if (request.method === 'POST')
-      json(response, 200, store.appendMessages((await readJson(request))?.messages))
-    else {
+    } else if (request.method === 'POST') {
+      const payload = await readJson(request)
+      authorize()
+      json(response, 200, store.appendMessages(payload?.messages))
+    } else {
       request.resume()
+      authorize()
       json(response, 200, store.deleteMessages())
     }
     return true
@@ -679,14 +701,14 @@ export async function storageRoute(request, response, pathname, store) {
   if (pathname === '/api/files') {
     method(request, ['GET', 'POST'])
     if (request.method === 'GET') json(response, 200, store.listFiles())
-    else
-      json(
-        response,
-        200,
-        store.putFiles(
-          (await readJson(request, Math.ceil((MAX_TOTAL_FILE_BYTES * 4) / 3) + 1024 * 1024))?.files,
-        ),
+    else {
+      const payload = await readJson(
+        request,
+        Math.ceil((MAX_TOTAL_FILE_BYTES * 4) / 3) + 1024 * 1024,
       )
+      authorize()
+      json(response, 200, store.putFiles(payload?.files))
+    }
     return true
   }
   const fileMatch = /^\/api\/files\/([^/]+)(\/content)?$/.exec(pathname)
@@ -694,6 +716,7 @@ export async function storageRoute(request, response, pathname, store) {
     method(request, fileMatch[2] ? ['GET', 'HEAD'] : ['DELETE'])
     if (!fileMatch[2]) {
       request.resume()
+      authorize()
       json(response, 200, store.deleteFile(fileMatch[1]))
       return true
     }
@@ -718,7 +741,9 @@ export async function storageRoute(request, response, pathname, store) {
   }
   if (pathname === '/api/focus/complete') {
     method(request, ['POST'])
-    json(response, 200, store.completeFocus((await readJson(request, 4096))?.sessionId))
+    const payload = await readJson(request, 4096)
+    authorize()
+    json(response, 200, store.completeFocus(payload?.sessionId))
     return true
   }
   return false

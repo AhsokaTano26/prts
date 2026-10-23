@@ -1,6 +1,7 @@
 // Isolated browser-test service. Never imported by the production server.
 import { createServer } from '../../server/index.mjs'
 import { createStorage } from '../../server/storage.mjs'
+import { createSettings } from '../../server/settings.mjs'
 import { createInitialWorkspace } from '../../src/lib/workspace.ts'
 import { randomUUID } from 'node:crypto'
 
@@ -9,6 +10,7 @@ const server = createServer({
   assetsDir: new URL('../../public/assets/', import.meta.url).pathname,
 })
 const storage = createStorage(server.database)
+const originalCredentials = server.database.prepare('SELECT key, value FROM auth_metadata').all()
 const route = server.listeners('request')[0]
 server.removeAllListeners('request')
 server.on('request', (request, response) => {
@@ -29,10 +31,18 @@ server.on('request', (request, response) => {
         'prts_messages',
         'prts_files',
         'prts_focus_completions',
+        'prts_assistant_actions',
       ])
         server.database.exec(`DELETE FROM ${table}`)
       if (!payload.keepSessions) {
-        server.database.exec('DELETE FROM auth_sessions; DELETE FROM auth_failures;')
+        server.database.exec(
+          'DELETE FROM auth_sessions; DELETE FROM auth_failures; DELETE FROM auth_metadata; DELETE FROM prts_ai_settings;',
+        )
+        const restore = server.database.prepare(
+          'INSERT INTO auth_metadata (key, value) VALUES (?, ?)',
+        )
+        for (const row of originalCredentials) restore.run(row.key, row.value)
+        createSettings(server.database)
       }
       if (payload.seed !== false) {
         storage.putDocument('workspace', {

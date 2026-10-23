@@ -10,9 +10,9 @@ import { chatOptions, systemMessage } from './personality.mjs'
 import { createDatabase } from './database.mjs'
 import { createStorage, storageRoute } from './storage.mjs'
 import { getAsset, assetManager } from './resources.mjs'
+import { createSettings } from './settings.mjs'
+import { createWorkspaceTools } from './assistant-tools.mjs'
 
-const DEFAULT_BASE_URL = 'https://api.openai.com/v1'
-const DEFAULT_MODEL = 'gpt-4.1-mini'
 const DEFAULT_DIST = fileURLToPath(new URL('../dist/', import.meta.url))
 const MAX_BODY_BYTES = 1024 * 1024
 const MAX_MESSAGES = 40
@@ -37,31 +37,6 @@ const MIME_TYPES = {
   '.woff2': 'font/woff2',
   '.txt': 'text/plain; charset=utf-8',
   '.webmanifest': 'application/manifest+json',
-}
-
-function configuration(env) {
-  const apiKey = (env.OPENAI_API_KEY || '').trim()
-  const model = (env.OPENAI_MODEL || '').trim() || DEFAULT_MODEL
-  let endpoint
-  let provider = 'OpenAI-compatible'
-  try {
-    const url = new URL((env.OPENAI_BASE_URL || DEFAULT_BASE_URL).trim())
-    if (
-      !['http:', 'https:'].includes(url.protocol) ||
-      url.username ||
-      url.password ||
-      url.search ||
-      url.hash
-    ) {
-      throw new Error('Invalid provider URL')
-    }
-    provider = url.hostname === 'api.openai.com' ? 'OpenAI' : url.hostname
-    url.pathname = `${url.pathname.replace(/\/+$/, '')}/chat/completions`
-    endpoint = url.href
-  } catch {
-    // Configuration values may contain secrets; never expose the rejected URL.
-  }
-  return { apiKey, model, endpoint, provider, configured: Boolean(apiKey && endpoint) }
 }
 
 function json(response, status, payload, headers = {}) {
@@ -149,12 +124,12 @@ function validateMessages(payload) {
   })
 }
 
-async function completeChat(response, messages, config, timeoutMs) {
+async function completeChat(response, messages, config, timeoutMs, agent, authorize = () => {}) {
   if (!config.apiKey) {
-    throw new HttpError(503, 'AI 尚未配置。请在项目 .env 中设置 OPENAI_API_KEY，然后重启服务。')
+    throw new HttpError(503, 'AI 尚未配置。请在系统设置中保存 AI 服务配置。')
   }
   if (!config.endpoint) {
-    throw new HttpError(503, 'AI 服务地址配置无效，请检查 .env 中的 OPENAI_BASE_URL。')
+    throw new HttpError(503, 'AI 服务地址配置无效，请在系统设置中检查服务地址。')
   }
 
   const controller = new AbortController()
@@ -167,28 +142,86 @@ async function completeChat(response, messages, config, timeoutMs) {
   const onClose = () => controller.abort()
   response.once('close', onClose)
   try {
-    const upstream = await fetch(config.endpoint, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', authorization: `Bearer ${config.apiKey}` },
-      body: JSON.stringify({ model: config.model, messages, stream: false }),
-      signal: controller.signal,
-      redirect: 'error',
-    })
-    if (!upstream.ok) {
-      await upstream.body?.cancel()
-      if (upstream.status === 429)
-        throw new HttpError(429, 'AI 服务请求过于频繁或额度不足，请稍后重试。')
-      if ([401, 403].includes(upstream.status)) {
-        throw new HttpError(502, 'AI 服务认证失败，请检查 API 密钥和服务地址配置。')
+    const callIds = new Set()
+    for (let round = 0; round < 6; round += 1) {
+      authorize()
+      const upstream = await fetch(config.endpoint, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${config.apiKey}` },
+        body: JSON.stringify({
+          model: config.model,
+          messages,
+          stream: false,
+          ...(agent ? { tools: agent.definitions, tool_choice: 'auto' } : {}),
+        }),
+        signal: controller.signal,
+        redirect: 'error',
+      })
+      if (!upstream.ok) {
+        await upstream.body?.cancel()
+        if (upstream.status === 429)
+          throw new HttpError(429, 'AI 服务请求过于频繁或额度不足，请稍后重试。')
+        if ([401, 403].includes(upstream.status)) {
+          throw new HttpError(502, 'AI 服务认证失败，请检查 API 密钥和服务地址配置。')
+        }
+        if (agent && [400, 422].includes(upstream.status))
+          throw new HttpError(
+            502,
+            'AI 服务拒绝了工具调用请求，请使用支持工具调用的模型和兼容服务。',
+          )
+        throw new HttpError(502, 'AI 服务暂时不可用，请稍后重试。')
       }
-      throw new HttpError(502, 'AI 服务暂时不可用，请稍后重试。')
+      const payload = await upstream.json()
+      authorize()
+      const message = payload?.choices?.[0]?.message
+      const content = message?.content
+      const calls = message?.tool_calls
+      if (calls !== undefined && calls !== null && (!Array.isArray(calls) || calls.length > 12))
+        throw new HttpError(502, 'AI 服务返回了无效的工具调用。')
+      if (calls?.length) {
+        if (!agent || agent.toolsUsed.length + calls.length > 12 || round === 5)
+          throw new HttpError(502, 'AI 工具调用次数过多，请缩小请求范围后重试。')
+        const normalized = calls.map((call) => {
+          if (
+            call?.type !== 'function' ||
+            typeof call.id !== 'string' ||
+            call.id.length > 200 ||
+            !call.id ||
+            callIds.has(call.id) ||
+            typeof call.function?.name !== 'string' ||
+            call.function.name.length > 80 ||
+            typeof call.function.arguments !== 'string'
+          )
+            throw new HttpError(502, 'AI 服务返回了无效的工具调用。')
+          callIds.add(call.id)
+          return {
+            id: call.id,
+            type: 'function',
+            function: { name: call.function.name, arguments: call.function.arguments },
+          }
+        })
+        messages.push({
+          role: 'assistant',
+          content: typeof content === 'string' ? content : null,
+          tool_calls: normalized,
+        })
+        for (const call of normalized) {
+          authorize()
+          const result = agent.execute(call.function.name, call.function.arguments)
+          messages.push({ role: 'tool', tool_call_id: call.id, content: JSON.stringify(result) })
+        }
+        continue
+      }
+      if (typeof content !== 'string' || !content.trim()) {
+        throw new HttpError(502, 'AI 服务返回了无效响应，请稍后重试。')
+      }
+      return {
+        message: content,
+        ...(agent?.actions.length ? { actions: agent.actions } : {}),
+        ...(agent?.toolsUsed.length ? { toolsUsed: agent.toolsUsed } : {}),
+      }
     }
-    const payload = await upstream.json()
-    const content = payload?.choices?.[0]?.message?.content
-    if (typeof content !== 'string' || !content.trim()) {
-      throw new HttpError(502, 'AI 服务返回了无效响应，请稍后重试。')
-    }
-    return content
+    throw new HttpError(502, 'AI 工具调用次数过多，请缩小请求范围后重试。')
   } catch (error) {
     if (timedOut) throw new HttpError(504, 'AI 响应超时，请稍后重试。')
     if (error instanceof HttpError) throw error
@@ -258,7 +291,7 @@ async function staticFile(root, pathname) {
 async function route(
   request,
   response,
-  config,
+  settings,
   auth,
   knowledge,
   distDir,
@@ -266,6 +299,7 @@ async function route(
   storage,
   assets,
   assetsDir,
+  workspaceTools,
 ) {
   const corpus = knowledge.corpus
   response.setHeader('x-content-type-options', 'nosniff')
@@ -287,11 +321,39 @@ async function route(
     return json(response, 200, result.state, { 'set-cookie': result.cookie })
   }
   if (pathname === '/api' || pathname.startsWith('/api/')) auth.requireSession(request)
-  if (await storageRoute(request, response, pathname, storage)) return
+  const assistantAction = /^\/api\/assistant\/actions\/([a-f0-9-]{36})$/.exec(pathname)
+  if (assistantAction) {
+    if (request.method === 'GET')
+      return json(response, 200, { action: workspaceTools.getAction(assistantAction[1]) })
+    if (request.method === 'POST') {
+      const payload = await readJson(request)
+      auth.requireSession(request)
+      return json(response, 200, workspaceTools.decide(assistantAction[1], payload?.decision))
+    }
+    throw new HttpError(405, '此接口仅支持 GET 或 POST 请求。', { allow: 'GET, POST' })
+  }
+  if (pathname === '/api/auth/password') {
+    if (request.method !== 'POST')
+      throw new HttpError(405, '此接口仅支持 POST 请求。', { allow: 'POST' })
+    const cookie = await auth.changePassword(request, () => readJson(request))
+    return json(response, 200, { authenticated: false }, { 'set-cookie': cookie })
+  }
+  if (pathname === '/api/settings/ai') {
+    if (request.method === 'GET') return json(response, 200, settings.read())
+    if (request.method === 'PUT') {
+      const payload = await readJson(request)
+      auth.requireSession(request)
+      return json(response, 200, settings.update(payload))
+    }
+    throw new HttpError(405, '此接口仅支持 GET 或 PUT 请求。', { allow: 'GET, PUT' })
+  }
+  if (await storageRoute(request, response, pathname, storage, () => auth.requireSession(request)))
+    return
   if (pathname === '/api/assets/sync') {
     if (request.method === 'GET') return json(response, 200, await assets.status())
     if (request.method === 'POST') {
       const payload = await readJson(request)
+      auth.requireSession(request)
       return json(response, 202, await assets.start(payload?.mode))
     }
     throw new HttpError(405, '此接口仅支持 GET 或 POST 请求。', { allow: 'GET, POST' })
@@ -300,6 +362,7 @@ async function route(
     if (request.method === 'GET') return json(response, 200, knowledge.status())
     if (request.method === 'POST') {
       const payload = await readJson(request)
+      auth.requireSession(request)
       return json(response, 202, await knowledge.start(payload?.mode))
     }
     request.resume()
@@ -323,6 +386,7 @@ async function route(
       request.resume()
       return json(response, 405, { error: '此接口仅支持 GET 请求。' }, { allow: 'GET' })
     }
+    const config = settings.configuration()
     return json(response, 200, {
       configured: config.configured,
       model: config.model,
@@ -335,17 +399,22 @@ async function route(
       return json(response, 405, { error: '此接口仅支持 POST 请求。' }, { allow: 'POST' })
     }
     const payload = await readJson(request)
+    auth.requireSession(request)
+    const config = settings.configuration()
     const messages = validateMessages(payload)
     const { persona, knowledge } = chatOptions(payload)
     if (!config.configured) return completeChat(response, messages, config, upstreamTimeoutMs)
     const sources = await corpus.context(messages, knowledge)
-    const message = await completeChat(
+    auth.requireSession(request)
+    const result = await completeChat(
       response,
-      [systemMessage(persona, sources), ...messages],
+      [systemMessage(persona, sources, workspaceTools.overview()), ...messages],
       config,
       upstreamTimeoutMs,
+      workspaceTools.session(),
+      () => auth.requireSession(request),
     )
-    return json(response, 200, { message, model: config.model, persona, sources })
+    return json(response, 200, { ...result, model: config.model, persona, sources })
   }
   if (pathname === '/api' || pathname.startsWith('/api/')) {
     request.resume()
@@ -381,7 +450,7 @@ async function route(
 export function createServer({
   env = process.env,
   distDir = DEFAULT_DIST,
-  upstreamTimeoutMs = 30_000,
+  upstreamTimeoutMs = 60_000,
   now = Date.now,
   corpusDir,
   syncCorpus,
@@ -390,6 +459,7 @@ export function createServer({
   syncAssets,
   database: suppliedDatabase,
   databasePath = env.PRTS_DB_PATH,
+  logger = console.log,
 } = {}) {
   const database = suppliedDatabase || createDatabase({ filename: databasePath || ':memory:' })
   const dataDirectory =
@@ -406,8 +476,9 @@ export function createServer({
         : undefined),
   })
   const assets = assetManager({ database, directory: assetsDir, synchronize: syncAssets, now })
-  const config = configuration(env)
-  const auth = createAuth({ env, now, database })
+  const settings = createSettings(database)
+  const workspaceTools = createWorkspaceTools(database, storage, { now })
+  const auth = createAuth({ env, now, database, logger })
   const knowledge = knowledgeManager({
     directory: corpusDir || path.join(dataDirectory, 'corpus'),
     synchronize: syncCorpus,
@@ -418,7 +489,7 @@ export function createServer({
     route(
       request,
       response,
-      config,
+      settings,
       auth,
       knowledge,
       distDir,
@@ -426,6 +497,7 @@ export function createServer({
       storage,
       assets,
       assetsDir,
+      workspaceTools,
     ).catch((error) => {
       request.resume()
       json(

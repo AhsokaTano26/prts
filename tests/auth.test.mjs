@@ -3,6 +3,7 @@ import { request } from 'node:http'
 import { test } from 'node:test'
 import { createServer } from '../server/index.mjs'
 import { createAuth } from '../server/auth.mjs'
+import { createDatabase } from '../server/database.mjs'
 
 const PASSWORD = 'test-only-distinct-workspace-password'
 const START = Date.UTC(2026, 9, 23, 12)
@@ -48,6 +49,7 @@ test('all workspace APIs reject unauthenticated requests without leaking configu
     '/api',
     '/api/missing',
     '/api/auth/unknown',
+    '/api/auth/password',
   ]) {
     const response = await fetch(`${base}${pathname}`)
     assert.equal(response.status, 401, pathname)
@@ -62,17 +64,21 @@ test('all workspace APIs reject unauthenticated requests without leaking configu
   assert.deepEqual(await session.json(), { configured: true, authenticated: false })
 })
 
-test('an absent or whitespace-only workspace password fails closed', async (t) => {
+test('an absent or whitespace-only bootstrap password generates a usable database password', async (t) => {
   for (const env of [{}, { PRTS_PASSWORD: '   ' }]) {
-    const base = await app(t, { env })
+    const logs = []
+    const base = await app(t, { env, logger: (line) => logs.push(line) })
     assert.deepEqual(await (await fetch(`${base}/api/auth/session`)).json(), {
-      configured: false,
+      configured: true,
       authenticated: false,
     })
+    assert.equal(logs.length, 1)
+    const generated = logs[0].match(/：([A-Za-z0-9_-]{32,})$/)?.[1]
+    assert.ok(generated)
     const response = await post(base, '/api/auth/login', { password: PASSWORD })
-    assert.equal(response.status, 503)
-    assert.match((await response.json()).error, /PRTS_PASSWORD/)
-    assert.equal((await fetch(`${base}/api/health`)).status, 503)
+    assert.equal(response.status, 401)
+    assert.equal((await fetch(`${base}/api/health`)).status, 401)
+    assert.equal((await post(base, '/api/auth/login', { password: generated })).status, 200)
   }
 })
 
@@ -193,7 +199,7 @@ test('cross-origin POST requests are rejected before login or authenticated muta
     assert.equal(response.headers.get('set-cookie'), null)
   }
   const { cookie } = await login(base, { origin: base })
-  for (const pathname of ['/api/auth/logout', '/api/chat', '/api/missing']) {
+  for (const pathname of ['/api/auth/logout', '/api/auth/password', '/api/chat', '/api/missing']) {
     const response = await post(base, pathname, {}, { cookie, origin: 'https://attacker.example' })
     assert.equal(response.status, 403, pathname)
   }
@@ -278,10 +284,16 @@ test('authentication endpoints reject unsupported methods', async (t) => {
   const response = await post(base, '/api/auth/session', {})
   assert.equal(response.status, 405)
   assert.equal(response.headers.get('allow'), 'GET')
+  const { cookie } = await login(base)
+  const password = await fetch(`${base}/api/auth/password`, { headers: { cookie } })
+  assert.equal(password.status, 405)
+  assert.equal(password.headers.get('allow'), 'POST')
 })
 
-test('slow login bodies do not occupy the global password verification slots', async () => {
-  const auth = createAuth({ env: { PRTS_PASSWORD: PASSWORD } })
+test('slow login bodies do not occupy the global password verification slots', async (t) => {
+  const database = createDatabase()
+  t.after(() => database.close())
+  const auth = createAuth({ database, env: { PRTS_PASSWORD: PASSWORD } })
   const releases = []
   const pending = Array.from({ length: 4 }, () =>
     auth

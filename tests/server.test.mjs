@@ -37,6 +37,15 @@ async function app(t, options = {}) {
   assert.equal(response.status, 200)
   cookies.set(base, response.headers.get('set-cookie').split(';')[0])
   await response.json()
+  if (options.ai) {
+    const settings = await (await authenticatedFetch(`${base}/api/settings/ai`)).json()
+    const saved = await authenticatedFetch(`${base}/api/settings/ai`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ...settings, ...options.ai }),
+    })
+    assert.equal(saved.status, 200)
+  }
   t.after(() => cookies.delete(base))
   return base
 }
@@ -83,10 +92,10 @@ test('health reports configuration without exposing credentials or URL credentia
   assert.equal(response.headers.get('cache-control'), 'no-store')
 
   const configured = await app(t, {
-    env: {
-      OPENAI_API_KEY: 'test-private-api-key',
-      OPENAI_MODEL: 'custom-model',
-      OPENAI_BASE_URL: 'https://compatible.example/v1/',
+    ai: {
+      apiKey: 'test-private-api-key',
+      model: 'custom-model',
+      baseUrl: 'https://compatible.example/v1/',
     },
   })
   assert.deepEqual(await (await authenticatedFetch(`${configured}/api/health`)).json(), {
@@ -100,7 +109,7 @@ test('chat clearly reports an unconfigured API', async (t) => {
   const base = await app(t)
   const response = await post(base, { messages: [{ role: 'user', content: '你好' }] })
   assert.equal(response.status, 503)
-  assert.match((await response.json()).error, /OPENAI_API_KEY/)
+  assert.match((await response.json()).error, /系统设置/)
 })
 
 test('chat rejects malformed, empty, excessive, or privileged messages', async (t) => {
@@ -202,10 +211,10 @@ test('chat sends compatible completion requests and returns assistant text', asy
     }),
   )
   const base = await app(t, {
-    env: {
-      OPENAI_API_KEY: 'test-private-api-key',
-      OPENAI_BASE_URL: `${upstream}/v1/`,
-      OPENAI_MODEL: 'custom-model',
+    ai: {
+      apiKey: 'test-private-api-key',
+      baseUrl: `${upstream}/v1/`,
+      model: 'custom-model',
     },
   })
   const response = await post(base, {
@@ -227,8 +236,14 @@ test('chat sends compatible completion requests and returns assistant text', asy
   assert.equal(received.headers.authorization, 'Bearer test-private-api-key')
   assert.equal(received.body.messages[0].role, 'system')
   assert.match(received.body.messages[0].content, /PRTS 理性/)
+  assert.equal(received.body.tool_choice, 'auto')
+  assert.ok(received.body.tools.some((tool) => tool.function.name === 'get_workspace'))
   assert.deepEqual(
-    { ...received.body, messages: received.body.messages.slice(1) },
+    {
+      model: received.body.model,
+      stream: received.body.stream,
+      messages: received.body.messages.slice(1),
+    },
     {
       model: 'custom-model',
       messages: [
@@ -250,7 +265,7 @@ test('upstream failures produce safe errors without echoing upstream secrets', a
     }),
   )
   const base = await app(t, {
-    env: { OPENAI_API_KEY: 'test-private-api-key', OPENAI_BASE_URL: upstream },
+    ai: { apiKey: 'test-private-api-key', baseUrl: upstream },
   })
   const response = await post(base, { messages: [{ role: 'user', content: 'hello' }] })
   assert.equal(response.status, 502)
@@ -268,7 +283,7 @@ test('upstream rate limiting remains retryable and malformed responses are rejec
       res.end(limited ? '{"error":{"message":"private provider details"}}' : '{"choices":[]}')
     }),
   )
-  const base = await app(t, { env: { OPENAI_API_KEY: 'test-key', OPENAI_BASE_URL: upstream } })
+  const base = await app(t, { ai: { apiKey: 'test-key', baseUrl: upstream } })
   const payload = { messages: [{ role: 'user', content: 'hello' }] }
   const rateLimited = await post(base, payload)
   assert.equal(rateLimited.status, 429)
@@ -285,7 +300,7 @@ test('slow upstream requests time out', async (t) => {
     createHttpServer(() => {}),
   )
   const base = await app(t, {
-    env: { OPENAI_API_KEY: 'test-key', OPENAI_BASE_URL: upstream },
+    ai: { apiKey: 'test-key', baseUrl: upstream },
     upstreamTimeoutMs: 30,
   })
   const response = await post(base, { messages: [{ role: 'user', content: 'hello' }] })
@@ -293,15 +308,20 @@ test('slow upstream requests time out', async (t) => {
   assert.match((await response.json()).error, /超时/)
 })
 
-test('invalid provider URL is treated as configuration error', async (t) => {
+test('invalid provider URL is rejected when saving configuration', async (t) => {
   for (const url of [
     'file:///private/key',
     'https://user:secret@example.com/v1',
     'https://example.com/v1?key=secret',
   ]) {
-    const base = await app(t, { env: { OPENAI_API_KEY: 'test-key', OPENAI_BASE_URL: url } })
-    const response = await post(base, { messages: [{ role: 'user', content: 'hello' }] })
-    assert.equal(response.status, 503)
+    const base = await app(t)
+    const settings = await (await authenticatedFetch(`${base}/api/settings/ai`)).json()
+    const response = await authenticatedFetch(`${base}/api/settings/ai`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ...settings, apiKey: 'test-key', baseUrl: url }),
+    })
+    assert.equal(response.status, 400)
     assert.doesNotMatch(await response.text(), /secret|private\/key/)
   }
 })

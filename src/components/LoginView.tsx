@@ -33,9 +33,9 @@ const statusCopy = {
     description: '输入访问密码，进入你的个人工作空间。',
   },
   unconfigured: {
-    label: 'SETUP REQUIRED',
-    title: '终端尚未配置',
-    description: '请管理员设置访问密码，再开启个人工作空间。',
+    label: 'CONFIGURATION UNAVAILABLE',
+    title: '终端配置暂不可用',
+    description: '无法读取访问配置，请检查服务器状态后重试。',
   },
   offline: {
     label: 'CONNECTION OFFLINE',
@@ -237,7 +237,7 @@ export default function LoginView({ status, error, busy, onLogin, onRetry }: Log
                       </button>
                     </div>
                     <p id={hintId} className="auth-field-hint">
-                      密码仅用于本次访问验证。
+                      首次使用随机密码时，请查看服务启动日志。
                     </p>
                     <button type="submit" className="auth-submit" disabled={pending}>
                       {pending ? (
@@ -263,10 +263,8 @@ export default function LoginView({ status, error, busy, onLogin, onRetry }: Log
                   <div className="auth-recovery">
                     {status === 'unconfigured' ? (
                       <div className="auth-setup-note">
-                        <span>管理员配置</span>
-                        <p>
-                          在服务端设置 <code>PRTS_PASSWORD</code> 并重启服务后，重新检查连接。
-                        </p>
+                        <span>访问配置异常</span>
+                        <p>请检查服务器数据库和服务启动日志，恢复后重新检查连接。</p>
                       </div>
                     ) : null}
                     <button

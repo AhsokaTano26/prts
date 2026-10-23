@@ -1,0 +1,73 @@
+.assistant-access-note {
+  margin: 0;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.assistant-action {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent);
+}
+.assistant-action-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+.assistant-action-heading svg {
+  flex: 0 0 auto;
+  margin-top: 3px;
+}
+.assistant-action-state {
+  display: block;
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.assistant-action details,
+.assistant-tool-usage {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.assistant-action summary,
+.assistant-tool-usage summary {
+  cursor: pointer;
+}
+.assistant-action pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 300px;
+  overflow-y: auto;
+  color: var(--text);
+  padding: 12px;
+  line-height: 1.7;
+}
+.assistant-action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.assistant-action-error {
+  color: #ff9875;
+  margin: 10px 0;
+}
+.assistant-tool-usage ul {
+  padding-left: 20px;
+  line-height: 1.8;
+}
+@media (max-width: 480px) {
+  .assistant-action {
+    padding: 12px;
+  }
+  .assistant-action-buttons .button {
+    flex: 1 1 auto;
+  }
+}

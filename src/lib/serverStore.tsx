@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { apiFetch } from './api'
+import { apiFetch, WORKSPACE_UPDATED_EVENT } from './api'
 import {
   createInitialWorkspace,
   validateWorkspace,
@@ -622,10 +622,12 @@ export default function ServerStoreProvider({ children }: { children: ReactNode 
     }
     window.addEventListener('beforeunload', beforeUnload)
     window.addEventListener('focus', refresh)
+    window.addEventListener(WORKSPACE_UPDATED_EVENT, refresh)
     document.addEventListener('visibilitychange', refresh)
     return () => {
       window.removeEventListener('beforeunload', beforeUnload)
       window.removeEventListener('focus', refresh)
+      window.removeEventListener(WORKSPACE_UPDATED_EVENT, refresh)
       document.removeEventListener('visibilitychange', refresh)
     }
   }, [apply])
