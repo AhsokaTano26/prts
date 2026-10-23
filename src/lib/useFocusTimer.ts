@@ -1,77 +1,64 @@
 import { useEffect, useRef, useState } from 'react'
-const KEY = 'prts-focus-v1'
+import { useServerStore } from './serverStore'
+
 export function useFocusTimer(minutes: number, onComplete: () => void) {
-  const [timer, setTimer] = useState<{ remaining: number; endAt: number | null }>(() => {
-    try {
-      const data = JSON.parse(localStorage.getItem(KEY) || 'null')
-      if (
-        data &&
-        Number.isFinite(data.remaining) &&
-        data.remaining >= 0 &&
-        data.remaining <= 10800 &&
-        (data.endAt === null || Number.isFinite(data.endAt))
-      )
-        return data
-    } catch {
-      /* fresh timer */
-    }
-    return { remaining: minutes * 60, endAt: null }
-  })
+  const store = useServerStore()
+  const timer = store.documents.focus.value
   const [now, setNow] = useState(Date.now())
-  const completed = useRef(false),
-    callback = useRef(onComplete),
-    previousMinutes = useRef(minutes)
+  const callback = useRef(onComplete)
+  const previousMinutes = useRef(minutes)
+  const completing = useRef(false)
   callback.current = onComplete
+
   useEffect(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(timer))
-    } catch {
-      /* workspace reports local storage failure */
-    }
-  }, [timer])
+    if (previousMinutes.current === minutes) return
+    previousMinutes.current = minutes
+    if (!timer.endAt)
+      void store.save('focus', { remaining: minutes * 60, endAt: null, sessionId: null })
+  }, [minutes, timer.endAt, store.save])
+
   useEffect(() => {
-    if (previousMinutes.current !== minutes) {
-      previousMinutes.current = minutes
-      if (!timer.endAt) setTimer({ remaining: minutes * 60, endAt: null })
-    }
-  }, [minutes, timer.endAt])
-  useEffect(() => {
-    if (!timer.endAt) return
-    const tick = () => {
+    if (!timer.endAt || !timer.sessionId) return
+    const sessionId = timer.sessionId
+    const tick = async () => {
       const n = Date.now()
       setNow(n)
-      if (n >= timer.endAt! && !completed.current) {
-        completed.current = true
-        setTimer({ remaining: 0, endAt: null })
-        callback.current()
+      if (n < timer.endAt! || completing.current) return
+      completing.current = true
+      try {
+        if (await store.completeFocus(sessionId)) callback.current()
+      } finally {
+        completing.current = false
       }
     }
-    tick()
-    const id = setInterval(tick, 250)
+    void tick()
+    const id = setInterval(() => void tick(), 1000)
     return () => clearInterval(id)
-  }, [timer.endAt])
+  }, [timer.endAt, timer.sessionId, store.completeFocus])
+
   const remaining = timer.endAt
     ? Math.max(0, Math.ceil((timer.endAt - now) / 1000))
     : timer.remaining
   function toggle() {
     if (timer.endAt) {
-      setTimer({
+      void store.save('focus', {
+        ...timer,
         remaining: Math.max(0, Math.ceil((timer.endAt - Date.now()) / 1000)),
         endAt: null,
       })
     } else {
-      completed.current = false
       const n = Date.now()
       setNow(n)
-      setTimer({
-        remaining: timer.remaining || minutes * 60,
-        endAt: n + (timer.remaining || minutes * 60) * 1000,
+      const remaining = timer.remaining || minutes * 60
+      void store.save('focus', {
+        remaining,
+        endAt: n + remaining * 1000,
+        sessionId: timer.remaining > 0 && timer.sessionId ? timer.sessionId : crypto.randomUUID(),
       })
     }
   }
   function reset() {
-    completed.current = false
-    setTimer({ remaining: minutes * 60, endAt: null })
+    void store.save('focus', { remaining: minutes * 60, endAt: null, sessionId: null })
   }
   return {
     remaining,

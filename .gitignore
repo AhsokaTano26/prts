@@ -9,3 +9,12 @@ playwright-report/
 test-results/
 public/assets/corpus-images/**/*.download
 /docs/
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+/backups/
+
+/data/uploads/
+/data/assets/
+/data/tmp/

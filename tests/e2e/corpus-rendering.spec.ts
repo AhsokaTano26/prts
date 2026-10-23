@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect } from './fixture'
 import { chooseOption } from './select-helper'
 
 test.beforeEach(async ({ page }) => {
@@ -172,7 +172,7 @@ test('image variants recover from load failure and icons stay inline on mobile',
     'aria-pressed',
     'true',
   )
-  await expect(result.getByRole('status')).toContainText('图片加载失败')
+  await expect(result.getByRole('status')).toContainText('图片暂不可用')
   await result.getByRole('button', { name: '男管理员', exact: true }).click()
   const male = result.locator(`img[src="${maleUrl}"]`)
   await expect(male).toBeVisible()

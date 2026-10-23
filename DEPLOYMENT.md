@@ -1,0 +1,128 @@
+# VPS 部署
+
+使用 Node.js 24 LTS 和 SQLite，无需安装 MySQL、PostgreSQL 或 Cloudflare 服务。服务器需要 `curl` 下载语料及配图。Node 原生 SQLite 提供数据库访问，不依赖本地编译扩展。
+
+## 首次部署
+
+```sh
+npm ci
+cp .env.example .env
+# 编辑 .env，设置独立的 PRTS_PASSWORD；按需设置 AI API。
+npm run build
+npm start
+```
+
+默认仅监听 `127.0.0.1:8787`，建议由 Caddy 或 Nginx 提供 HTTPS。HTTPS 部署设置 `PRTS_COOKIE_SECURE=true`，并原样传递 Host。不要把 `.env`、数据库或 `data` 目录设为静态站点根目录。
+
+首次启动只建立空 SQLite 数据库。登录后创建工作台，或从旧浏览器迁移个人数据。**启动和构建不会自动下载资源**：进入「系统设置」，手动点击「首次下载语料」和「首次下载图片」；以后使用各自的检查更新按钮。未下载时检索显示未安装，立绘/配图显示占位。
+
+```text
+data/
+  prts.sqlite        # 结构化个人数据、会话和文件元信息
+  prts.sqlite-wal    # SQLite 运行期间的日志，不要单独删除
+  prts.sqlite-shm
+  uploads/           # 用户附件，应用只通过受认证 API 读取
+  corpus/            # 手动下载的语料
+  assets/            # 手动下载的立绘和配图
+```
+
+`PRTS_DB_PATH` 可指定持久磁盘上的数据库文件。其他数据子目录与该数据库放在同一父目录。进程用户必须可写该目录。建议单个 Node 进程提供个人工作台服务；不要把 SQLite 文件放在网络文件系统上。
+
+## Docker Compose
+
+```sh
+cp .env.example .env
+# 编辑密码及 AI 配置
+docker compose up -d --build
+```
+
+镜像构建不包含本机 `.env`、数据库、上传文件、语料或原始配图。首次部署的数据卷为空；`prts-data` 卷保存运行数据，更新容器不会丢失。不要使用 `docker compose down -v`，它会删除数据卷。
+
+## GitHub Actions 发布到 Docker Hub
+
+工作流位于 [`.github/workflows/docker-publish.yml`](.github/workflows/docker-publish.yml)，目标固定为 [`tano26/prts`](https://hub.docker.com/r/tano26/prts)。
+
+首次配置：
+
+1. 在 Docker Hub 的 `tano26` 账号下创建 `prts` 仓库；公开镜像可让 VPS 直接拉取。
+2. 在 Docker 账号的 **Account settings → Personal access tokens** 创建令牌，选择 **Read & Write**（部分界面显示 **Repo Read & Write**）。不需要 Delete 权限，令牌必须能推送 `tano26/prts`。参见 [Docker 令牌权限说明](https://docs.docker.com/security/access-tokens/reference/)。
+3. 打开 GitHub 仓库 **Settings → Secrets and variables → Actions → Repository secrets → New repository secret**，添加下面唯一必需的 Secret：
+
+   | Secret 名称       | 值                               |
+   | ----------------- | -------------------------------- |
+   | `DOCKERHUB_TOKEN` | 上一步生成的 Docker Hub 访问令牌 |
+
+用户名 `tano26` 已写入工作流，不需要 `DOCKERHUB_USERNAME`；也不需要添加 `GITHUB_TOKEN`。应用的访问密码及 AI 密钥只在 VPS 的 `.env` 配置，不用于镜像构建。
+
+将代码及工作流提交并推送到 GitHub 后，触发规则如下：
+
+| 操作                                           | 发布的 `tano26/prts` 标签                             |
+| ---------------------------------------------- | ----------------------------------------------------- |
+| 推送 `main`，或在 Actions 手动选择 `main` 运行 | `edge`、`sha-<完整提交 SHA>`                          |
+| 推送正式版本标签，例如 `v1.0.0`                | `1.0.0`、`latest`、`sha-<完整提交 SHA>`               |
+| 推送预发布标签，例如 `v1.1.0-rc.1`             | `1.1.0-rc.1`、`sha-<完整提交 SHA>`；不会改动 `latest` |
+| 手动选择其他分支运行                           | 仅 `sha-<完整提交 SHA>`                               |
+| 向 `main` 提交 Pull Request                    | 执行测试和镜像启动检查，不登录或推送 Docker Hub       |
+
+例如，在希望发布的提交上创建版本标签并推送：
+
+```sh
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+标签使用 `v主版本.次版本.修订版本`，可添加 `-rc.1` 等预发布后缀。`latest` 指向最近成功发布的正式版本；重跑旧版本也会更新它。需要固定部署版本时使用明确的版本号或工作流摘要中的镜像 digest。
+
+每次运行先在 Node.js 24 上执行单元及接口测试，再构建镜像并验证首页、登录保护、SQLite 和空资源目录。通过后发布 `linux/amd64` 与 `linux/arm64` 的多架构镜像，Docker 会自动选择 VPS 的架构。Actions 摘要提供实际发布的标签和 digest。第三方 Actions 固定到提交 SHA，Dependabot 每周检查更新。
+
+## 从 Docker Hub 部署
+
+使用仓库内的 `compose.hub.yaml` 和 `.env.example`，不需要在 VPS 安装 Node.js 或编译源码：
+
+```sh
+cp .env.example .env
+# 编辑 .env，填写 PRTS_PASSWORD 及需要的 AI 配置。
+docker compose -f compose.hub.yaml pull
+docker compose -f compose.hub.yaml up -d
+```
+
+默认拉取 `tano26/prts:latest`，需先成功发布至少一个正式版本标签。若仅推送过 `main`，可在 `.env` 中添加 `PRTS_IMAGE_TAG=edge`；正式部署建议填写固定版本，例如 `PRTS_IMAGE_TAG=1.0.0`。私有 Docker Hub 仓库需要先在 VPS 登录 Docker Hub。
+
+更新时修改 `.env` 中的 `PRTS_IMAGE_TAG`（如果固定了版本），然后执行：
+
+```sh
+docker compose -f compose.hub.yaml pull
+docker compose -f compose.hub.yaml up -d
+```
+
+源码版与 Hub 版使用相同的数据卷名称。在同一目录/Compose 项目名下切换可保留数据；更换目录时使用相同的 `-p` 项目名或显式迁移数据卷。不要同时启动两套实例操作同一数据库。新数据卷中语料和图片为空，登录后在「系统设置」中手动下载；更新镜像不会触发资源下载。
+
+## HTTPS 反向代理
+
+示例 Caddy 配置：
+
+```caddyfile
+prts.example.com {
+    reverse_proxy 127.0.0.1:8787
+}
+```
+
+使用 Nginx 时保留 `Host`，并将上传请求限制设置为 `client_max_body_size 140m`（目前附件 API 使用 Base64 JSON，20 MB 单文件与 100 MB 总容量由应用另行限制）。
+
+## 备份和恢复
+
+在线备份 SQLite：
+
+```sh
+npm run db:backup
+# 或指定一个不存在的目标路径
+npm run db:backup -- backups/prts-manual.sqlite
+```
+
+命令使用 SQLite 在线备份 API，包含 WAL 中的已提交内容，随后运行完整性快速检查；目标已存在时拒绝覆盖。
+
+**SQLite 备份不包含附件原文。** 完整私人数据备份应在暂停写入后同时保存数据库和 `uploads/`。最简单的做法是停止服务后备份整个 `data/`（包括仍存在的 WAL/SHM）；运行中的数据库不要只复制 `.sqlite` 主文件。
+
+恢复时停止服务，把一致的数据库备份放回 `PRTS_DB_PATH`，恢复对应的 `uploads/` 并设置正确的属主/权限，再启动。图片和语料丢失时可重新手动下载；它们不会因为登录或重启而自动恢复。
+
+AI API 密钥与访问密码仍通过服务器环境配置，不放进前端或普通数据接口。备份文件包含个人内容及会话信息，请与服务器数据目录使用相同访问保护。

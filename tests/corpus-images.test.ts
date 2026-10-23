@@ -7,7 +7,7 @@ import {
   corpusImageReference,
 } from '../src/lib/corpusImages.ts'
 import manifest from '../src/data/corpus-images.json' with { type: 'json' }
-import sources from '../data/corpus-images/sources.json' with { type: 'json' }
+import sources from '../server/image-sources.json' with { type: 'json' }
 import { imageFile, verifyImage } from '../scripts/sync-corpus-images.mjs'
 
 test('verified images use exact allowlisted resources and same-origin files', () => {

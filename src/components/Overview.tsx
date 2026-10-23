@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   ArrowUpRight,
   Plus,
@@ -7,6 +8,7 @@ import {
   Clock3,
   Pin,
   ArrowRight,
+  ImageOff,
 } from 'lucide-react'
 import type { Workspace, Task } from '../lib/workspace'
 import { relativeTime } from '../lib/workspace'
@@ -34,6 +36,7 @@ export default function Overview({
   onNavigate,
   onNote,
 }: Props) {
+  const [portraitMissing, setPortraitMissing] = useState(false)
   const tasks = w.tasks.filter((t) => !t.done).slice(0, 3)
   const notes = [...w.notes]
     .sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.updatedAt.localeCompare(a.updatedAt))
@@ -101,17 +104,29 @@ export default function Overview({
             PERSONAL RHODES ISLAND TERMINAL SYSTEM
           </div>
         </div>
-        <figure className="amiya-visual">
-          <img
-            className="amiya-portrait"
-            src="/assets/amiya.png"
-            alt="《明日方舟》阿米娅游戏立绘"
-            width={1024}
-            height={1024}
-            loading="eager"
-            decoding="async"
-            draggable={false}
-          />
+        <figure className={`amiya-visual${portraitMissing ? ' amiya-visual--empty' : ''}`}>
+          {portraitMissing ? (
+            <div className="amiya-empty">
+              <ImageOff size={30} aria-hidden="true" />
+              <strong>阿米娅立绘尚未就绪</strong>
+              <p>可在系统设置下载或更新图片资源。</p>
+              <button className="button button-ghost" onClick={() => onNavigate('settings')}>
+                前往资源管理
+              </button>
+            </div>
+          ) : (
+            <img
+              className="amiya-portrait"
+              src="/assets/amiya.png"
+              alt="《明日方舟》阿米娅游戏立绘"
+              width={1024}
+              height={1024}
+              loading="eager"
+              decoding="async"
+              draggable={false}
+              onError={() => setPortraitMissing(true)}
+            />
+          )}
           <figcaption className="amiya-caption">
             <strong>阿米娅</strong>
             <span className="mono">AMIYA / RHODES ISLAND</span>

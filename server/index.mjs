@@ -7,6 +7,9 @@ import { createAuth } from './auth.mjs'
 import { HttpError } from './errors.mjs'
 import { knowledgeManager } from './knowledge.mjs'
 import { chatOptions, systemMessage } from './personality.mjs'
+import { createDatabase } from './database.mjs'
+import { createStorage, storageRoute } from './storage.mjs'
+import { getAsset, assetManager } from './resources.mjs'
 
 const DEFAULT_BASE_URL = 'https://api.openai.com/v1'
 const DEFAULT_MODEL = 'gpt-4.1-mini'
@@ -252,7 +255,18 @@ async function staticFile(root, pathname) {
   return null
 }
 
-async function route(request, response, config, auth, knowledge, distDir, upstreamTimeoutMs) {
+async function route(
+  request,
+  response,
+  config,
+  auth,
+  knowledge,
+  distDir,
+  upstreamTimeoutMs,
+  storage,
+  assets,
+  assetsDir,
+) {
   const corpus = knowledge.corpus
   response.setHeader('x-content-type-options', 'nosniff')
   response.setHeader('referrer-policy', 'same-origin')
@@ -273,6 +287,15 @@ async function route(request, response, config, auth, knowledge, distDir, upstre
     return json(response, 200, result.state, { 'set-cookie': result.cookie })
   }
   if (pathname === '/api' || pathname.startsWith('/api/')) auth.requireSession(request)
+  if (await storageRoute(request, response, pathname, storage)) return
+  if (pathname === '/api/assets/sync') {
+    if (request.method === 'GET') return json(response, 200, await assets.status())
+    if (request.method === 'POST') {
+      const payload = await readJson(request)
+      return json(response, 202, await assets.start(payload?.mode))
+    }
+    throw new HttpError(405, '此接口仅支持 GET 或 POST 请求。', { allow: 'GET, POST' })
+  }
   if (pathname === '/api/knowledge/sync') {
     if (request.method === 'GET') return json(response, 200, knowledge.status())
     if (request.method === 'POST') {
@@ -337,11 +360,14 @@ async function route(request, response, config, auth, knowledge, distDir, upstre
       { allow: 'GET, HEAD' },
     )
   }
-  const asset = await staticFile(distDir, pathname)
+  const storedAsset = await getAsset(assetsDir, pathname)
+  const gameResource =
+    pathname === '/assets/amiya.png' || pathname.startsWith('/assets/corpus-images/')
+  const asset = storedAsset || (gameResource ? null : await staticFile(distDir, pathname))
   if (!asset) return json(response, 404, { error: '页面或资源不存在，请先构建前端。' })
   const extension = path.extname(asset.file).toLowerCase()
   response.writeHead(200, {
-    'content-type': MIME_TYPES[extension] || 'application/octet-stream',
+    'content-type': asset.mime || MIME_TYPES[extension] || 'application/octet-stream',
     'content-length': asset.size,
     'cache-control': extension === '.html' ? 'no-cache' : 'public, max-age=3600',
   })
@@ -359,12 +385,48 @@ export function createServer({
   now = Date.now,
   corpusDir,
   syncCorpus,
+  assetsDir,
+  uploadsDir,
+  syncAssets,
+  database: suppliedDatabase,
+  databasePath = env.PRTS_DB_PATH,
 } = {}) {
+  const database = suppliedDatabase || createDatabase({ filename: databasePath || ':memory:' })
+  const dataDirectory =
+    databasePath && databasePath !== ':memory:'
+      ? path.dirname(path.resolve(databasePath))
+      : fileURLToPath(new URL('../data/', import.meta.url))
+  assetsDir ||= path.join(dataDirectory, 'assets')
+  const storage = createStorage(database, {
+    now,
+    uploadsDir:
+      uploadsDir ||
+      (databasePath && databasePath !== ':memory:'
+        ? path.join(dataDirectory, 'uploads')
+        : undefined),
+  })
+  const assets = assetManager({ database, directory: assetsDir, synchronize: syncAssets, now })
   const config = configuration(env)
-  const auth = createAuth({ env, now })
-  const knowledge = knowledgeManager({ directory: corpusDir, synchronize: syncCorpus, now })
+  const auth = createAuth({ env, now, database })
+  const knowledge = knowledgeManager({
+    directory: corpusDir || path.join(dataDirectory, 'corpus'),
+    synchronize: syncCorpus,
+    now,
+    database: suppliedDatabase || databasePath ? database : undefined,
+  })
   const server = createHttpServer((request, response) => {
-    route(request, response, config, auth, knowledge, distDir, upstreamTimeoutMs).catch((error) => {
+    route(
+      request,
+      response,
+      config,
+      auth,
+      knowledge,
+      distDir,
+      upstreamTimeoutMs,
+      storage,
+      assets,
+      assetsDir,
+    ).catch((error) => {
       request.resume()
       json(
         response,
@@ -378,6 +440,11 @@ export function createServer({
   })
   server.requestTimeout = 60_000
   server.headersTimeout = 10_000
+  server.database = database
+  server.once('close', () => {
+    storage.close?.()
+    if (!suppliedDatabase) database.close()
+  })
   return server
 }
 
@@ -389,7 +456,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
     console.error('PORT 必须是 1 至 65535 之间的整数。')
     process.exitCode = 1
   } else {
-    const server = createServer()
+    const server = createServer({
+      databasePath:
+        process.env.PRTS_DB_PATH || fileURLToPath(new URL('../data/prts.sqlite', import.meta.url)),
+    })
     server.on('error', () => {
       console.error('PRTS 服务启动失败，请检查 HOST / PORT 及端口占用情况。')
       process.exitCode = 1

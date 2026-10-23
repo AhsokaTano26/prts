@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, waitSaved } from './fixture'
 
 const idle = {
   state: 'idle',
@@ -83,6 +83,7 @@ test('first download runs once, resumes after refresh, and activates the install
     '50',
   )
   await expect(page.getByRole('button', { name: '首次下载语料', exact: true })).toBeDisabled()
+  await waitSaved(page)
   await page.reload()
   await expect(page.getByRole('progressbar', { name: '语料同步进度' })).toHaveAttribute(
     'value',

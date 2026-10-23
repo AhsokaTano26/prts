@@ -5,6 +5,7 @@ import { validateWorkspace } from '../lib/workspace'
 import { Modal, SectionTitle } from './UI'
 import type { ApiHealth } from './AssistantView'
 import CorpusSettings from './CorpusSettings'
+import AssetSettings from './AssetSettings'
 export default function SettingsView({
   workspace,
   health,
@@ -50,7 +51,8 @@ export default function SettingsView({
     if (!file) return
     try {
       if (file.size > 10 * 1024 * 1024) throw new Error('备份文件不能超过 10 MB。')
-      setPendingImport(validateWorkspace(JSON.parse(await file.text())))
+      const data = JSON.parse(await file.text())
+      setPendingImport(validateWorkspace(data?.workspace || data))
     } catch (e) {
       onNotify(e instanceof Error ? e.message : '备份读取失败，请选择有效的 JSON 文件。')
     } finally {
@@ -183,7 +185,8 @@ export default function SettingsView({
           <div className="privacy-note">
             <ShieldCheck size={18} />
             <p>
-              密钥仅存于服务端。AI 接收当前对话、所选性格与相关语料，任务、笔记和文件不会自动上传。
+              密钥仅存于服务端。AI 接收当前对话、所选性格与相关语料，任务、笔记和文件不会自动发送给
+              AI 供应商。
             </p>
           </div>
           <a
@@ -197,14 +200,18 @@ export default function SettingsView({
           </a>
         </section>
         <CorpusSettings />
+        <AssetSettings />
         <section className="panel settings-section data-section">
           <SectionTitle title="数据与备份" english="DATA MANAGEMENT" />
           <div className="data-backup-content">
             <div>
               <h3>你的工作，留在你手中。</h3>
-              <p>任务、笔记和设置保存在当前浏览器。导出一份备份，换一台设备也能继续。</p>
+              <p>
+                任务、分类、笔记和设置保存在服务器
+                SQLite。登录同一终端即可在其他设备访问，也可导出工作台 JSON 备份。
+              </p>
               <span className="data-count mono">
-                {workspace.tasks.length} TASKS · {workspace.notes.length} NOTES · LOCAL STORAGE
+                {workspace.tasks.length} TASKS · {workspace.notes.length} NOTES · SQLITE
               </span>
             </div>
             <div className="backup-actions">
@@ -227,8 +234,8 @@ export default function SettingsView({
             </div>
           </div>
           <p className="backup-note">
-            <Check size={13} />
-            备份包含任务、笔记、偏好与活动记录。文件库中的文件请单独下载。
+            <Check size={13} />此 JSON
+            包含任务、分类、笔记、工作台设置与活动记录，不含文件、聊天和助手偏好。完整数据库由服务器备份。
           </p>
         </section>
       </div>
@@ -243,7 +250,7 @@ export default function SettingsView({
             备份包含 {pendingImport.tasks.length} 项任务、{pendingImport.notes.length}{' '}
             篇笔记。导入后将替换当前工作台数据。建议先导出当前备份。
           </p>
-          <p className="field-hint">文件库和当前会话中的对话记录不受影响。</p>
+          <p className="field-hint">文件库和数据库中的对话记录不受影响。</p>
           <div className="modal-actions">
             <button className="button button-ghost" onClick={() => setPendingImport(null)}>
               取消

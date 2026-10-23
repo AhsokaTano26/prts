@@ -24,7 +24,9 @@ function ImagePlaceholder({ failedImage, icon = false }: { failedImage?: string;
     >
       <ImageOff size={15} aria-hidden="true" />
       <span>
-        {failedImage ? `${icon ? '图标' : '图片'}加载失败：${failedImage}` : '原文配图未收录'}
+        {failedImage
+          ? `${icon ? '图标' : '图片'}暂不可用：${failedImage}。可到系统设置下载或更新图片资源。`
+          : '原文配图未收录'}
       </span>
     </span>
   )

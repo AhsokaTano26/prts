@@ -16,10 +16,7 @@ import {
   LockKeyhole,
 } from 'lucide-react'
 import {
-  loadWorkspace,
-  saveWorkspace,
   makeId,
-  WORKSPACE_STORAGE_KEY,
   validateWorkspace,
   type Workspace,
   type Task,
@@ -30,7 +27,7 @@ import {
 import { listFiles, type WorkspaceFile } from './lib/files'
 import { useFocusTimer } from './lib/useFocusTimer'
 import { createTaskCategory, renameTaskCategory, deleteTaskCategory } from './lib/taskCategories'
-import { Logo } from './components/UI'
+import { Logo, Modal } from './components/UI'
 import Overview from './components/Overview'
 import TasksView, { TaskDialog } from './components/TasksView'
 import NotesView from './components/NotesView'
@@ -40,6 +37,7 @@ import SettingsView from './components/SettingsView'
 import CommandPalette from './components/CommandPalette'
 import BootSequence from './components/BootSequence'
 import { apiFetch } from './lib/api'
+import { useServerStore } from './lib/serverStore'
 const navItems = [
   { id: 'overview', label: '总览', en: 'OVERVIEW', icon: LayoutDashboard },
   { id: 'tasks', label: '任务中枢', en: 'TASK CENTER', icon: ListTodo },
@@ -56,15 +54,19 @@ function activity(text: string, type: Activity['type']): Activity {
   return { id: makeId(), text, type, time: new Date().toISOString() }
 }
 export default function App({ onLock }: { onLock: () => void }) {
-  const [workspace, setWorkspace] = useState(loadWorkspace),
-    [page, setPage] = useState(readPage),
+  const store = useServerStore()
+  const workspace = store.documents.workspace.value
+  const preferences = store.documents.preferences.value
+  const motionEnabled = preferences.motionEnabled
+  const storageError = store.error
+  const [page, setPage] = useState(readPage),
     [mobileOpen, setMobileOpen] = useState(false),
     [searchOpen, setSearchOpen] = useState(false),
     [taskDialog, setTaskDialog] = useState<Task | null | undefined>(undefined),
     [newTaskCategoryId, setNewTaskCategoryId] = useState(''),
     [selectedNoteId, setSelectedNoteId] = useState<string | null>(null),
     [toast, setToast] = useState(''),
-    [storageError, setStorageError] = useState(''),
+    [confirmReload, setConfirmReload] = useState(false),
     [files, setFiles] = useState<WorkspaceFile[]>([]),
     [time, setTime] = useState(new Date()),
     [health, setHealth] = useState<ApiHealth>({
@@ -80,15 +82,6 @@ export default function App({ onLock }: { onLock: () => void }) {
       return true
     }
   })
-  const [motionEnabled, setMotionEnabled] = useState(() => {
-    try {
-      return localStorage.getItem('prts-motion') !== 'off'
-    } catch {
-      return true
-    }
-  })
-  const [recoveryRaw, setRecoveryRaw] = useState<string | null>(null)
-  const corruptedRef = useRef<string | null>(null)
   const bootTriggerRef = useRef<HTMLElement | null>(null)
   const workspaceRef = useRef(workspace),
     toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null),
@@ -100,24 +93,17 @@ export default function App({ onLock }: { onLock: () => void }) {
     if (toastTimer.current) clearTimeout(toastTimer.current)
     toastTimer.current = setTimeout(() => setToast(''), 4500)
   }, [])
+  workspaceRef.current = workspace
   const update = useCallback(
-    (fn: (w: Workspace) => Workspace) => {
-      const next = fn(workspaceRef.current)
+    (fn: (w: Workspace) => Workspace, successMessage?: string) => {
+      const next = validateWorkspace(fn(workspaceRef.current))
       workspaceRef.current = next
-      setWorkspace(next)
-      try {
-        if (corruptedRef.current !== null) {
-          localStorage.setItem('prts-workspace-recovery', corruptedRef.current)
-        }
-        saveWorkspace(next)
-        setStorageError('')
-      } catch (e) {
-        const message = e instanceof Error ? e.message : '本地保存失败，请导出备份。'
-        setStorageError(message)
-        notify(message)
-      }
+      return store.save('workspace', next).then((saved) => {
+        if (saved && successMessage) notify(successMessage)
+        return saved
+      })
     },
-    [notify],
+    [notify, store.save],
   )
   const log = useCallback(
     (text: string, type: Activity['type']) =>
@@ -125,36 +111,7 @@ export default function App({ onLock }: { onLock: () => void }) {
     [update],
   )
   useEffect(() => {
-    try {
-      const previousRecovery = localStorage.getItem('prts-workspace-recovery')
-      if (previousRecovery) setRecoveryRaw(previousRecovery)
-      const raw = localStorage.getItem(WORKSPACE_STORAGE_KEY)
-      if (raw) {
-        try {
-          validateWorkspace(JSON.parse(raw))
-        } catch {
-          corruptedRef.current = raw
-          setRecoveryRaw(raw)
-          try {
-            localStorage.setItem('prts-workspace-recovery', raw)
-          } catch {
-            setStorageError('原始数据备份尚未写入，请先下载原始数据。')
-          }
-        }
-      } else {
-        saveWorkspace(workspaceRef.current)
-      }
-    } catch {
-      setStorageError('无法访问本地存储，请检查浏览器权限并导出备份。')
-    }
-  }, [])
-  useEffect(() => {
     document.documentElement.dataset.motion = motionEnabled ? 'on' : 'off'
-    try {
-      localStorage.setItem('prts-motion', motionEnabled ? 'on' : 'off')
-    } catch {
-      /* visual preference remains in memory */
-    }
   }, [motionEnabled])
   const finishBoot = useCallback(() => {
     setBooting(false)
@@ -252,14 +209,6 @@ export default function App({ onLock }: { onLock: () => void }) {
     refreshFiles()
   }, [refreshHealth, refreshFiles])
   function completeFocus() {
-    update((w) => ({
-      ...w,
-      focusSessions: w.focusSessions + 1,
-      activities: [activity('完成了一轮专注，辛苦了博士。', 'focus'), ...w.activities].slice(
-        0,
-        100,
-      ),
-    }))
     notify('专注协议完成。辛苦了，博士。')
     if (workspaceRef.current.settings.sound) {
       try {
@@ -304,7 +253,7 @@ export default function App({ onLock }: { onLock: () => void }) {
       done: false,
       createdAt: new Date().toISOString(),
     }
-    update((w) => ({
+    return update((w) => ({
       ...w,
       tasks: [task, ...w.tasks],
       activities: [activity(`添加了任务「${title}」`, 'task'), ...w.activities].slice(0, 100),
@@ -316,11 +265,13 @@ export default function App({ onLock }: { onLock: () => void }) {
   }
   function changeTaskCategories(change: (w: Workspace) => Workspace, message: string) {
     try {
-      update((w) => ({
-        ...change(w),
-        activities: [activity(message, 'task'), ...w.activities].slice(0, 100),
-      }))
-      notify(message)
+      update(
+        (w) => ({
+          ...change(w),
+          activities: [activity(message, 'task'), ...w.activities].slice(0, 100),
+        }),
+        message,
+      )
       return undefined
     } catch (error) {
       return error instanceof Error ? error.message : '分类操作失败，请重试。'
@@ -328,21 +279,23 @@ export default function App({ onLock }: { onLock: () => void }) {
   }
   function saveTask(value: Pick<Task, 'title' | 'priority' | 'dueDate' | 'categoryId'>) {
     const editing = taskDialog
-    update((w) => ({
-      ...w,
-      tasks: editing
-        ? w.tasks.map((t) => (t.id === editing.id ? { ...t, ...value } : t))
-        : [
-            { ...value, id: makeId(), createdAt: new Date().toISOString(), done: false },
-            ...w.tasks,
-          ],
-      activities: [
-        activity(`${editing ? '更新了' : '添加了'}任务「${value.title}」`, 'task'),
-        ...w.activities,
-      ].slice(0, 100),
-    }))
+    update(
+      (w) => ({
+        ...w,
+        tasks: editing
+          ? w.tasks.map((t) => (t.id === editing.id ? { ...t, ...value } : t))
+          : [
+              { ...value, id: makeId(), createdAt: new Date().toISOString(), done: false },
+              ...w.tasks,
+            ],
+        activities: [
+          activity(`${editing ? '更新了' : '添加了'}任务「${value.title}」`, 'task'),
+          ...w.activities,
+        ].slice(0, 100),
+      }),
+      editing ? '任务已更新' : '新目标已加入任务中枢',
+    )
     setTaskDialog(undefined)
-    notify(editing ? '任务已更新' : '新目标已加入任务中枢')
   }
   function changeNotes(notes: Note[]) {
     update((w) => {
@@ -377,8 +330,7 @@ export default function App({ onLock }: { onLock: () => void }) {
     navigate('notes')
   }
   function saveSettings(settings: Settings) {
-    update((w) => ({ ...w, settings }))
-    notify('个人偏好已保存')
+    void update((w) => ({ ...w, settings }), '个人偏好已保存')
   }
   const currentLabel = navItems.find((n) => n.id === page)?.label || '系统设置'
   return (
@@ -528,34 +480,31 @@ export default function App({ onLock }: { onLock: () => void }) {
             inert={mobileOpen}
             tabIndex={-1}
           >
-            {(storageError || recoveryRaw) && (
+            {storageError && (
               <div className="storage-warning" role="alert">
                 <WifiOff size={16} />
-                <span>
-                  {storageError ||
-                    '检测到无法读取的旧数据，原始备份已保留。当前使用恢复后的工作台。'}
-                </span>
+                <span>{storageError}</span>
+                <button onClick={store.exportDraft}>下载未保存草稿</button>
+                {!store.conflict && <button onClick={store.retry}>重试保存</button>}
+                <button onClick={() => setConfirmReload(true)}>重新载入服务器</button>
+              </div>
+            )}
+            {store.recoveryAvailable && (
+              <div className="storage-warning">
+                <span>上次锁定前有尚未保存的草稿，已保留在当前页面内存中。</span>
                 <button
-                  onClick={() => {
-                    try {
-                      const raw =
-                        recoveryRaw ||
-                        localStorage.getItem(WORKSPACE_STORAGE_KEY) ||
-                        JSON.stringify(workspace)
-                      const url = URL.createObjectURL(new Blob([raw], { type: 'application/json' }))
-                      const a = document.createElement('a')
-                      a.href = url
-                      a.download = 'prts-recovery.json'
-                      a.click()
-                      setTimeout(() => URL.revokeObjectURL(url), 1000)
-                    } catch {
-                      notify('无法读取原始数据，请检查浏览器存储权限。')
-                    }
-                  }}
+                  disabled={store.saving || Boolean(store.error)}
+                  onClick={store.recoverDraft}
                 >
-                  导出原始数据
+                  恢复上次草稿
                 </button>
-                {recoveryRaw && <button onClick={() => setRecoveryRaw(null)}>收起提示</button>}
+                <button onClick={store.exportRecovery}>下载上次草稿</button>
+              </div>
+            )}
+            {store.legacyAvailable && (
+              <div className="storage-warning">
+                <span>检测到此浏览器的旧数据，可迁移到服务器。原数据会保留。</span>
+                <button onClick={store.showMigration}>迁移浏览器旧数据</button>
               </div>
             )}
             <div
@@ -622,6 +571,14 @@ export default function App({ onLock }: { onLock: () => void }) {
                   health={health}
                   onSettings={() => navigate('settings')}
                   onNewTask={createTask}
+                  preferences={preferences.assistant}
+                  mode={preferences.assistantMode}
+                  onPreferencesChange={(assistant) => {
+                    void store.save('preferences', { ...preferences, assistant })
+                  }}
+                  onModeChange={(assistantMode) => {
+                    void store.save('preferences', { ...preferences, assistantMode })
+                  }}
                 />
               )}{' '}
               {page === 'settings' && (
@@ -630,13 +587,17 @@ export default function App({ onLock }: { onLock: () => void }) {
                   health={health}
                   onSave={saveSettings}
                   onImport={(data) => {
-                    update(() => data)
-                    notify('工作台备份已导入')
+                    void update(() => data, '工作台备份已导入')
                   }}
                   onNotify={notify}
                   onRefresh={refreshHealth}
                   motionEnabled={motionEnabled}
-                  onMotionToggle={() => setMotionEnabled((v) => !v)}
+                  onMotionToggle={() => {
+                    void store.save('preferences', {
+                      ...preferences,
+                      motionEnabled: !motionEnabled,
+                    })
+                  }}
                   onReplay={() => {
                     bootTriggerRef.current =
                       document.activeElement instanceof HTMLElement ? document.activeElement : null
@@ -649,7 +610,11 @@ export default function App({ onLock }: { onLock: () => void }) {
           <footer className="statusbar">
             <span>
               <i className={storageError ? 'error-dot' : 'live-dot'} />
-              {storageError ? '本地存储异常' : '本地存储 · 自动保存'}
+              {storageError
+                ? '服务器保存未完成'
+                : store.saving
+                  ? '正在保存到服务器…'
+                  : 'SQLite · 已保存到服务器'}
               <span className="status-divider">/</span>
               <span className="footer-device mono">PERSONAL WORKSPACE</span>
             </span>
@@ -686,16 +651,18 @@ export default function App({ onLock }: { onLock: () => void }) {
               taskDialog
                 ? () => {
                     const title = taskDialog.title
-                    update((w) => ({
-                      ...w,
-                      tasks: w.tasks.filter((t) => t.id !== taskDialog.id),
-                      activities: [
-                        activity(`删除了任务「${title}」`, 'task'),
-                        ...w.activities,
-                      ].slice(0, 100),
-                    }))
+                    update(
+                      (w) => ({
+                        ...w,
+                        tasks: w.tasks.filter((t) => t.id !== taskDialog.id),
+                        activities: [
+                          activity(`删除了任务「${title}」`, 'task'),
+                          ...w.activities,
+                        ].slice(0, 100),
+                      }),
+                      '任务已删除',
+                    )
                     setTaskDialog(undefined)
-                    notify('任务已删除')
                   }
                 : undefined
             }
@@ -717,6 +684,30 @@ export default function App({ onLock }: { onLock: () => void }) {
           />
         )}
       </div>
+      {confirmReload && (
+        <Modal title="重新载入服务器数据" onClose={() => setConfirmReload(false)}>
+          <p className="modal-copy">
+            重新载入会放弃此页面尚未保存的修改。请先下载草稿保留内容，再继续。
+          </p>
+          <div className="modal-actions">
+            <button className="button button-ghost" onClick={store.exportDraft}>
+              下载未保存草稿
+            </button>
+            <button className="button button-ghost" onClick={() => setConfirmReload(false)}>
+              取消
+            </button>
+            <button
+              className="button button-primary"
+              onClick={() => {
+                setConfirmReload(false)
+                void store.reload()
+              }}
+            >
+              确认重新载入
+            </button>
+          </div>
+        </Modal>
+      )}
       {booting && <BootSequence onComplete={finishBoot} />}
     </>
   )

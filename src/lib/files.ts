@@ -1,4 +1,5 @@
 import { makeId } from './workspace.ts'
+import { apiFetch } from './api.ts'
 
 export interface WorkspaceFile {
   id: string
@@ -6,170 +7,80 @@ export interface WorkspaceFile {
   type: string
   size: number
   createdAt: string
-  blob: Blob
 }
-
 export const MAX_FILE_BYTES = 20 * 1024 * 1024
 export const MAX_TOTAL_FILE_BYTES = 100 * 1024 * 1024
 
-const DATABASE_NAME = 'prts-files-v1'
-const STORE_NAME = 'files'
-let databasePromise: Promise<IDBDatabase> | undefined
-
-function storageError(error: unknown): Error {
-  if (error instanceof Error && error.name === 'QuotaExceededError') {
-    return new Error('文件保存失败：浏览器存储空间不足，请删除不需要的文件后重试。')
-  }
-  return new Error('无法访问本地文件存储，请检查浏览器隐私设置，或关闭其他工作台标签页后重试。')
-}
-
-function openDatabase(): Promise<IDBDatabase> {
-  if (databasePromise) return databasePromise
-  databasePromise = new Promise<IDBDatabase>((resolve, reject) => {
-    if (typeof globalThis.indexedDB === 'undefined') {
-      reject(new Error('当前浏览器不支持本地文件存储，请使用支持 IndexedDB 的浏览器。'))
-      return
-    }
-    let request: IDBOpenDBRequest
-    try {
-      request = globalThis.indexedDB.open(DATABASE_NAME, 1)
-    } catch (error) {
-      reject(storageError(error))
-      return
-    }
-    let failed = false
-    request.onupgradeneeded = () => {
-      if (!request.result.objectStoreNames.contains(STORE_NAME)) {
-        request.result.createObjectStore(STORE_NAME, { keyPath: 'id' })
-      }
-    }
-    request.onerror = () => {
-      failed = true
-      reject(storageError(request.error))
-    }
-    request.onblocked = () => {
-      failed = true
-      reject(new Error('本地文件存储正在被其他页面占用，请关闭其他工作台标签页后重试。'))
-    }
-    request.onsuccess = () => {
-      const database = request.result
-      if (failed) {
-        database.close()
-        return
-      }
-      database.onversionchange = () => {
-        database.close()
-        databasePromise = undefined
-      }
-      database.onclose = () => {
-        databasePromise = undefined
-      }
-      resolve(database)
-    }
-  }).catch((error: unknown) => {
-    databasePromise = undefined
-    throw error
-  })
-  return databasePromise
+async function result(response: Response) {
+  const data = await response.json()
+  if (!response.ok) throw new Error(data.error || '文件操作失败，请重试。')
+  return data
 }
 
 export async function listFiles(): Promise<WorkspaceFile[]> {
-  const database = await openDatabase()
+  const data = await result(await apiFetch('/api/files', { cache: 'no-store' }))
+  return data.files
+}
+
+function base64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
-    let transaction: IDBTransaction
-    try {
-      transaction = database.transaction(STORE_NAME, 'readonly')
-    } catch (error) {
-      reject(storageError(error))
-      return
-    }
-    let files: WorkspaceFile[] = []
-    const request = transaction.objectStore(STORE_NAME).getAll()
-    request.onsuccess = () => {
-      files = request.result as WorkspaceFile[]
-    }
-    transaction.oncomplete = () =>
-      resolve(files.sort((a, b) => b.createdAt.localeCompare(a.createdAt)))
-    transaction.onabort = () => reject(storageError(transaction.error))
-    transaction.onerror = () => {
-      /* The abort event reports the transaction failure. */
-    }
+    const reader = new FileReader()
+    reader.onerror = () => reject(new Error('无法读取文件，请重试。'))
+    reader.onload = () => resolve(String(reader.result).split(',')[1] || '')
+    reader.readAsDataURL(blob)
   })
+}
+
+export async function storeFileRecords(
+  records: (WorkspaceFile & { blob: Blob })[],
+): Promise<WorkspaceFile[]> {
+  if (!records.length) return []
+  for (const record of records) {
+    if (!(record.blob instanceof Blob) || record.blob.size > MAX_FILE_BYTES)
+      throw new Error(`「${record.name}」超过单个文件 20 MB 的大小限制。`)
+  }
+  if (records.reduce((sum, record) => sum + record.blob.size, 0) > MAX_TOTAL_FILE_BYTES)
+    throw new Error('本次上传文件超过 100 MB，请分批上传。')
+  const files = await Promise.all(
+    records.map(async ({ blob, ...metadata }) => ({
+      ...metadata,
+      data: await base64(blob),
+    })),
+  )
+  const data = await result(
+    await apiFetch('/api/files', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ files }),
+    }),
+  )
+  return data.files
 }
 
 export async function storeFiles(files: File[]): Promise<WorkspaceFile[]> {
-  if (files.length === 0) return []
-  for (const file of files) {
-    if (!(file instanceof Blob) || typeof file.name !== 'string')
-      throw new Error('请选择有效的本地文件。')
-    if (file.size > MAX_FILE_BYTES)
-      throw new Error(`「${file.name}」超过单个文件 20 MB 的大小限制。`)
+  return storeFileRecords(
+    files.map((file) => ({
+      id: makeId(),
+      name: file.name,
+      type: file.type || 'application/octet-stream',
+      size: file.size,
+      createdAt: new Date().toISOString(),
+      blob: file,
+    })),
+  )
+}
+
+export async function readFileBlob(id: string): Promise<Blob> {
+  const response = await apiFetch(`/api/files/${encodeURIComponent(id)}/content`)
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}))
+    throw new Error(data.error || '无法下载文件，请重试。')
   }
-  const incomingBytes = files.reduce((total, file) => total + file.size, 0)
-  if (incomingBytes > MAX_TOTAL_FILE_BYTES)
-    throw new Error('本次选择的文件超过 100 MB，本地文件总容量上限为 100 MB。')
-  const records: WorkspaceFile[] = files.map((file) => ({
-    id: makeId(),
-    name: file.name,
-    type: file.type || 'application/octet-stream',
-    size: file.size,
-    createdAt: new Date().toISOString(),
-    blob: file,
-  }))
-  const database = await openDatabase()
-  return new Promise((resolve, reject) => {
-    let transaction: IDBTransaction
-    try {
-      transaction = database.transaction(STORE_NAME, 'readwrite')
-    } catch (error) {
-      reject(storageError(error))
-      return
-    }
-    let failure: Error | undefined
-    const store = transaction.objectStore(STORE_NAME)
-    // Capacity checks and additions share one transaction to handle concurrent tabs safely.
-    const existing = store.getAll()
-    existing.onsuccess = () => {
-      try {
-        const usedBytes = (existing.result as WorkspaceFile[]).reduce(
-          (total, file) => total + file.blob.size,
-          0,
-        )
-        if (usedBytes + incomingBytes > MAX_TOTAL_FILE_BYTES) {
-          failure = new Error('本地文件总容量不能超过 100 MB，请删除不需要的文件后重试。')
-          transaction.abort()
-          return
-        }
-        for (const file of records) store.add(file)
-      } catch (error) {
-        failure = storageError(error)
-        transaction.abort()
-      }
-    }
-    transaction.oncomplete = () => resolve(records)
-    transaction.onabort = () => reject(failure ?? storageError(transaction.error))
-    transaction.onerror = () => {
-      /* IDB aborts every addition if one request fails. */
-    }
-  })
+  return response.blob()
 }
 
 export async function removeFile(id: string): Promise<void> {
-  if (typeof id !== 'string' || !id) throw new Error('文件 ID 无效，无法删除。')
-  const database = await openDatabase()
-  return new Promise((resolve, reject) => {
-    let transaction: IDBTransaction
-    try {
-      transaction = database.transaction(STORE_NAME, 'readwrite')
-    } catch (error) {
-      reject(storageError(error))
-      return
-    }
-    transaction.objectStore(STORE_NAME).delete(id)
-    transaction.oncomplete = () => resolve()
-    transaction.onabort = () => reject(storageError(transaction.error))
-    transaction.onerror = () => {
-      /* Wait for abort so callers see the final outcome. */
-    }
-  })
+  if (!id) throw new Error('文件 ID 无效，无法删除。')
+  const response = await apiFetch(`/api/files/${encodeURIComponent(id)}`, { method: 'DELETE' })
+  if (!response.ok) await result(response)
 }

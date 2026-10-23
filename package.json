@@ -12,7 +12,8 @@
     "test": "node --test tests/*.test.mjs tests/*.test.ts",
     "test:e2e": "playwright test",
     "format": "prettier --write src server tests *.ts *.json *.html docs README.md",
-    "format:check": "prettier --check src server tests *.ts *.json *.html docs README.md"
+    "format:check": "prettier --check src server tests *.ts *.json *.html docs README.md",
+    "db:backup": "node --env-file-if-exists=.env scripts/backup.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

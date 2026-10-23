@@ -19,8 +19,6 @@ import KnowledgePanel, { KnowledgeSources } from './KnowledgePanel'
 import PrtsSelect from './PrtsSelect'
 import {
   PERSONALITIES,
-  isPersona,
-  parseAssistantPreferences,
   parseKnowledgeResults,
   type AssistantPreferences,
   type KnowledgeResult,
@@ -39,92 +37,145 @@ type Message = {
 }
 import { apiFetch } from '../lib/api'
 
+// Failed saves remain available when navigating away and returning to this view.
+const unsavedMessages = new Map<string, Message>()
+let messageWrites: Promise<unknown> = Promise.resolve()
+let historyEpoch = 0
+function enqueueMessageWrite<T>(write: () => Promise<T>): Promise<T> {
+  const result = messageWrites.then(write)
+  messageWrites = result.catch(() => {})
+  return result
+}
+
 export default function AssistantView({
   workspace,
   health,
   onSettings,
   onNewTask,
+  preferences,
+  mode,
+  onPreferencesChange,
+  onModeChange,
 }: {
   workspace: Workspace
   health: ApiHealth
   onSettings: () => void
-  onNewTask: (title: string) => void
+  onNewTask: (title: string) => Promise<boolean>
+  preferences: AssistantPreferences
+  mode: 'local' | 'ai' | 'knowledge'
+  onPreferencesChange: (value: AssistantPreferences) => void
+  onModeChange: (mode: 'local' | 'ai' | 'knowledge') => void
 }) {
-  const [mode, setMode] = useState<'local' | 'ai' | 'knowledge'>(() => {
-    try {
-      const saved = sessionStorage.getItem('prts-assistant-mode')
-      if (saved === 'local' || saved === 'ai' || saved === 'knowledge') return saved
-    } catch {
-      /* fall back when browser storage is unavailable */
-    }
-    return health.configured ? 'ai' : 'local'
-  })
-  const [preferences, setPreferences] = useState<AssistantPreferences>(() => {
-    try {
-      return parseAssistantPreferences(
-        JSON.parse(localStorage.getItem('prts-assistant-v1') || '{}'),
-      )
-    } catch {
-      return parseAssistantPreferences(null)
-    }
-  })
   const persona = PERSONALITIES.find((item) => item.id === preferences.persona)!
-  const [messages, setMessages] = useState<Message[]>(() => {
-    try {
-      const v = JSON.parse(sessionStorage.getItem('prts-chat-v1') || '[]')
-      return Array.isArray(v)
-        ? v
-            .filter(
-              (m) =>
-                m &&
-                !m.pending &&
-                typeof m.id === 'string' &&
-                ['user', 'assistant'].includes(m.role) &&
-                typeof m.content === 'string' &&
-                ['local', 'ai'].includes(m.mode),
-            )
-            .map((m) => ({
-              ...m,
-              persona: isPersona(m.persona) ? m.persona : 'prts',
-              sources: parseKnowledgeResults(m.sources),
-            }))
-            .slice(-60)
-        : []
-    } catch {
-      return []
-    }
-  })
+  const [messages, setMessages] = useState<Message[]>([...unsavedMessages.values()])
+  const [loaded, setLoaded] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [historyError, setHistoryError] = useState('')
+  const [saveError, setSaveError] = useState(
+    unsavedMessages.size ? '仍有对话未保存到服务器，请重试保存。' : '',
+  )
   const [input, setInput] = useState(''),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [confirmClear, setConfirmClear] = useState(false)
+  const historyRequest = useRef(0)
   const controller = useRef<AbortController | null>(null),
     bottom = useRef<HTMLDivElement>(null),
     inputRef = useRef<HTMLTextAreaElement>(null)
-  useEffect(() => {
+  async function loadMessages(before?: string) {
+    const version = ++historyRequest.current
+    setHistoryError('')
     try {
-      sessionStorage.setItem('prts-assistant-mode', mode)
-    } catch {
-      /* keep the current tab in memory */
-    }
-  }, [mode])
-  useEffect(() => {
-    try {
-      localStorage.setItem('prts-assistant-v1', JSON.stringify(preferences))
-    } catch {
-      /* preferences stay available in this view */
-    }
-  }, [preferences])
-  useEffect(() => {
-    try {
-      sessionStorage.setItem(
-        'prts-chat-v1',
-        JSON.stringify(messages.filter((m) => !m.pending).slice(-60)),
+      await messageWrites
+      const epoch = historyEpoch
+      const response = await apiFetch(
+        `/api/messages?limit=60${before ? `&before=${encodeURIComponent(before)}` : ''}`,
       )
-    } catch {
-      /* chat remains available this session */
+      const result = await response.json()
+      if (version !== historyRequest.current || epoch !== historyEpoch) return
+      if (!response.ok || !Array.isArray(result.messages))
+        throw new Error(result.error || '对话历史加载失败。')
+      setMessages((current) => {
+        const values = before
+          ? [...result.messages, ...current]
+          : [...result.messages, ...current, ...unsavedMessages.values()]
+        return [...new Map(values.map((message: Message) => [message.id, message])).values()]
+      })
+      setHasMore(result.hasMore === true)
+      setLoaded(true)
+    } catch (cause) {
+      if (version !== historyRequest.current) return
+      setHistoryError(cause instanceof Error ? cause.message : '无法读取对话历史，请重试。')
     }
-  }, [messages])
+  }
+  useEffect(() => {
+    void loadMessages()
+    return () => {
+      ++historyRequest.current
+    }
+  }, [])
+  useEffect(() => {
+    const guard = (event: BeforeUnloadEvent) => {
+      if (unsavedMessages.size) {
+        event.preventDefault()
+        event.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', guard)
+    return () => window.removeEventListener('beforeunload', guard)
+  }, [])
+  async function persistMessages(additions: Message[]) {
+    for (const message of additions) unsavedMessages.set(message.id, { ...message, pending: false })
+    if (!unsavedMessages.size) return
+    const pending = [...unsavedMessages.values()]
+    setSaving(true)
+    setSaveError('')
+    try {
+      const response = await enqueueMessageWrite(() =>
+        apiFetch('/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: pending }),
+        }),
+      )
+      if (!response.ok) {
+        const result = await response.json()
+        throw new Error(result.error || '对话保存失败。')
+      }
+      for (const message of pending) unsavedMessages.delete(message.id)
+    } catch (cause) {
+      setSaveError(cause instanceof Error ? cause.message : '对话未保存到服务器，请重试保存。')
+    } finally {
+      setSaving(false)
+    }
+  }
+  async function clearMessages() {
+    ++historyRequest.current
+    ++historyEpoch
+    setSaving(true)
+    setSaveError('')
+    try {
+      const response = await enqueueMessageWrite(() =>
+        apiFetch('/api/messages', { method: 'DELETE' }),
+      )
+      if (!response.ok) {
+        const result = await response.json()
+        throw new Error(result.error || '清空对话失败。')
+      }
+      ++historyEpoch
+      unsavedMessages.clear()
+      setMessages([])
+      setLoaded(true)
+      setHasMore(false)
+      setConfirmClear(false)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '清空失败，请重试。')
+      setConfirmClear(false)
+    } finally {
+      setSaving(false)
+    }
+  }
   useEffect(() => {
     const reduceMotion =
       document.documentElement.dataset.motion === 'off' ||
@@ -137,7 +188,8 @@ export default function AssistantView({
   useEffect(() => () => controller.current?.abort(), [])
   async function send(text = input) {
     const content = text.trim()
-    if (!content || busy || mode === 'knowledge') return
+    if (!content || busy || saving || !loaded || unsavedMessages.size || mode === 'knowledge')
+      return
     if (mode === 'ai' && !health.configured) {
       setError(
         health.reachable
@@ -157,13 +209,23 @@ export default function AssistantView({
     }
     setMessages((p) => [...p, user])
     if (mode === 'local') {
+      setBusy(true)
+      let taskResult: Promise<boolean> | undefined
+      const replyContent = runLocalCommand(content, workspace, (title) => {
+        taskResult = onNewTask(title)
+      })
+      const taskSaved = taskResult ? await taskResult : true
       const reply: Message = {
         id: crypto.randomUUID(),
         role: 'assistant',
-        content: runLocalCommand(content, workspace, onNewTask),
+        content: taskSaved
+          ? replyContent
+          : '任务暂未保存到服务器。草稿已保留，请按页面保存提示重试。',
         mode,
       }
       setMessages((p) => [...p, reply])
+      await persistMessages([user, reply])
+      setBusy(false)
       return
     }
     setBusy(true)
@@ -199,6 +261,7 @@ export default function AssistantView({
         ...p.map((m) => (m.id === user.id ? { ...m, pending: false } : m)),
         reply,
       ])
+      await persistMessages([{ ...user, pending: false }, reply])
     } catch (e) {
       setMessages((p) => p.filter((m) => m.id !== user.id))
       setInput((current) => current || content)
@@ -229,7 +292,7 @@ export default function AssistantView({
         <button
           className="button button-ghost"
           onClick={() => setConfirmClear(true)}
-          disabled={!messages.length || busy}
+          disabled={!messages.length || busy || saving || !loaded}
         >
           <Trash2 size={15} />
           清空对话
@@ -243,7 +306,7 @@ export default function AssistantView({
               aria-pressed={mode === 'local'}
               disabled={busy}
               onClick={() => {
-                setMode('local')
+                onModeChange('local')
                 setError('')
               }}
             >
@@ -255,7 +318,7 @@ export default function AssistantView({
               aria-pressed={mode === 'ai'}
               disabled={busy}
               onClick={() => {
-                setMode('ai')
+                onModeChange('ai')
                 setError('')
               }}
             >
@@ -267,7 +330,7 @@ export default function AssistantView({
               aria-pressed={mode === 'knowledge'}
               disabled={busy}
               onClick={() => {
-                setMode('knowledge')
+                onModeChange('knowledge')
                 setError('')
               }}
             >
@@ -287,9 +350,9 @@ export default function AssistantView({
             )}
             <span>
               {mode === 'knowledge'
-                ? '本地资料库'
+                ? '服务器资料库'
                 : mode === 'local'
-                  ? '无需联网'
+                  ? '工作台指令'
                   : health.configured
                     ? health.model
                     : '尚未连接'}
@@ -310,10 +373,10 @@ export default function AssistantView({
                     disabled={busy}
                     value={preferences.persona}
                     onValueChange={(value) =>
-                      setPreferences((current) => ({
-                        ...current,
+                      onPreferencesChange({
+                        ...preferences,
                         persona: value as PersonaId,
-                      }))
+                      })
                     }
                     options={PERSONALITIES.map((item) => ({
                       value: item.id,
@@ -329,10 +392,10 @@ export default function AssistantView({
                     disabled={busy}
                     value={preferences.knowledge}
                     onValueChange={(value) =>
-                      setPreferences((current) => ({
-                        ...current,
+                      onPreferencesChange({
+                        ...preferences,
                         knowledge: value as AssistantPreferences['knowledge'],
-                      }))
+                      })
                     }
                     options={[
                       { value: 'all', label: '明日方舟 + 终末地' },
@@ -349,7 +412,24 @@ export default function AssistantView({
               </div>
             )}
             <div className="chat-messages" aria-live="polite" aria-relevant="additions">
-              {!shown.length && (
+              {!loaded && !historyError && <p role="status">正在读取对话记录…</p>}
+              {historyError && (
+                <div className="inline-error" role="alert">
+                  {historyError}
+                  <button className="button button-ghost" onClick={() => void loadMessages()}>
+                    重试读取
+                  </button>
+                </div>
+              )}
+              {hasMore && (
+                <button
+                  className="button button-ghost"
+                  onClick={() => void loadMessages(messages[0]?.id)}
+                >
+                  加载更早记录
+                </button>
+              )}
+              {!shown.length && loaded && (
                 <div className="chat-welcome">
                   <div className="assistant-emblem">
                     <Logo />
@@ -425,6 +505,19 @@ export default function AssistantView({
               )}
               <div ref={bottom} />
             </div>
+            {saveError && (
+              <div className="inline-error" role="alert">
+                {saveError}
+                <button
+                  className="button button-ghost"
+                  disabled={saving}
+                  onClick={() => void persistMessages([])}
+                >
+                  重试保存
+                </button>
+              </div>
+            )}
+            {saving && <p role="status">正在保存对话…</p>}
             {error && (
               <div role="alert" className="inline-error">
                 {error}
@@ -480,7 +573,13 @@ export default function AssistantView({
                 ) : (
                   <button
                     className="send-button"
-                    disabled={!input.trim() || (mode === 'ai' && !health.configured)}
+                    disabled={
+                      !loaded ||
+                      saving ||
+                      !!saveError ||
+                      !input.trim() ||
+                      (mode === 'ai' && !health.configured)
+                    }
                     aria-label="发送消息"
                   >
                     <ArrowUp size={20} />
@@ -493,17 +592,17 @@ export default function AssistantView({
       </section>
       {confirmClear && (
         <Modal title="清空当前会话记录？" onClose={() => setConfirmClear(false)}>
-          <p className="modal-copy">本地指令和 AI 对话记录都将清空，任务和笔记会继续保留。</p>
+          <p className="modal-copy">
+            服务器上的指令和 AI 对话历史将全部清空，所有设备都会同步此结果。任务和笔记会继续保留。
+          </p>
           <div className="modal-actions">
             <button className="button button-ghost" onClick={() => setConfirmClear(false)}>
               取消
             </button>
             <button
               className="button button-primary"
-              onClick={() => {
-                setMessages([])
-                setConfirmClear(false)
-              }}
+              disabled={saving}
+              onClick={() => void clearMessages()}
             >
               确认清空
             </button>

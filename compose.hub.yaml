@@ -1,0 +1,17 @@
+services:
+  prts:
+    image: tano26/prts:${PRTS_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8787
+      PRTS_DB_PATH: /app/data/prts.sqlite
+    ports:
+      - '127.0.0.1:8787:8787'
+    volumes:
+      - prts-data:/app/data
+      - prts-backups:/app/backups
+volumes:
+  prts-data:
+  prts-backups:

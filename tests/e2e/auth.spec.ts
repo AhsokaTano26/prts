@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect, waitSaved, type Page } from './fixture'
 
 async function login(page: Page) {
   const password = process.env.PRTS_PASSWORD
@@ -48,14 +48,18 @@ test('password login, refresh, explicit lock and new login preserve workspace da
   const cookie = cookies.find((item) => item.name === 'prts_session')
   expect(cookie?.httpOnly).toBe(true)
   expect(cookie?.sameSite).toBe('Strict')
+  await waitSaved(page)
   await page.reload()
   await expect(page.locator('.sidebar')).toBeVisible()
   await page.getByRole('button', { name: '锁定终端', exact: true }).click()
   await expect(page.getByRole('heading', { name: '终端访问验证', exact: true })).toBeVisible()
   expect((await page.request.get('/api/health')).status()).toBe(401)
-  expect(await page.evaluate(() => localStorage.getItem('prts-workspace-v1'))).not.toBeNull()
+  expect(await page.evaluate(() => localStorage.getItem('prts-workspace-v1'))).toBeNull()
   await login(page)
   await expect(page.locator('.sidebar')).toBeVisible()
+  expect(
+    (await (await page.request.get('/api/state')).json()).documents.workspace.value.tasks.length,
+  ).toBeGreaterThan(0)
 })
 
 test('revoked session locks an open tab when it becomes visible again', async ({ page }) => {
@@ -77,6 +81,7 @@ test('failed logout remains locked across reload and retries revocation before e
   await page.route('**/api/auth/logout', (route) => route.abort())
   await page.getByRole('button', { name: '锁定终端', exact: true }).click()
   await expect(page.getByRole('button', { name: '重新连接', exact: true })).toBeVisible()
+  await waitSaved(page)
   await page.reload()
   await expect(page.getByRole('button', { name: '重新连接', exact: true })).toBeVisible()
   await expect(page.locator('.sidebar')).toHaveCount(0)
@@ -167,6 +172,7 @@ test('missing server password and unavailable auth service remain locked', async
   await expect(page.getByRole('button', { name: '验证并进入', exact: true })).toHaveCount(0)
   await page.unroute('**/api/auth/session')
   await page.route('**/api/auth/session', (route) => route.abort())
+  await waitSaved(page)
   await page.reload()
   await expect(page.locator('.sidebar')).toHaveCount(0)
   await expect(page.getByRole('button', { name: '重新连接', exact: true })).toBeVisible()

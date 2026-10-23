@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test'
+import { test, expect, waitSaved, type Page } from './fixture'
 import { chooseOption } from './select-helper'
 
 test.beforeEach(async ({ page }) => {
@@ -68,6 +68,7 @@ test('custom category columns support task moves, rename, safe deletion and relo
   const study = page.getByRole('region', { name: '学习分类', exact: true })
   await expect(study.getByRole('button', { name: '验证分类迁移', exact: true })).toBeVisible()
   await study.getByRole('checkbox', { name: '完成任务：验证分类迁移', exact: true }).click()
+  await waitSaved(page)
   await page.reload()
   await expect(
     study.getByRole('checkbox', { name: '恢复任务：验证分类迁移', exact: true }),
@@ -95,15 +96,14 @@ test('custom category columns support task moves, rename, safe deletion and relo
       .getByRole('region', { name: /未分类/ })
       .getByRole('checkbox', { name: '恢复任务：验证分类迁移', exact: true }),
   ).toHaveAttribute('aria-checked', 'true')
+  await waitSaved(page)
   await page.reload()
   await expect(
     page
       .getByRole('region', { name: /未分类/ })
       .getByRole('button', { name: '验证分类迁移', exact: true }),
   ).toBeVisible()
-  const saved = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem('prts-workspace-v1') || '{}'),
-  )
+  const saved = (await (await page.request.get('/api/state')).json()).documents.workspace.value
   expect(saved.schemaVersion).toBe(2)
   expect(saved.taskCategories.some((category: { name: string }) => category.name === '研究')).toBe(
     true,
@@ -120,8 +120,12 @@ test('legacy tasks remain intact and categories fit three desktop columns and on
 }) => {
   await page.goto('/#tasks')
   await expect(page.getByRole('heading', { name: '任务中枢.', exact: true })).toBeVisible()
-  await page.evaluate(() => {
-    const workspace = JSON.parse(localStorage.getItem('prts-workspace-v1') || '{}')
+  const existing = (await (await page.request.get('/api/state')).json()).documents.workspace.value
+  await page.request.post('/__test/reset', {
+    headers: { 'x-prts-test': 'isolated-browser-test' },
+    data: { seed: false, keepSessions: true },
+  })
+  await page.evaluate((workspace) => {
     workspace.schemaVersion = 1
     delete workspace.taskCategories
     workspace.tasks = [
@@ -135,8 +139,10 @@ test('legacy tasks remain intact and categories fit three desktop columns and on
       },
     ]
     localStorage.setItem('prts-workspace-v1', JSON.stringify(workspace))
-  })
+  }, existing)
+  await waitSaved(page)
   await page.reload()
+  await page.getByRole('button', { name: '迁移浏览器数据并进入', exact: true }).click()
   await expect(
     page
       .getByRole('region', { name: /未分类/ })

@@ -132,7 +132,10 @@ export default function CorpusSettings() {
                   ? '暂时无法读取语料状态'
                   : '首次使用，下载语料后即可检索'}
           </h3>
-          <p>明日方舟与终末地语料保存在本机。首次下载约 260 MB，更新时自动复用已校验的文件。</p>
+          <p>
+            明日方舟与终末地语料保存在服务器资源目录。首次下载约 260
+            MB，更新时自动复用已校验的文件。
+          </p>
           {knowledge?.ready && (
             <div className="corpus-settings-counts">
               {knowledge.sources.map((source) => (

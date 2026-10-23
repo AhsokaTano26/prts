@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, waitSaved } from './fixture'
 
 test.beforeEach(async ({ page }) => {
   const password = process.env.PRTS_PASSWORD
@@ -39,6 +39,7 @@ test('styled assistant selects support keyboard selection, dismissal and persist
   await expect(persona).toContainText('凯尔希')
   await expect(persona).toHaveAttribute('aria-expanded', 'false')
   await expect(persona).toBeFocused()
+  await waitSaved(page)
   await page.reload()
   await expect(persona).toContainText('凯尔希')
   await persona.press('Space')

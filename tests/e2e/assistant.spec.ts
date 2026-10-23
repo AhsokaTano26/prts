@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, waitSaved } from './fixture'
 import { chooseOption } from './select-helper'
 
 test.beforeEach(async ({ page }) => {
@@ -61,6 +61,7 @@ test('personality and knowledge choices persist and reach AI requests with reada
   await chooseOption(page, 'AI 性格', '阿米娅 · 温和鼓励')
   await chooseOption(page, '参考语料', '仅明日方舟')
   await expect(page.getByRole('heading', { name: '博士，我们一起慢慢来。' })).toBeVisible()
+  await waitSaved(page)
   await page.reload()
   await expect(page.getByRole('combobox', { name: 'AI 性格', exact: true })).toContainText('阿米娅')
   await expect(page.getByRole('combobox', { name: '参考语料', exact: true })).toContainText(
@@ -78,6 +79,7 @@ test('personality and knowledge choices persist and reach AI requests with reada
   expect(requests[0].knowledge).toBe('arknights')
   await chooseOption(page, 'AI 性格', '凯尔希 · 严谨直言')
   await expect(page.locator('.chat-message.assistant .message-label')).toContainText('阿米娅')
+  await waitSaved(page)
   await page.reload()
   await expect(page.getByRole('combobox', { name: 'AI 性格', exact: true })).toContainText('凯尔希')
   await expect(page.locator('.chat-message.assistant .message-label')).toContainText('阿米娅')

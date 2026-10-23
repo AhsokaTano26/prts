@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, waitSaved } from './fixture'
 import { chooseOption } from './select-helper'
 
 test.beforeEach(async ({ page }) => {
@@ -47,6 +47,7 @@ test('task creation, completion, edit, deletion, and persistence', async ({ page
   await chooseOption(page, '优先级', '高优先级')
   await page.getByRole('button', { name: '创建任务', exact: true }).click()
   await expect(page.getByRole('button', { name: '整理 PRTS 测试记录', exact: true })).toBeVisible()
+  await waitSaved(page)
   await page.reload()
   await page.getByRole('checkbox', { name: '完成任务：整理 PRTS 测试记录', exact: true }).click()
   await page
@@ -80,6 +81,7 @@ test('notes save empty title and Markdown across reloads', async ({ page }) => {
     .fill('# 验证内容\n\n**这是一条记录**\n\n- 自动保存\n- 本地存储')
   await page.getByRole('button', { name: '预览', exact: true }).click()
   await expect(page.getByRole('heading', { name: '验证内容', exact: true })).toBeVisible()
+  await waitSaved(page)
   await page.reload()
   await page.getByRole('button', { name: /QA 笔记/ }).click()
   await expect(page.getByLabel('笔记正文', { exact: true })).toHaveValue(/自动保存/)
@@ -98,6 +100,7 @@ test('real files survive reload and can be downloaded and deleted', async ({ pag
     buffer: Buffer.from('PRTS local storage verification'),
   })
   await expect(page.getByText('qa-reference.txt', { exact: true })).toBeVisible()
+  await waitSaved(page)
   await page.reload()
   await expect(page.getByText('qa-reference.txt', { exact: true })).toBeVisible()
   const downloadPromise = page.waitForEvent('download')
@@ -139,6 +142,7 @@ test('assistant local commands work and unconfigured AI is explicit', async ({ p
 test('focus timer pauses, resets, and restores across reload', async ({ page }) => {
   await page.getByRole('button', { name: '开始专注', exact: true }).click()
   await expect(page.getByRole('button', { name: '暂停专注', exact: true })).toBeVisible()
+  await waitSaved(page)
   await page.reload()
   await expect(page.getByRole('button', { name: '暂停专注', exact: true })).toBeVisible()
   await page.getByRole('button', { name: '暂停专注', exact: true }).click()
@@ -169,6 +173,7 @@ test('settings backup round-trip and invalid import do not destroy data', async 
   await page.locator('input[type=file]').setInputFiles(path!)
   await expect(page.getByRole('heading', { name: '确认导入工作台备份' })).toBeVisible()
   await page.getByRole('button', { name: '确认替换并导入' }).click()
+  await waitSaved(page)
   await page.reload()
   await expect(page.getByLabel('博士代号', { exact: true })).toHaveValue('测试博士')
 })
@@ -241,20 +246,23 @@ test('boot sequence auto-completes, skips, and respects reduced motion', async (
   await page.getByRole('checkbox', { name: /终端动态效果/ }).uncheck()
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'off')
   await expect(page.getByRole('button', { name: '重播启动动画', exact: true })).toBeDisabled()
+  await waitSaved(page)
   await page.reload()
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'off')
 })
 
 test('corrupt stored data remains recoverable after a new edit', async ({ page }) => {
   await page.evaluate(() => localStorage.setItem('prts-workspace-v1', '{broken-original'))
+  await waitSaved(page)
   await page.reload()
   await expect(page.locator('.storage-warning')).toBeVisible()
   await page.getByRole('button', { name: '新建任务', exact: true }).click()
   await page.getByLabel('任务内容', { exact: true }).fill('恢复后的新任务')
   await page.getByRole('button', { name: '创建任务', exact: true }).click()
-  expect(await page.evaluate(() => localStorage.getItem('prts-workspace-recovery'))).toBe(
+  expect(await page.evaluate(() => localStorage.getItem('prts-workspace-v1'))).toBe(
     '{broken-original',
   )
+  await waitSaved(page)
   await page.reload()
   await expect(page.getByRole('button', { name: '恢复后的新任务', exact: true })).toBeVisible()
   await expect(page.locator('.storage-warning')).toBeVisible()
@@ -279,6 +287,7 @@ test('AI request retry has one user turn and does not load remote images', async
           },
     )
   })
+  await waitSaved(page)
   await page.reload()
   await page
     .locator('.sidebar')

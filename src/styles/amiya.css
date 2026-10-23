@@ -133,3 +133,40 @@ html[data-motion='off'] .amiya-portrait {
     animation: none;
   }
 }
+
+.amiya-empty {
+  position: absolute;
+  top: 50%;
+  right: 26px;
+  width: min(270px, calc(100% - 40px));
+  transform: translateY(-62%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  color: var(--muted);
+  text-align: right;
+  pointer-events: auto;
+}
+.amiya-visual--empty {
+  z-index: 3;
+}
+.amiya-empty strong {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+.amiya-empty p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.amiya-empty .button {
+  min-height: 36px;
+}
+@media (max-width: 760px) {
+  .amiya-empty {
+    right: 20px;
+    transform: translateY(-65%);
+  }
+}

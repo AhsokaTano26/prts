@@ -14,7 +14,7 @@ import {
   Upload,
   X,
 } from 'lucide-react'
-import { listFiles, removeFile, storeFiles, type WorkspaceFile } from '../lib/files'
+import { listFiles, removeFile, storeFiles, readFileBlob, type WorkspaceFile } from '../lib/files'
 import { formatBytes, relativeTime } from '../lib/workspace'
 import '../styles/workspace-views.css'
 
@@ -108,7 +108,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
       }
     } catch (cause) {
       if (mounted.current)
-        setError(cause instanceof Error ? cause.message : '无法读取本地文件，请重试。')
+        setError(cause instanceof Error ? cause.message : '无法读取服务器文件，请重试。')
     } finally {
       if (mounted.current) setLoading(false)
     }
@@ -212,9 +212,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
       onActivity(`上传了 ${added.length} 个文件`)
     } catch (cause) {
       if (mounted.current)
-        setError(
-          cause instanceof Error ? cause.message : '文件上传失败，请检查浏览器存储空间后重试。',
-        )
+        setError(cause instanceof Error ? cause.message : '文件上传失败，请检查网络后重试。')
     } finally {
       operation.current = false
       if (mounted.current) setBusy(false)
@@ -246,9 +244,9 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
     }
   }
 
-  function downloadFile(file: WorkspaceFile) {
+  async function downloadFile(file: WorkspaceFile) {
     try {
-      const url = URL.createObjectURL(file.blob)
+      const url = URL.createObjectURL(await readFileBlob(file.id))
       const link = document.createElement('a')
       link.href = url
       link.download = file.name
@@ -261,14 +259,19 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
     }
   }
 
-  function openFile(file: WorkspaceFile, animate = true) {
+  async function openFile(file: WorkspaceFile, animate = true) {
     if (canPreview(file)) {
       previewTrigger.current =
         document.activeElement instanceof HTMLElement ? document.activeElement : null
       closingPreview.current = false
       setPreviewMotion(animate)
       setPreviewClosing(false)
-      setPreview({ file, url: URL.createObjectURL(file.blob) })
+      try {
+        const blob = await readFileBlob(file.id)
+        if (mounted.current) setPreview({ file, url: URL.createObjectURL(blob) })
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : '无法加载图片，请重试。')
+      }
     } else downloadFile(file)
   }
 
@@ -580,19 +583,19 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
           <span>
             <span className="workspace-status-dot" /> 已归档 {files.length} 个文件
           </span>
-          <span className="mono">PRIVATE / LOCAL</span>
+          <span className="mono">PRIVATE / SERVER</span>
         </div>
       </div>
       <div className="files-storage">
         <div>
           <FolderOpen size={16} aria-hidden="true" />
-          <span>本地存储空间</span>
+          <span>服务器存储空间</span>
           <strong className="mono">
             {formatBytes(totalBytes)} <span>/ 100 MB</span>
           </strong>
         </div>
-        <progress value={totalBytes} max={TOTAL_LIMIT} aria-label="本地文件存储用量" />
-        <p>文件保存在当前浏览器中，清除浏览器数据会移除这些文件。</p>
+        <progress value={totalBytes} max={TOTAL_LIMIT} aria-label="服务器文件存储用量" />
+        <p>文件保存在服务器，登录同一终端即可在其他设备访问。</p>
       </div>
 
       {preview ? (
