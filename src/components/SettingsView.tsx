@@ -8,6 +8,7 @@ import CorpusSettings from './CorpusSettings'
 import AssetSettings from './AssetSettings'
 import { AIConnectionSettings, PasswordSettings } from './RuntimeSettings'
 import MobileAppSettings from './MobileAppSettings'
+import NotificationSettings from './NotificationSettings'
 export default function SettingsView({
   workspace,
   health,
@@ -141,6 +142,7 @@ export default function SettingsView({
         <AIConnectionSettings health={health} onRefresh={onRefresh} />
         <PasswordSettings />
         <MobileAppSettings />
+        <NotificationSettings />
         <CorpusSettings />
         <AssetSettings />
         <section className="panel settings-section data-section">

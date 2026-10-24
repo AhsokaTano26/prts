@@ -1,0 +1,136 @@
+.notification-settings {
+  min-width: 0;
+}
+.notification-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 18px 0 0;
+  min-width: 0;
+}
+.notification-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 16px 0;
+  cursor: pointer;
+}
+.notification-toggle input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+.notification-channel {
+  border-top: 1px solid var(--border);
+  padding: 5px 0 20px;
+  margin-top: 22px;
+}
+.notification-channel .field-hint {
+  overflow-wrap: anywhere;
+}
+.notification-channel > .button {
+  margin-top: 10px;
+}
+.notification-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 10px;
+}
+.notification-notice {
+  color: var(--accent);
+  font-size: 13px;
+  margin: 16px 0 0;
+  line-height: 1.8;
+}
+.notification-history {
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+  padding-top: 18px;
+  font-size: 13px;
+}
+.notification-history summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+.notification-history ul {
+  padding: 0;
+  list-style: none;
+  margin: 12px 0;
+}
+.notification-history li {
+  display: grid;
+  gap: 6px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+.notification-history li span,
+.notification-history li small {
+  color: var(--muted);
+  line-height: 1.7;
+}
+.task-reminder-tray {
+  border: 1px solid #59563a;
+  background: #25251e;
+  margin: 20px clamp(18px, 3vw, 42px) 0;
+  padding: 16px 20px;
+}
+.task-reminder-heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--accent);
+}
+.task-reminder-heading > span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.task-reminder-heading > .button {
+  margin-left: auto;
+}
+.task-reminder-tray ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  max-height: 240px;
+  overflow: auto;
+}
+.task-reminder-tray li {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  border-top: 1px solid #393b30;
+  padding: 12px 0;
+}
+.task-reminder-tray li > div {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 6px;
+}
+.task-reminder-tray li strong {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  font-weight: 500;
+}
+.task-reminder-tray time {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.task-reminder-tray li > button {
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .notification-settings .form-row {
+    flex-direction: column;
+  }
+  .task-reminder-tray {
+    padding: 12px;
+  }
+}

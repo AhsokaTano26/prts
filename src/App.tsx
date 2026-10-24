@@ -33,6 +33,7 @@ import TasksView, { TaskDialog } from './components/TasksView'
 import NotesView from './components/NotesView'
 import FilesView from './components/FilesView'
 import AssistantView, { type ApiHealth } from './components/AssistantView'
+import TaskReminders from './components/TaskReminders'
 import SettingsView from './components/SettingsView'
 import CommandPalette from './components/CommandPalette'
 import BootSequence from './components/BootSequence'
@@ -277,7 +278,7 @@ export default function App({ onLock }: { onLock: () => void }) {
       return error instanceof Error ? error.message : '分类操作失败，请重试。'
     }
   }
-  function saveTask(value: Pick<Task, 'title' | 'priority' | 'dueDate' | 'categoryId'>) {
+  function saveTask(value: Pick<Task, 'title' | 'priority' | 'dueDate' | 'dueAt' | 'categoryId'>) {
     const editing = taskDialog
     update(
       (w) => ({
@@ -489,6 +490,11 @@ export default function App({ onLock }: { onLock: () => void }) {
                 <button onClick={() => setConfirmReload(true)}>重新载入服务器</button>
               </div>
             )}
+            <TaskReminders
+              sound={workspace.settings.sound}
+              revision={store.documents.workspace.revision}
+              onTasks={() => navigate('tasks')}
+            />
             {store.recoveryAvailable && (
               <div className="storage-warning">
                 <span>上次锁定前有尚未保存的草稿，已保留在当前页面内存中。</span>

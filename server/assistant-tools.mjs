@@ -19,6 +19,10 @@ const fieldsSchema = {
     priority: { type: 'string', enum: ['high', 'medium', 'low'] },
     categoryId: { type: 'string' },
     dueDate: { type: 'string', description: 'YYYY-MM-DD，空字符串表示无截止日期' },
+    dueAt: {
+      type: 'string',
+      description: '可选，带时区的ISO截止时间，例如2026-10-25T18:30:00+08:00；空字符串清除具体时刻',
+    },
     done: { type: 'boolean' },
     pinned: { type: 'boolean' },
     name: { type: 'string' },
@@ -283,7 +287,9 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
     } else if (operation.endsWith('_task')) {
       onlyKeys(
         fields,
-        operation === 'delete_task' ? [] : ['title', 'priority', 'categoryId', 'dueDate', 'done'],
+        operation === 'delete_task'
+          ? []
+          : ['title', 'priority', 'categoryId', 'dueDate', 'dueAt', 'done'],
       )
       if (operation === 'create_task') {
         if (typeof fields.title !== 'string' || !fields.title.trim())
@@ -299,6 +305,8 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
           ...fields,
         }
         value.tasks.unshift(after)
+        if (after.dueAt && !after.dueDate) after.dueDate = after.dueAt.slice(0, 10)
+        if (after.dueAt === '') delete after.dueAt
         summary = `新建任务：${after.title}`
       } else {
         const item = target(value.tasks, change.id)
@@ -307,7 +315,14 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
           value.tasks = value.tasks.filter((task) => task.id !== change.id)
           summary = `删除任务：${item.title}`
         } else {
+          if (
+            Object.hasOwn(fields, 'dueDate') &&
+            fields.dueDate !== item.dueDate &&
+            !Object.hasOwn(fields, 'dueAt')
+          )
+            delete item.dueAt
           Object.assign(item, fields)
+          if (item.dueAt === '') delete item.dueAt
           after = item
           summary = `更新任务：${item.title}`
         }
@@ -384,6 +399,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
         priority: '优先级',
         categoryId: '分类',
         dueDate: '截止日期',
+        dueAt: '截止时间',
         done: '已完成',
         pinned: '置顶',
         name: '名称',

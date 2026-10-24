@@ -12,6 +12,7 @@ export interface Task {
   categoryId: string
   done: boolean
   dueDate: string
+  dueAt?: string
   createdAt: string
 }
 
@@ -303,6 +304,7 @@ export function validateWorkspace(data: unknown): Workspace {
         categoryId,
         done: boolean(item.done, '任务完成状态'),
         dueDate: dueDate(item.dueDate),
+        ...(item.dueAt !== undefined ? { dueAt: timestamp(item.dueAt, '任务截止时间') } : {}),
         createdAt: timestamp(item.createdAt, '任务创建时间'),
       }
     }),

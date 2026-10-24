@@ -12,6 +12,7 @@ import { createStorage, storageRoute } from './storage.mjs'
 import { getAsset, assetManager } from './resources.mjs'
 import { createSettings } from './settings.mjs'
 import { createWorkspaceTools } from './assistant-tools.mjs'
+import { createNotifications } from './notifications.mjs'
 
 const DEFAULT_DIST = fileURLToPath(new URL('../dist/', import.meta.url))
 const MAX_BODY_BYTES = 1024 * 1024
@@ -308,6 +309,7 @@ async function route(
   assets,
   assetsDir,
   workspaceTools,
+  notifications,
 ) {
   const corpus = knowledge.corpus
   response.setHeader('x-content-type-options', 'nosniff')
@@ -354,6 +356,48 @@ async function route(
       return json(response, 200, settings.update(payload))
     }
     throw new HttpError(405, '此接口仅支持 GET 或 PUT 请求。', { allow: 'GET, PUT' })
+  }
+  if (pathname === '/api/settings/notifications') {
+    if (request.method === 'GET') return json(response, 200, notifications.settings.read())
+    if (request.method === 'PUT') {
+      const payload = await readJson(request)
+      auth.requireSession(request)
+      return json(response, 200, notifications.settings.update(payload))
+    }
+    throw new HttpError(405, '此接口仅支持 GET 或 PUT 请求。', { allow: 'GET, PUT' })
+  }
+  if (pathname === '/api/notifications/test') {
+    if (request.method !== 'POST')
+      throw new HttpError(405, '此接口仅支持 POST 请求。', { allow: 'POST' })
+    const payload = await readJson(request)
+    auth.requireSession(request)
+    return json(response, 200, await notifications.test(payload?.channel))
+  }
+  if (pathname === '/api/notifications/retry') {
+    if (request.method !== 'POST')
+      throw new HttpError(405, '此接口仅支持 POST 请求。', { allow: 'POST' })
+    const payload = await readJson(request)
+    auth.requireSession(request)
+    return json(response, 200, notifications.retry(payload))
+  }
+  if (pathname === '/api/notifications' || pathname === '/api/notifications/deliveries') {
+    if (request.method !== 'GET')
+      throw new HttpError(405, '此接口仅支持 GET 请求。', { allow: 'GET' })
+    return json(
+      response,
+      200,
+      pathname.endsWith('/deliveries')
+        ? { deliveries: notifications.deliveries() }
+        : { reminders: notifications.inbox() },
+    )
+  }
+  const reminderMatch = /^\/api\/notifications\/([a-f0-9]{64})\/read$/.exec(pathname)
+  if (reminderMatch) {
+    if (request.method !== 'POST')
+      throw new HttpError(405, '此接口仅支持 POST 请求。', { allow: 'POST' })
+    request.resume()
+    auth.requireSession(request)
+    return json(response, 200, notifications.acknowledge(reminderMatch[1]))
   }
   if (await storageRoute(request, response, pathname, storage, () => auth.requireSession(request)))
     return
@@ -471,6 +515,7 @@ export function createServer({
   assetsDir,
   uploadsDir,
   syncAssets,
+  notificationOptions,
   database: suppliedDatabase,
   databasePath = env.PRTS_DB_PATH,
   logger = console.log,
@@ -491,6 +536,7 @@ export function createServer({
   })
   const assets = assetManager({ database, directory: assetsDir, synchronize: syncAssets, now })
   const settings = createSettings(database)
+  const notifications = createNotifications(database, storage, { now, ...notificationOptions })
   const workspaceTools = createWorkspaceTools(database, storage, { now })
   const auth = createAuth({ env, now, database, logger })
   const knowledge = knowledgeManager({
@@ -512,6 +558,7 @@ export function createServer({
       assets,
       assetsDir,
       workspaceTools,
+      notifications,
     ).catch((error) => {
       request.resume()
       json(
@@ -527,7 +574,10 @@ export function createServer({
   server.requestTimeout = 60_000
   server.headersTimeout = 10_000
   server.database = database
+  server.notifications = notifications
+  server.once('listening', () => notifications.start())
   server.once('close', () => {
+    notifications.stop()
     storage.close?.()
     if (!suppliedDatabase) database.close()
   })

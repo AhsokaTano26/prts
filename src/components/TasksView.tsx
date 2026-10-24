@@ -13,6 +13,7 @@ import type { Task, TaskCategory } from '../lib/workspace'
 import { Modal } from './UI'
 import PrtsSelect from './PrtsSelect'
 import TaskCategoriesDialog from './TaskCategoriesDialog'
+import { taskLocalDate, taskLocalTime, editedTaskDeadline } from '../lib/reminders'
 import '../styles/task-board.css'
 
 const priorityNames = { high: '高优先级', medium: '中优先级', low: '低优先级' }
@@ -28,13 +29,12 @@ export function TaskRow({
   compact?: boolean
 }) {
   const localToday = new Date().toLocaleDateString('en-CA')
+  const dueDate = taskLocalDate(task)
   const due =
-    task.dueDate === localToday
-      ? '今天'
-      : task.dueDate
-        ? task.dueDate.slice(5).replace('-', '/')
-        : '未设日期'
-  const overdue = Boolean(task.dueDate && task.dueDate < localToday && !task.done)
+    dueDate === localToday ? '今天' : dueDate ? dueDate.slice(5).replace('-', '/') : '未设日期'
+  const overdue =
+    !task.done &&
+    (task.dueAt ? Date.parse(task.dueAt) < Date.now() : Boolean(dueDate && dueDate < localToday))
   return (
     <div className={`task-row ${task.done ? 'is-done' : ''} ${compact ? 'compact' : ''}`}>
       <button
@@ -56,6 +56,7 @@ export function TaskRow({
       <span className={`task-due mono ${overdue ? 'overdue' : ''}`}>
         {overdue ? '已逾期 · ' : ''}
         {due}
+        {task.dueAt ? ` ${taskLocalTime(task)}` : ''}
       </span>
       <button
         className="icon-button task-edit"
@@ -78,13 +79,17 @@ export function TaskDialog({
   task: Task | null
   categories: TaskCategory[]
   defaultCategoryId?: string
-  onSave: (value: Pick<Task, 'title' | 'priority' | 'dueDate' | 'categoryId'>) => void
+  onSave: (value: Pick<Task, 'title' | 'priority' | 'dueDate' | 'dueAt' | 'categoryId'>) => void
   onDelete?: () => void
   onClose: () => void
 }) {
   const [title, setTitle] = useState(task?.title ?? '')
   const [priority, setPriority] = useState<Task['priority']>(task?.priority ?? 'medium')
-  const [dueDate, setDueDate] = useState(task?.dueDate ?? new Date().toLocaleDateString('en-CA'))
+  const [dueDate, setDueDate] = useState(
+    task ? taskLocalDate(task) : new Date().toLocaleDateString('en-CA'),
+  )
+  const [dueTime, setDueTime] = useState(task ? taskLocalTime(task) : '')
+  const [timeError, setTimeError] = useState('')
   const [categoryId, setCategoryId] = useState(task?.categoryId ?? defaultCategoryId)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const validCategoryId = categories.some((category) => category.id === categoryId)
@@ -92,8 +97,15 @@ export function TaskDialog({
     : ''
   function submit(e: FormEvent) {
     e.preventDefault()
+    let dueAt
+    try {
+      dueAt = editedTaskDeadline(task, dueDate, dueTime)
+    } catch (cause) {
+      setTimeError(cause instanceof Error ? cause.message : '截止时间无效。')
+      return
+    }
     if (title.trim())
-      onSave({ title: title.trim(), priority, dueDate, categoryId: validCategoryId })
+      onSave({ title: title.trim(), priority, dueDate, dueAt, categoryId: validCategoryId })
   }
   return (
     <Modal title={task ? '编辑任务' : '新建任务'} onClose={onClose} className="task-editor-dialog">
@@ -155,6 +167,27 @@ export function TaskDialog({
             />
           </div>
         </div>
+        <label className="form-label" htmlFor="task-time">
+          截止时间（可选）
+        </label>
+        <input
+          id="task-time"
+          type="time"
+          className="field"
+          value={dueTime}
+          onChange={(event) => {
+            setDueTime(event.target.value)
+            setTimeError('')
+          }}
+        />
+        <p className="field-hint">
+          按本机时区保存具体时刻；留空则按通知设置时区的当天 23:59 计算。
+        </p>
+        {timeError && (
+          <p role="alert" className="inline-error">
+            {timeError}
+          </p>
+        )}
         <div className="modal-actions">
           {task && onDelete && (
             <button
@@ -189,8 +222,11 @@ function TaskCard({
   onEdit: (task: Task) => void
 }) {
   const localToday = new Date().toLocaleDateString('en-CA')
-  const overdue = Boolean(task.dueDate && task.dueDate < localToday && !task.done)
-  const due = task.dueDate === localToday ? '今天' : task.dueDate || '未设日期'
+  const dueDate = taskLocalDate(task)
+  const overdue =
+    !task.done &&
+    (task.dueAt ? Date.parse(task.dueAt) < Date.now() : Boolean(dueDate && dueDate < localToday))
+  const due = dueDate === localToday ? '今天' : dueDate || '未设日期'
   return (
     <article className={`task-card${task.done ? ' is-done' : ''}`}>
       <div className="task-card-main">
@@ -223,7 +259,10 @@ function TaskCard({
         </span>
         <span className={`task-due mono${overdue ? ' overdue' : ''}`}>
           {overdue ? '已逾期 · ' : ''}
-          <time dateTime={task.dueDate || undefined}>{due}</time>
+          <time dateTime={task.dueAt || dueDate || undefined}>
+            {due}
+            {task.dueAt ? ` ${taskLocalTime(task)}` : ''}
+          </time>
         </span>
       </div>
     </article>

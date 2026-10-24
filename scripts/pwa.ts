@@ -35,6 +35,15 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'PRTS_ACTIVATE_UPDATE') self.skipWaiting()
 })
+self.addEventListener('notificationclick', (event) => {
+  if (!event.notification.tag.startsWith('prts-task-')) return
+  event.notification.close()
+  event.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(async (clients) => {
+    const client=clients.find((client)=>new URL(client.url).origin===self.location.origin)
+    if (client) { await client.navigate('/#tasks');return client.focus() }
+    return self.clients.openWindow('/#tasks')
+  }))
+})
 self.addEventListener('fetch', (event) => {
   const request = event.request
   const url = new URL(request.url)

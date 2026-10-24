@@ -9,7 +9,15 @@ import { readFile } from 'node:fs/promises'
 const server = createServer({
   env: { PRTS_PASSWORD: 'prts-e2e-test-password-only' },
   assetsDir: new URL('../../public/assets/', import.meta.url).pathname,
+  // Browser tests never contact external Webhook or SMTP destinations.
+  notificationOptions: {
+    fetchImpl: async () => new Response('{"status":"forwarded"}'),
+    sendMail: async (_config, message) => ({ accepted: [message.to] }),
+  },
 })
+const initialNotificationSettings = server.database
+  .prepare('SELECT data,revision FROM prts_notification_settings WHERE id=1')
+  .get()
 const storage = createStorage(server.database)
 const originalCredentials = server.database.prepare('SELECT key, value FROM auth_metadata').all()
 const route = server.listeners('request')[0]
@@ -55,6 +63,8 @@ server.on('request', (request, response) => {
       workerRevision = 0
       const payload = JSON.parse(body || '{}')
       for (const table of [
+        'prts_reminder_deliveries',
+        'prts_reminder_events',
         'prts_documents',
         'prts_mutations',
         'prts_messages',
@@ -63,6 +73,9 @@ server.on('request', (request, response) => {
         'prts_assistant_actions',
       ])
         server.database.exec(`DELETE FROM ${table}`)
+      server.database
+        .prepare('UPDATE prts_notification_settings SET data=?,revision=? WHERE id=1')
+        .run(initialNotificationSettings.data, initialNotificationSettings.revision)
       if (!payload.keepSessions) {
         server.database.exec(
           'DELETE FROM auth_sessions; DELETE FROM auth_failures; DELETE FROM auth_metadata; DELETE FROM prts_ai_settings;',
