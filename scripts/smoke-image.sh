@@ -98,3 +98,21 @@ const generated = logs.match(/PRTS 初始访问密码（仅显示一次）：[A-
 assert.equal(generated.length, 1, "First-run password must be generated and logged exactly once");
 console.log("Password bootstrap check passed: no environment file and one-time log across restart.");
 '
+
+# Read real stdout/stderr, including after restart; never print bootstrap credentials.
+docker logs "$container" 2>&1 | node --input-type=module -e '
+import assert from "node:assert/strict";
+let logs = "";
+for await (const part of process.stdin) logs += part;
+const records = logs.split("\n").flatMap((line) => {
+  try { return [JSON.parse(line)]; } catch { return []; }
+});
+assert.equal(records.filter((row) => row.event === "server.started").length, 2, "Every container start must emit a runtime log");
+assert.ok(records.some((row) => row.event === "server.stopped"), "Graceful restart must log shutdown");
+for (const [path, status, level] of [["/", 200, "info"], ["/api/state", 401, "warn"]]) {
+  const requests = records.filter((row) => row.event === "http.request" && row.path === path && row.status === status && row.level === level);
+  assert.ok(requests.length >= 2, `Requests must remain visible after restart: ${path}`);
+  assert.ok(requests.every((row) => Number.isFinite(row.durationMs) && row.requestId && row.time));
+}
+console.log("Container runtime log check passed: startup, shutdown, HTTP status and timing remain visible across restart.");
+'

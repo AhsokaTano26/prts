@@ -14,6 +14,7 @@ import { createSettings } from './settings.mjs'
 import { createWorkspaceTools } from './assistant-tools.mjs'
 import { createNotifications } from './notifications.mjs'
 import { createPasskeys } from './passkeys.mjs'
+import { createLogger, errorDetails, observeRequest } from './logging.mjs'
 
 const DEFAULT_DIST = fileURLToPath(new URL('../dist/', import.meta.url))
 const MAX_BODY_BYTES = 1024 * 1024
@@ -575,6 +576,7 @@ export function createServer({
   database: suppliedDatabase,
   databasePath = env.PRTS_DB_PATH,
   logger = console.log,
+  log = createLogger({ now }),
 } = {}) {
   const database = suppliedDatabase || createDatabase({ filename: databasePath || ':memory:' })
   const dataDirectory =
@@ -592,7 +594,7 @@ export function createServer({
   })
   const assets = assetManager({ database, directory: assetsDir, synchronize: syncAssets, now })
   const settings = createSettings(database)
-  const notifications = createNotifications(database, storage, { now, ...notificationOptions })
+  const notifications = createNotifications(database, storage, { now, log, ...notificationOptions })
   const workspaceTools = createWorkspaceTools(database, storage, { now })
   const auth = createAuth({ env, now, database, logger })
   const passkeys = createPasskeys(database, auth, { now })
@@ -603,6 +605,7 @@ export function createServer({
     database: suppliedDatabase || databasePath ? database : undefined,
   })
   const server = createHttpServer((request, response) => {
+    const requestLog = observeRequest(request, response, log)
     route(
       request,
       response,
@@ -618,6 +621,8 @@ export function createServer({
       notifications,
       passkeys,
     ).catch((error) => {
+      if (!(error instanceof HttpError))
+        log('error', 'http.error', { ...requestLog, ...errorDetails(error) })
       request.resume()
       json(
         response,
@@ -633,11 +638,19 @@ export function createServer({
   server.headersTimeout = 10_000
   server.database = database
   server.notifications = notifications
-  server.once('listening', () => notifications.start())
+  server.once('listening', () => {
+    const address = server.address()
+    log('info', 'server.started', {
+      address: typeof address === 'object' ? address?.address : 'socket',
+      port: typeof address === 'object' ? address?.port : null,
+    })
+    notifications.start()
+  })
   server.once('close', () => {
     notifications.stop()
     storage.close?.()
     if (!suppliedDatabase) database.close()
+    log('info', 'server.stopped')
   })
   return server
 }

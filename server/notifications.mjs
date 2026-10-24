@@ -3,13 +3,14 @@ import { createNotificationSettings } from './notification-settings.mjs'
 import { sendWebhook, sendSmtp } from './notification-delivery.mjs'
 import { taskDeadline, reminderOffsets, qqReminderPayload } from '../src/lib/reminders.ts'
 import { HttpError } from './errors.mjs'
+import { createLogger, errorDetails } from './logging.mjs'
 
 const hash = (...values) => createHash('sha256').update(JSON.stringify(values)).digest('hex')
 const retryDelay = [60_000, 300_000]
 export function createNotifications(
   database,
   storage,
-  { now = Date.now, fetchImpl = fetch, sendMail = sendSmtp } = {},
+  { now = Date.now, fetchImpl = fetch, sendMail = sendSmtp, log = createLogger({ now }) } = {},
 ) {
   const settings = createNotificationSettings(database)
   database.exec(`CREATE TABLE IF NOT EXISTS prts_reminder_events (
@@ -210,15 +211,18 @@ export function createNotifications(
           )
           .get(now() + 120_000, owner, row.event_id, row.channel, row.target, now(), now())
         if (!claimed) continue
+        const details = { eventId: row.event_id, channel: row.channel, attempt: claimed.attempts }
         try {
           await dispatch(row.channel, target, state.config, event)
-          if (!stopped)
+          if (!stopped) {
             database
               .prepare(
                 "UPDATE prts_reminder_deliveries SET status='sent',sent_at=?,last_error='',owner=NULL WHERE event_id=? AND channel=? AND target=? AND owner=?",
               )
               .run(now(), row.event_id, row.channel, row.target, owner)
-        } catch {
+            log('info', 'notification.sent', details)
+          }
+        } catch (error) {
           if (stopped) break
           const valid = current()
           const stillValid =
@@ -227,12 +231,13 @@ export function createNotifications(
               (target) => target.target === row.target && target.channel === row.channel,
             )
           const attempts = claimed.attempts
+          const status = !stillValid ? 'cancelled' : attempts >= 3 ? 'failed' : 'pending'
           database
             .prepare(
               'UPDATE prts_reminder_deliveries SET status=?,next_at=?,last_error=?,owner=NULL WHERE event_id=? AND channel=? AND target=? AND owner=?',
             )
             .run(
-              !stillValid ? 'cancelled' : attempts >= 3 ? 'failed' : 'pending',
+              status,
               now() + (retryDelay[attempts - 1] ?? 0),
               row.channel === 'smtp'
                 ? 'SMTP 发送失败，请检查连接与账号配置。'
@@ -242,6 +247,12 @@ export function createNotifications(
               row.target,
               owner,
             )
+          log(status === 'failed' ? 'error' : 'warn', 'notification.failed', {
+            ...details,
+            ...errorDetails(error),
+            status,
+            ...(status === 'pending' ? { retryInMs: retryDelay[attempts - 1] } : {}),
+          })
         }
       }
     } finally {
@@ -294,7 +305,9 @@ export function createNotifications(
     }
     try {
       await dispatch(channel, list[0], config, event)
-    } catch {
+      log('info', 'notification.test_sent', { channel })
+    } catch (error) {
+      log('error', 'notification.test_failed', { channel, ...errorDetails(error) })
       throw new HttpError(
         502,
         channel === 'smtp'
@@ -306,8 +319,12 @@ export function createNotifications(
   }
   function start() {
     stopped = false
-    void tick().catch(() => {})
-    timer = setInterval(() => void tick().catch(() => {}), 15_000)
+    const run = () =>
+      void tick().catch((error) =>
+        log('error', 'notification.scheduler_failed', errorDetails(error)),
+      )
+    run()
+    timer = setInterval(run, 15_000)
     timer.unref?.()
   }
   function stop() {

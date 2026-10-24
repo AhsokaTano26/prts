@@ -186,6 +186,8 @@ npm start
 
 打开 <http://127.0.0.1:8787>。同一个 Node.js 服务提供 `dist` 中的静态页面和 `/api` 接口，默认仅监听本机。可以通过 `.env` 中的 `HOST`、`PORT` 调整监听地址和端口。若修改开发环境的 API 端口，也需同步修改 `vite.config.ts` 的代理目标。
 
+运行日志默认输出到 stdout/stderr，包含 HTTP 状态与耗时、服务端异常及通知发送/重试结果；Docker 可用 `docker compose -f compose.hub.yaml logs -f --tail=100 prts` 持续查看。日志不记录密码请求、密钥、聊天正文或完整 Webhook 地址；详见 [运行日志](DEPLOYMENT.md#运行日志)。
+
 生产语料检索还需要完整的 **`data/corpus` 原始资源**：部署时保留 `current.json`、对应版本的清单和全部 gzip 文件，或启动后在「系统设置 → 语料管理」下载，也可在目标机器运行同步命令。界面下载的文件保存在后端所在机器。`npm run build` 只构建前端，不会把语料打包进 `dist`；仅复制构建产物或 Git 仓库不足以提供离线检索。
 
 ## 数据与备份

@@ -291,3 +291,65 @@ test('the actual claimed attempt count wins over a stale batch snapshot across t
   assert.ok(mail.every((row) => row.status === 'failed' && row.attempts === 3))
   for (const row of mail) assert.doesNotThrow(() => f.notifications.retry(row))
 })
+
+test('background deliveries log accepted sends and retry exhaustion without notification content or credentials', async (t) => {
+  const records = []
+  const f = fixture(t, {
+    log: (level, event, fields) => records.push({ level, event, ...fields }),
+    sendMail: async () => {
+      throw Object.assign(new Error('private-test-password one@example.com'), { code: 'EAUTH' })
+    },
+  })
+  await f.notifications.tick()
+  assert.ok(
+    records.some((record) => record.event === 'notification.sent' && record.channel === 'webhook'),
+  )
+  assert.ok(
+    records.some(
+      (record) =>
+        record.event === 'notification.failed' &&
+        record.channel === 'smtp' &&
+        record.status === 'pending' &&
+        record.attempt === 1,
+    ),
+  )
+  f.now += minute
+  await f.notifications.tick()
+  f.now += 5 * minute
+  await f.notifications.tick()
+  assert.ok(
+    records.some(
+      (record) =>
+        record.event === 'notification.failed' &&
+        record.status === 'failed' &&
+        record.attempt === 3 &&
+        record.errorCode === 'EAUTH',
+    ),
+  )
+  assert.doesNotMatch(
+    JSON.stringify(records),
+    /private-test-password|@example\.com|qq\.example|准备汇报|doctor/,
+  )
+})
+
+test('scheduler exceptions are logged instead of being silently discarded', async (t) => {
+  const records = []
+  const f = fixture(t, { log: (level, event, fields) => records.push({ level, event, ...fields }) })
+  const original = f.store.getDocument
+  f.store.getDocument = () => {
+    throw new Error('private-scheduler-token')
+  }
+  f.notifications.start()
+  try {
+    await new Promise((resolve) => setImmediate(resolve))
+    assert.ok(
+      records.some(
+        (record) => record.event === 'notification.scheduler_failed' && record.level === 'error',
+      ),
+    )
+    assert.doesNotMatch(JSON.stringify(records), /private-scheduler-token/)
+  } finally {
+    f.notifications.stop()
+    f.store.getDocument = original
+  }
+})
