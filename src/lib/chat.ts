@@ -1,6 +1,25 @@
 import type { Workspace } from './workspace.ts'
+import type { PersonaId } from './assistant.ts'
 
-export type ChatTurn = { role: 'user' | 'assistant'; content: string }
+export type ChatTurn = { role: 'user' | 'assistant'; content: string; persona?: PersonaId }
+
+/** Stop promptly even if a provider, proxy or response body ignores cancellation. */
+export async function withChatCancellation<T>(
+  signal: AbortSignal,
+  operation: () => Promise<T>,
+): Promise<T> {
+  signal.throwIfAborted()
+  let onAbort: () => void = () => {}
+  const cancelled = new Promise<never>((_resolve, reject) => {
+    onAbort = () => reject(signal.reason)
+    signal.addEventListener('abort', onAbort, { once: true })
+  })
+  try {
+    return await Promise.race([operation(), cancelled])
+  } finally {
+    signal.removeEventListener('abort', onAbort)
+  }
+}
 
 export function runLocalCommand(
   text: string,
@@ -43,12 +62,17 @@ export function runLocalCommand(
   return '本地指令终端已就绪。你可以输入：\n\n- **今日任务** — 查看待办与工作概况\n- **查看笔记** / **搜索笔记 关键词** — 检索个人档案\n- **新建任务：任务内容** — 快速记录待办\n- **专注状态** — 查看专注协议\n\n当前为规则驱动的本地指令模式。连接 AI 服务后，可切换到「AI 对话」进行开放式交流。'
 }
 
-export function buildChatHistory(history: readonly ChatTurn[], content: string): ChatTurn[] {
+export function buildChatHistory(
+  history: readonly ChatTurn[],
+  content: string,
+  options: { persona?: PersonaId } = {},
+): ChatTurn[] {
   const current = content.trim()
   if (!current) throw new Error('消息不能为空。')
   if (current.length > 12_000) throw new Error('每条消息不能超过 12000 个字符。')
 
-  const result: ChatTurn[] = [{ role: 'user', content: current }]
+  const identity = options.persona ? { persona: options.persona } : {}
+  const result: ChatTurn[] = [{ role: 'user', content: current, ...identity }]
   let remaining = 80_000 - current.length
   for (
     let index = history.length - 1;
@@ -56,9 +80,10 @@ export function buildChatHistory(history: readonly ChatTurn[], content: string):
     index -= 1
   ) {
     const message = history[index]
+    if (options.persona && (message.persona ?? 'prts') !== options.persona) continue
     if (!message.content.trim()) continue
     const excerpt = message.content.slice(0, Math.min(12_000, remaining))
-    result.push({ role: message.role, content: excerpt })
+    result.push({ role: message.role, content: excerpt, ...identity })
     remaining -= excerpt.length
   }
   return result.reverse()

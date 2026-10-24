@@ -396,31 +396,71 @@ export function createStorage(
       return { saved: parsed.length }
     })
   }
-  function listMessages({ limit = 60, before } = {}) {
+  // Older clients only labelled assistant turns. Infer the preceding user's
+  // persona from the next AI turn without rewriting immutable message JSON.
+  const messageRows = `SELECT m.sequence,m.id,m.data,
+    json_extract(m.data,'$.mode') AS mode,
+    COALESCE(json_extract(m.data,'$.persona'),
+      CASE WHEN json_extract(m.data,'$.role')='user' THEN (
+        SELECT CASE WHEN json_extract(n.data,'$.role')='assistant'
+          THEN json_extract(n.data,'$.persona') END
+        FROM prts_messages n WHERE n.sequence>m.sequence
+          AND json_extract(n.data,'$.mode')='ai'
+        ORDER BY n.sequence LIMIT 1
+      ) END,'prts') AS persona
+    FROM prts_messages m`
+  function messageScope({ mode, persona } = {}) {
+    if (mode !== undefined && !['local', 'ai'].includes(mode)) invalid('对话模式无效。')
+    if (persona !== undefined && (mode !== 'ai' || !['prts', 'amiya', 'kaltsit'].includes(persona)))
+      invalid('对话人格无效。')
+    const values = []
+    const conditions = []
+    if (mode !== undefined) {
+      conditions.push('mode=?')
+      values.push(mode)
+    }
+    if (persona !== undefined) {
+      conditions.push('persona=?')
+      values.push(persona)
+    }
+    return { sql: conditions.length ? conditions.join(' AND ') : '1', values }
+  }
+  function listMessages({ limit = 60, before, mode, persona } = {}) {
     if (!Number.isInteger(limit) || limit < 1 || limit > 100) invalid('消息条数应为 1 至 100。')
+    const scope = messageScope({ mode, persona })
     let sequence = Number.MAX_SAFE_INTEGER
     if (before !== undefined && before !== null && before !== '') {
       const row = db
-        .prepare('SELECT sequence FROM prts_messages WHERE id=?')
-        .get(id(before, '分页消息 ID'))
+        .prepare(
+          `WITH messages AS (${messageRows}) SELECT sequence FROM messages WHERE id=? AND ${scope.sql}`,
+        )
+        .get(id(before, '分页消息 ID'), ...scope.values)
       if (!row) throw new HttpError(404, '此分页消息不存在，请重新加载聊天记录。')
       sequence = row.sequence
     }
     const rows = db
       .prepare(
-        'SELECT id,data FROM prts_messages WHERE sequence < ? ORDER BY sequence DESC LIMIT ?',
+        `WITH messages AS (${messageRows}) SELECT id,data,persona FROM messages WHERE sequence < ? AND ${scope.sql} ORDER BY sequence DESC LIMIT ?`,
       )
-      .all(sequence, limit + 1)
+      .all(sequence, ...scope.values, limit + 1)
     const hasMore = rows.length > limit
     const chosen = rows.slice(0, limit).reverse()
     return {
-      messages: chosen.map((row) => JSON.parse(row.data)),
+      messages: chosen.map((row) => {
+        const value = JSON.parse(row.data)
+        return mode === 'ai' ? { ...value, persona: row.persona } : value
+      }),
       hasMore,
       nextCursor: chosen[0]?.id ?? null,
     }
   }
-  function deleteMessages() {
-    db.prepare('DELETE FROM prts_messages').run()
+  function deleteMessages(options = {}) {
+    const scope = messageScope(options)
+    // Materialize before deleting so legacy pair inference cannot change midway.
+    db.prepare(
+      `WITH messages AS MATERIALIZED (${messageRows})
+      DELETE FROM prts_messages WHERE id IN (SELECT id FROM messages WHERE ${scope.sql})`,
+    ).run(...scope.values)
     return { deleted: true }
   }
   const metadata = (row) => ({
@@ -685,6 +725,8 @@ export async function storageRoute(request, response, pathname, store, authorize
         store.listMessages({
           limit: query.has('limit') ? Number(query.get('limit')) : 60,
           before: query.get('before'),
+          mode: query.get('mode') ?? undefined,
+          persona: query.get('persona') ?? undefined,
         }),
       )
     } else if (request.method === 'POST') {
@@ -694,7 +736,15 @@ export async function storageRoute(request, response, pathname, store, authorize
     } else {
       request.resume()
       authorize()
-      json(response, 200, store.deleteMessages())
+      const query = new URL(request.url, 'http://localhost').searchParams
+      json(
+        response,
+        200,
+        store.deleteMessages({
+          mode: query.get('mode') ?? undefined,
+          persona: query.get('persona') ?? undefined,
+        }),
+      )
     }
     return true
   }

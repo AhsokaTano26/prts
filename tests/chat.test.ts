@@ -1,6 +1,11 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { buildChatHistory, runLocalCommand, type ChatTurn } from '../src/lib/chat.ts'
+import {
+  buildChatHistory,
+  runLocalCommand,
+  withChatCancellation,
+  type ChatTurn,
+} from '../src/lib/chat.ts'
 import { createInitialWorkspace } from '../src/lib/workspace.ts'
 
 test('one local task command creates exactly one task with the supplied title', () => {
@@ -101,4 +106,48 @@ test('invalid current input is rejected instead of silently changing the request
   assert.deepEqual(buildChatHistory([], 'x'.repeat(12_000)), [
     { role: 'user', content: 'x'.repeat(12_000) },
   ])
+})
+
+test('persona context excludes both sides of other conversations and labels the new turn', () => {
+  const history = [
+    { role: 'user' as const, content: 'PRTS问题', persona: 'prts' as const },
+    { role: 'assistant' as const, content: 'PRTS回答', persona: 'prts' as const },
+    { role: 'user' as const, content: '阿米娅问题', persona: 'amiya' as const },
+    { role: 'assistant' as const, content: '阿米娅回答', persona: 'amiya' as const },
+    { role: 'assistant' as const, content: '未标记的旧回复' },
+  ]
+  assert.deepEqual(buildChatHistory(history, '继续', { persona: 'amiya' }), [
+    { role: 'user', content: '阿米娅问题', persona: 'amiya' },
+    { role: 'assistant', content: '阿米娅回答', persona: 'amiya' },
+    { role: 'user', content: '继续', persona: 'amiya' },
+  ])
+})
+
+test('cancellation finishes without waiting for an uncooperative response and ignores its late result', async () => {
+  const controller = new AbortController()
+  let finish: (value: string) => void = () => {}
+  const response = withChatCancellation(
+    controller.signal,
+    () =>
+      new Promise<string>((resolve) => {
+        finish = resolve
+      }),
+  )
+  controller.abort()
+  await assert.rejects(response, { name: 'AbortError' })
+  finish('迟来的回复')
+  await assert.rejects(response, { name: 'AbortError' })
+  let called = false
+  await assert.rejects(
+    withChatCancellation(controller.signal, async () => {
+      called = true
+      return ''
+    }),
+    { name: 'AbortError' },
+  )
+  assert.equal(called, false)
+  assert.equal(
+    await withChatCancellation(new AbortController().signal, async () => '正常回复'),
+    '正常回复',
+  )
 })

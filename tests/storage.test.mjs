@@ -347,6 +347,61 @@ test('chat append is idempotent and paginates old messages without deleting hist
   assert.equal(store.listMessages().messages.length, 0)
 })
 
+test('persona histories infer legacy pairs, paginate independently and clear only the chosen scope', (t) => {
+  const { store } = setup(t)
+  const ai = (id, role, persona) => ({
+    id,
+    role,
+    content: id,
+    mode: 'ai',
+    ...(persona ? { persona } : {}),
+  })
+  const old = [ai('old-u', 'user'), ai('old-a', 'assistant', 'amiya')]
+  store.appendMessages([
+    message('local'),
+    ...old,
+    ai('prts-u', 'user'),
+    ai('prts-a', 'assistant'),
+    ai('amiya-u', 'user', 'amiya'),
+    ai('amiya-a', 'assistant', 'amiya'),
+    ai('kal-u', 'user', 'kaltsit'),
+    ai('kal-a', 'assistant', 'kaltsit'),
+  ])
+  const latest = store.listMessages({ mode: 'ai', persona: 'amiya', limit: 2 })
+  assert.deepEqual(
+    latest.messages.map((m) => m.id),
+    ['amiya-u', 'amiya-a'],
+  )
+  assert.equal(latest.hasMore, true)
+  const earlier = store.listMessages({
+    mode: 'ai',
+    persona: 'amiya',
+    before: latest.nextCursor,
+    limit: 2,
+  })
+  assert.deepEqual(
+    earlier.messages,
+    old.map((m) => ({ ...m, persona: 'amiya' })),
+  )
+  assert.equal(earlier.hasMore, false)
+  // Reading legacy rows must not rewrite them and break idempotent append retries.
+  assert.deepEqual(store.appendMessages(old), { saved: 2 })
+  assert.throws(() => store.listMessages({ mode: 'ai', persona: 'amiya', before: 'kal-u' }), {
+    status: 404,
+  })
+  assert.throws(() => store.listMessages({ mode: 'local', persona: 'amiya' }), { status: 400 })
+  assert.throws(() => store.deleteMessages({ mode: 'ai', persona: 'invalid' }), { status: 400 })
+  store.deleteMessages({ mode: 'ai', persona: 'amiya' })
+  assert.deepEqual(
+    store.listMessages().messages.map((m) => m.id),
+    ['local', 'prts-u', 'prts-a', 'kal-u', 'kal-a'],
+  )
+  assert.deepEqual(
+    store.listMessages({ mode: 'ai', persona: 'prts' }).messages.map((m) => m.id),
+    ['prts-u', 'prts-a'],
+  )
+})
+
 test('focus completion updates count once, atomically, and cannot complete before the deadline', (t) => {
   let now = 1000
   const { store } = setup(t, { now: () => now })

@@ -117,6 +117,73 @@ test('AI receives live workspace context and callable tools while credentials st
   )
 })
 
+test('saved persona reaches every tool round and foreign persona history never reaches the provider', async (t) => {
+  const client = await fixture(t, (_body, round) =>
+    round === 0
+      ? { content: null, tool_calls: [toolCall('get_workspace', {})] }
+      : { content: '博士，我已经核对了工作台。' },
+  )
+  client.storage.putDocument('preferences', {
+    value: {
+      motionEnabled: false,
+      assistantMode: 'ai',
+      assistant: { persona: 'amiya', knowledge: 'none' },
+    },
+    expectedRevision: 0,
+    mutationId: randomUUID(),
+  })
+  const response = await client.call('/api/chat', {
+    messages: [
+      { role: 'user', content: '凯尔希的旧问题', persona: 'kaltsit' },
+      { role: 'assistant', content: '凯尔希的旧回答', persona: 'kaltsit' },
+      { role: 'user', content: '请查看工作台', persona: 'amiya' },
+    ],
+  })
+  assert.equal(response.status, 200)
+  assert.equal((await response.json()).persona, 'amiya')
+  assert.equal(client.requests.length, 2)
+  for (const body of client.requests) {
+    assert.match(body.messages[0].content, /IDENTITY_AMIYA/)
+    assert.match(body.messages[0].content, /温柔但意志坚定/)
+    assert.ok(body.messages.every((m) => !Object.hasOwn(m, 'persona')))
+    assert.ok(!JSON.stringify(body.messages).includes('凯尔希的旧'))
+  }
+  assert.equal(client.requests[1].messages.at(-1).role, 'tool')
+  const explicit = await client.call('/api/chat', {
+    persona: 'kaltsit',
+    messages: [{ role: 'user', content: '你好' }],
+  })
+  assert.equal((await explicit.json()).persona, 'kaltsit')
+  assert.match(client.requests.at(-1).messages[0].content, /IDENTITY_KALTSIT/)
+  for (const messages of [
+    [{ role: 'user', content: '错误人格', persona: 'custom' }],
+    [{ role: 'user', content: '错误会话', persona: 'prts' }],
+    [{ role: 'assistant', content: '缺少新问题', persona: 'amiya' }],
+  ])
+    assert.equal((await client.call('/api/chat', { messages })).status, 400)
+  assert.equal(client.requests.length, 3)
+})
+
+test('message HTTP scopes preserve other personas and local commands when clearing', async (t) => {
+  const client = await fixture(t, () => ({ content: '测试回复' }))
+  const messages = [
+    { id: 'local-turn', role: 'user', content: '本地', mode: 'local' },
+    { id: 'amiya-turn', role: 'user', content: '阿米娅', mode: 'ai', persona: 'amiya' },
+    { id: 'prts-turn', role: 'user', content: 'PRTS', mode: 'ai', persona: 'prts' },
+  ]
+  assert.equal((await client.call('/api/messages', { messages })).status, 200)
+  const scoped = await (await client.call('/api/messages?mode=ai&persona=amiya')).json()
+  assert.deepEqual(scoped.messages, [messages[1]])
+  assert.equal(
+    (await client.call('/api/messages?mode=ai&persona=amiya', undefined, 'DELETE')).status,
+    200,
+  )
+  assert.deepEqual((await (await client.call('/api/messages')).json()).messages, [
+    messages[0],
+    messages[2],
+  ])
+})
+
 test('real tool loop reads SQLite and attachments, prepares changes and confirms them once', async (t) => {
   const client = await fixture(t, (body, round) => {
     if (round === 0)

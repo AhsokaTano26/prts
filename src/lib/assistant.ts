@@ -5,13 +5,21 @@ export const PERSONALITIES = [
     tone: '理性分析',
     description: '清晰、客观，给出有条理的判断与行动建议。',
     greeting: '博士，终端已就绪。',
+    thinking: 'PRTS 正在核对信息…',
+    waiting: '博士，仍在等待模型响应，可以随时停止并保留输入。',
+    timeout: '博士，本次响应超时。输入已保留，可以稍后重试。',
+    stopped: '博士，本次生成已停止，输入已保留。',
   },
   {
     id: 'amiya',
     name: '阿米娅',
     tone: '温和鼓励',
-    description: '认真倾听，温和地陪你把问题拆成可行的小步。',
+    description: '罗德岛的阿米娅，温柔、聪慧而坚定，陪博士一起面对眼前的事。',
     greeting: '博士，我们一起慢慢来。',
+    thinking: '阿米娅正在认真整理思绪…',
+    waiting: '博士，回复还需要一点时间。先放松一下吧，随时可以停止等待。',
+    timeout: '博士，这次回复超时了。我们先稍微休息一下，再试一次，好吗？输入已经保留。',
+    stopped: '嗯，博士，已经停止了。输入还在，等你准备好了我们再继续。',
   },
   {
     id: 'kaltsit',
@@ -19,6 +27,10 @@ export const PERSONALITIES = [
     tone: '严谨直言',
     description: '直指问题，重视证据、边界与计划的可执行性。',
     greeting: '博士，先明确问题。',
+    thinking: '凯尔希正在核对事实与方案…',
+    waiting: '博士，模型尚未返回结果。可以继续等待，或停止后重试。',
+    timeout: '博士，本次响应超时。输入已保留，确认连接后再试。',
+    stopped: '博士，生成已停止。输入已保留，可以重新调整问题。',
   },
 ] as const
 export type PersonaId = (typeof PERSONALITIES)[number]['id']

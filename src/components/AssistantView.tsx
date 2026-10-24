@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import type { Workspace } from '../lib/workspace'
-import { buildChatHistory, runLocalCommand } from '../lib/chat'
+import { buildChatHistory, runLocalCommand, withChatCancellation } from '../lib/chat'
 import { Logo, Modal } from './UI'
 import KnowledgePanel, { KnowledgeSources } from './KnowledgePanel'
 import PrtsSelect from './PrtsSelect'
@@ -76,10 +76,16 @@ export default function AssistantView({
   onModeChange: (mode: 'local' | 'ai' | 'knowledge') => void
 }) {
   const persona = PERSONALITIES.find((item) => item.id === preferences.persona)!
-  const [messages, setMessages] = useState<Message[]>([...unsavedMessages.values()])
-  const [loaded, setLoaded] = useState(false)
+  const [messages, setMessages] = useState<Message[]>(() => [...unsavedMessages.values()])
+  const scopeKey = mode === 'ai' ? `ai:${preferences.persona}` : mode
+  const scopeQuery = mode === 'ai' ? `mode=ai&persona=${preferences.persona}` : `mode=${mode}`
+  const inScope = (message: Message) =>
+    message.mode === mode && (mode !== 'ai' || (message.persona ?? 'prts') === preferences.persona)
+  const [loadedScope, setLoadedScope] = useState('')
+  const loaded = loadedScope === scopeKey
   const [hasMore, setHasMore] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [waitingLong, setWaitingLong] = useState(false)
   const [historyError, setHistoryError] = useState('')
   const [saveError, setSaveError] = useState(
     unsavedMessages.size ? '仍有对话未保存到服务器，请重试保存。' : '',
@@ -97,9 +103,10 @@ export default function AssistantView({
     setHistoryError('')
     try {
       await messageWrites
+      if (version !== historyRequest.current) return
       const epoch = historyEpoch
       const response = await apiFetch(
-        `/api/messages?limit=60${before ? `&before=${encodeURIComponent(before)}` : ''}`,
+        `/api/messages?${scopeQuery}&limit=60${before ? `&before=${encodeURIComponent(before)}` : ''}`,
       )
       const result = await response.json()
       if (version !== historyRequest.current || epoch !== historyEpoch) return
@@ -108,22 +115,34 @@ export default function AssistantView({
       setMessages((current) => {
         const values = before
           ? [...result.messages, ...current]
-          : [...result.messages, ...current, ...unsavedMessages.values()]
+          : [
+              ...current.filter((message) => !inScope(message)),
+              ...result.messages,
+              ...unsavedMessages.values(),
+            ]
         return [...new Map(values.map((message: Message) => [message.id, message])).values()]
       })
       setHasMore(result.hasMore === true)
-      setLoaded(true)
+      setLoadedScope(scopeKey)
     } catch (cause) {
       if (version !== historyRequest.current) return
       setHistoryError(cause instanceof Error ? cause.message : '无法读取对话历史，请重试。')
     }
   }
   useEffect(() => {
-    void loadMessages()
+    setHasMore(false)
+    setError('')
+    if (mode !== 'knowledge') void loadMessages()
     return () => {
       ++historyRequest.current
     }
-  }, [])
+  }, [scopeKey])
+  useEffect(() => {
+    setWaitingLong(false)
+    if (!busy) return
+    const timer = window.setTimeout(() => setWaitingLong(true), 20_000)
+    return () => window.clearTimeout(timer)
+  }, [busy])
   useEffect(() => {
     const guard = (event: BeforeUnloadEvent) => {
       if (unsavedMessages.size) {
@@ -166,16 +185,17 @@ export default function AssistantView({
     setSaveError('')
     try {
       const response = await enqueueMessageWrite(() =>
-        apiFetch('/api/messages', { method: 'DELETE' }),
+        apiFetch(`/api/messages?${scopeQuery}`, { method: 'DELETE' }),
       )
       if (!response.ok) {
         const result = await response.json()
         throw new Error(result.error || '清空对话失败。')
       }
       ++historyEpoch
-      unsavedMessages.clear()
-      setMessages([])
-      setLoaded(true)
+      for (const [id, message] of unsavedMessages) if (inScope(message)) unsavedMessages.delete(id)
+      setMessages((current) => current.filter((message) => !inScope(message)))
+      setSaveError(unsavedMessages.size ? '仍有对话未保存到服务器，请重试保存。' : '')
+      setLoadedScope(scopeKey)
       setHasMore(false)
       setConfirmClear(false)
     } catch (cause) {
@@ -214,6 +234,7 @@ export default function AssistantView({
       role: 'user',
       content,
       mode,
+      ...(mode === 'ai' ? { persona: preferences.persona } : {}),
       pending: mode === 'ai',
     }
     setMessages((p) => [...p, user])
@@ -238,26 +259,44 @@ export default function AssistantView({
       return
     }
     setBusy(true)
-    controller.current = new AbortController()
+    const requestController = new AbortController()
+    controller.current = requestController
     try {
       const history = buildChatHistory(
         messages.filter((m) => m.mode === 'ai' && !m.pending),
         content,
+        { persona: preferences.persona },
       )
-      const response = await apiFetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: history,
-          persona: preferences.persona,
-          knowledge: preferences.knowledge,
-        }),
-        signal: controller.current.signal,
+      const { response, data } = await withChatCancellation(requestController.signal, async () => {
+        const response = await apiFetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: history,
+            persona: preferences.persona,
+            knowledge: preferences.knowledge,
+          }),
+          signal: requestController.signal,
+        })
+        if (response.status === 504) throw new Error(persona.timeout)
+        let data
+        try {
+          data = await response.json()
+        } catch {
+          throw new Error('AI 服务返回了无法读取的响应，请稍后重试。')
+        }
+        if (!data || typeof data !== 'object' || Array.isArray(data))
+          throw new Error('AI 响应格式异常。')
+        return { response, data }
       })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error || '请求失败，请稍后重试。')
+      if (!response.ok)
+        throw new Error(
+          response.status === 504 ? persona.timeout : data.error || '请求失败，请稍后重试。',
+        )
       if (typeof data.message !== 'string' || !data.message.trim())
         throw new Error('AI 响应格式异常。')
+      if (data.persona !== undefined && data.persona !== preferences.persona)
+        throw new Error('回复人格与当前会话不一致，请重试。')
       const reply: Message = {
         id: crypto.randomUUID(),
         role: 'assistant',
@@ -278,7 +317,7 @@ export default function AssistantView({
       setInput((current) => current || content)
       setError(
         e instanceof Error && e.name === 'AbortError'
-          ? '本次生成已停止。'
+          ? persona.stopped
           : e instanceof Error
             ? e.message
             : '无法连接 AI 服务。',
@@ -289,7 +328,7 @@ export default function AssistantView({
       inputRef.current?.focus()
     }
   }
-  const shown = messages.filter((m) => m.mode === mode)
+  const shown = messages.filter(inScope)
   return (
     <div className="page-content assistant-page">
       <div className="view-heading">
@@ -303,7 +342,7 @@ export default function AssistantView({
         <button
           className="button button-ghost"
           onClick={() => setConfirmClear(true)}
-          disabled={!messages.length || busy || saving || !loaded}
+          disabled={mode === 'knowledge' || !shown.length || busy || saving || !loaded}
         >
           <Trash2 size={15} />
           清空对话
@@ -315,7 +354,7 @@ export default function AssistantView({
             <button
               className={mode === 'local' ? 'active' : ''}
               aria-pressed={mode === 'local'}
-              disabled={busy}
+              disabled={busy || saving}
               onClick={() => {
                 onModeChange('local')
                 setError('')
@@ -327,7 +366,7 @@ export default function AssistantView({
             <button
               className={mode === 'ai' ? 'active' : ''}
               aria-pressed={mode === 'ai'}
-              disabled={busy}
+              disabled={busy || saving}
               onClick={() => {
                 onModeChange('ai')
                 setError('')
@@ -339,7 +378,7 @@ export default function AssistantView({
             <button
               className={mode === 'knowledge' ? 'active' : ''}
               aria-pressed={mode === 'knowledge'}
-              disabled={busy}
+              disabled={busy || saving}
               onClick={() => {
                 onModeChange('knowledge')
                 setError('')
@@ -381,7 +420,7 @@ export default function AssistantView({
                   <PrtsSelect
                     id="assistant-persona"
                     aria-label="AI 性格"
-                    disabled={busy}
+                    disabled={busy || saving}
                     value={preferences.persona}
                     onValueChange={(value) =>
                       onPreferencesChange({
@@ -418,7 +457,7 @@ export default function AssistantView({
                 </div>
                 <p className="persona-description">
                   {persona.description}
-                  <span>角色风格预设 · 对后续回复生效</span>
+                  <span>当前人格已启用 · 每个人格独立保留对话</span>
                 </p>
               </div>
             )}
@@ -441,7 +480,7 @@ export default function AssistantView({
               {hasMore && (
                 <button
                   className="button button-ghost"
-                  onClick={() => void loadMessages(messages[0]?.id)}
+                  onClick={() => void loadMessages(shown[0]?.id)}
                 >
                   加载更早记录
                 </button>
@@ -520,7 +559,7 @@ export default function AssistantView({
                   <span />
                   <span />
                   <span />
-                  {persona.name} 正在思考
+                  {waitingLong ? persona.waiting : persona.thinking}
                 </div>
               )}
               <div ref={bottom} />
@@ -585,13 +624,19 @@ export default function AssistantView({
                   <button
                     type="button"
                     className="send-button"
-                    onClick={() => controller.current?.abort()}
+                    onClick={(event) => {
+                      // React reuses this node as the submit button after abort.
+                      // Cancel the click's default action before changing state.
+                      event.preventDefault()
+                      controller.current?.abort()
+                    }}
                     aria-label="停止生成"
                   >
                     <Square size={15} />
                   </button>
                 ) : (
                   <button
+                    type="submit"
                     className="send-button"
                     disabled={
                       !loaded ||
@@ -613,7 +658,8 @@ export default function AssistantView({
       {confirmClear && (
         <Modal title="清空当前会话记录？" onClose={() => setConfirmClear(false)}>
           <p className="modal-copy">
-            服务器上的指令和 AI 对话历史将全部清空，所有设备都会同步此结果。任务和笔记会继续保留。
+            {mode === 'ai' ? `将清空与${persona.name}的对话历史` : '将清空本地指令历史'}
+            ，所有设备都会同步此结果。其他人格的对话、任务和笔记会继续保留。
           </p>
           <div className="modal-actions">
             <button className="button button-ghost" onClick={() => setConfirmClear(false)}>

@@ -94,7 +94,7 @@ function readJson(request) {
   })
 }
 
-function validateMessages(payload) {
+function validateMessages(payload, persona) {
   if (
     !payload ||
     !Array.isArray(payload.messages) ||
@@ -104,7 +104,7 @@ function validateMessages(payload) {
     throw new HttpError(400, `messages 必须包含 1 至 ${MAX_MESSAGES} 条消息。`)
   }
   let totalLength = 0
-  return payload.messages.map((message) => {
+  const validated = payload.messages.map((message) => {
     if (
       !message ||
       !['user', 'assistant'].includes(message.role) ||
@@ -115,13 +115,21 @@ function validateMessages(payload) {
     if (!message.content.trim() || message.content.length > MAX_MESSAGE_LENGTH) {
       throw new HttpError(400, `消息不能为空，且每条不能超过 ${MAX_MESSAGE_LENGTH} 个字符。`)
     }
+    if (message.persona !== undefined && !['prts', 'amiya', 'kaltsit'].includes(message.persona))
+      throw new HttpError(400, '消息人格选项无效。')
     totalLength += message.content.length
     if (totalLength > MAX_TOTAL_LENGTH) {
       throw new HttpError(400, '对话内容过长，请开启新对话后重试。')
     }
     // Only forward supported fields, even when the client includes extra keys.
-    return { role: message.role, content: message.content }
+    return { role: message.role, content: message.content, persona: message.persona }
   })
+  const latest = validated.at(-1)
+  if (latest.role !== 'user' || (latest.persona !== undefined && latest.persona !== persona))
+    throw new HttpError(400, '最后一条消息必须是当前人格的用户问题。')
+  return validated
+    .filter((message) => message.persona === undefined || message.persona === persona)
+    .map(({ role, content }) => ({ role, content }))
 }
 
 async function completeChat(response, messages, config, timeoutMs, agent, authorize = () => {}) {
@@ -401,8 +409,11 @@ async function route(
     const payload = await readJson(request)
     auth.requireSession(request)
     const config = settings.configuration()
-    const messages = validateMessages(payload)
-    const { persona, knowledge } = chatOptions(payload)
+    const { persona, knowledge } = chatOptions(
+      payload ?? {},
+      storage.getDocument('preferences')?.value.assistant,
+    )
+    const messages = validateMessages(payload, persona)
     if (!config.configured) return completeChat(response, messages, config, upstreamTimeoutMs)
     const sources = await corpus.context(messages, knowledge)
     auth.requireSession(request)
