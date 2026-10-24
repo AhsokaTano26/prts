@@ -4,6 +4,7 @@ import { createStorage } from '../../server/storage.mjs'
 import { createSettings } from '../../server/settings.mjs'
 import { createInitialWorkspace } from '../../src/lib/workspace.ts'
 import { randomUUID } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
 
 const server = createServer({
   env: { PRTS_PASSWORD: 'prts-e2e-test-password-only' },
@@ -12,8 +13,35 @@ const server = createServer({
 const storage = createStorage(server.database)
 const originalCredentials = server.database.prepare('SELECT key, value FROM auth_metadata').all()
 const route = server.listeners('request')[0]
+let workerRevision = 0
 server.removeAllListeners('request')
 server.on('request', (request, response) => {
+  if (
+    request.url === '/__test/pwa-update' &&
+    request.method === 'POST' &&
+    request.headers['x-prts-test'] === 'isolated-browser-test'
+  ) {
+    request.resume()
+    workerRevision += 1
+    response.writeHead(200, { 'content-type': 'application/json' })
+    response.end(JSON.stringify({ updated: true }))
+    return
+  }
+  if (request.url === '/sw.js' && workerRevision > 0) {
+    void readFile(new URL('../../dist/sw.js', import.meta.url), 'utf8')
+      .then((source) => {
+        response.writeHead(200, {
+          'content-type': 'application/javascript',
+          'cache-control': 'no-cache',
+        })
+        response.end(`${source}\n// Isolated update fixture ${workerRevision}\n`)
+      })
+      .catch(() => {
+        response.writeHead(500)
+        response.end()
+      })
+    return
+  }
   if (
     request.url === '/__test/reset' &&
     request.method === 'POST' &&
@@ -24,6 +52,7 @@ server.on('request', (request, response) => {
       body += part
     })
     request.on('end', () => {
+      workerRevision = 0
       const payload = JSON.parse(body || '{}')
       for (const table of [
         'prts_documents',

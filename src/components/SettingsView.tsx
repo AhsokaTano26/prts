@@ -7,6 +7,7 @@ import type { ApiHealth } from './AssistantView'
 import CorpusSettings from './CorpusSettings'
 import AssetSettings from './AssetSettings'
 import { AIConnectionSettings, PasswordSettings } from './RuntimeSettings'
+import MobileAppSettings from './MobileAppSettings'
 export default function SettingsView({
   workspace,
   health,
@@ -139,6 +140,7 @@ export default function SettingsView({
         </section>
         <AIConnectionSettings health={health} onRefresh={onRefresh} />
         <PasswordSettings />
+        <MobileAppSettings />
         <CorpusSettings />
         <AssetSettings />
         <section className="panel settings-section data-section">

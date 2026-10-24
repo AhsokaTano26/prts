@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { prtsPwa } from './scripts/pwa'
 export default defineConfig({
   // Game resources are downloaded into data/assets, never bundled into a deployment.
   publicDir: 'static',
-  plugins: [react()],
+  plugins: [react(), prtsPwa()],
   server: {
     port: 5173,
     strictPort: true,

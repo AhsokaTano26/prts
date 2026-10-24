@@ -48,6 +48,14 @@ npm run dev
 
 本地指令按固定规则执行，不调用模型。
 
+## 手机桌面应用（PWA）
+
+使用 HTTPS 打开工作台后，可在「系统设置 → 手机桌面应用」查看安装方法。Android 浏览器支持时会显示「安装 PRTS」按钮，也可在浏览器菜单选择「安装应用」或「添加到主屏幕」。iPhone / iPad 用 Safari 打开，点按「分享 → 添加到主屏幕 → 添加」。安装后可从桌面图标以独立窗口启动，部分浏览器还支持长按图标进入任务、笔记和助手。浏览器支持范围和安装方式见 [MDN 安装说明](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Installing)。
+
+PWA 继续使用同一台 VPS 和 SQLite；首次在桌面应用中打开时可能需要重新登录。已适配安全区、底部手势区域及移动端输入字号。断网时锁定工作台；重新打开会显示离线页，网络恢复后重新连接。仅缓存公开图标、安装清单和离线页，**不缓存任务、笔记、聊天、登录接口、附件、语料或游戏配图**，此版本不提供离线编辑。
+
+联网访问时检查更新，新版本就绪后提供「更新应用」按钮；点击前先保存当前编辑，确认后刷新。也可在设置页手动「检查更新」。Service Worker 只在 `npm run build` 的生产构建中启用，`npm run dev` 不启用离线缓存。本地 `localhost` / `127.0.0.1` 可验证；手机访问普通 HTTP 局域网 IP 不满足安装条件，应使用部署后的 HTTPS 域名。参见 [MDN 安装条件](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable)。
+
 ## 访问密码
 
 访问密码由服务器 SQLite 保存，数据库中只存加盐的 scrypt 哈希，不存密码明文。前端不会保存密码或自行判断密码是否正确。

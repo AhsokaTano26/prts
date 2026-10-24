@@ -156,6 +156,12 @@ export default function AuthGate({ children }: { children: (lock: () => void) =>
   useEffect(() => {
     void checkSession()
     const onFocus = () => void checkSession()
+    const onOffline = () => {
+      ++generation.current
+      advanceSessionEpoch()
+      setStatus('offline')
+      setError('当前网络已断开，恢复连接后会重新验证登录。')
+    }
     const onVisible = () => {
       if (document.visibilityState === 'visible') void checkSession()
     }
@@ -170,6 +176,8 @@ export default function AuthGate({ children }: { children: (lock: () => void) =>
       if (event.key === LOCK_KEY && event.newValue === '1') void lock()
     }
     window.addEventListener('focus', onFocus)
+    window.addEventListener('online', onFocus)
+    window.addEventListener('offline', onOffline)
     document.addEventListener('visibilitychange', onVisible)
     window.addEventListener(SESSION_EXPIRED_EVENT, onExpired)
     window.addEventListener('storage', onStorage)
@@ -180,6 +188,8 @@ export default function AuthGate({ children }: { children: (lock: () => void) =>
       ++generation.current
       clearInterval(timer)
       window.removeEventListener('focus', onFocus)
+      window.removeEventListener('online', onFocus)
+      window.removeEventListener('offline', onOffline)
       document.removeEventListener('visibilitychange', onVisible)
       window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired)
       window.removeEventListener('storage', onStorage)

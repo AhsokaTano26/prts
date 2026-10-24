@@ -25,6 +25,7 @@ const MIME_TYPES = {
   '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
@@ -36,7 +37,6 @@ const MIME_TYPES = {
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
   '.txt': 'text/plain; charset=utf-8',
-  '.webmanifest': 'application/manifest+json',
 }
 
 function json(response, status, payload, headers = {}) {
@@ -438,7 +438,10 @@ async function route(
   response.writeHead(200, {
     'content-type': asset.mime || MIME_TYPES[extension] || 'application/octet-stream',
     'content-length': asset.size,
-    'cache-control': extension === '.html' ? 'no-cache' : 'public, max-age=3600',
+    'cache-control':
+      extension === '.html' || pathname === '/sw.js' || extension === '.webmanifest'
+        ? 'no-cache'
+        : 'public, max-age=3600',
   })
   if (request.method === 'HEAD') return response.end()
   const stream = createReadStream(asset.file)

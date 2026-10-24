@@ -105,6 +105,12 @@ docker compose -f compose.hub.yaml up -d
 
 ## HTTPS 反向代理
 
+手机 PWA 安装需通过 HTTPS 域名访问（本机 localhost / 127.0.0.1 开发环境例外）。部署后在「系统设置 → 手机桌面应用」查看安装指引；普通 HTTP 局域网 IP 仍可访问网页，但无法启用完整安装与离线页功能。
+
+Node 服务已为 `/manifest.webmanifest` 设置正确 MIME，并对 `/sw.js` 和清单使用 `Cache-Control: no-cache`。反向代理应保留这些响应头，避免给 Service Worker 脚本强制设置长期缓存。更新镜像后，已打开的应用会提示新版本，用户保存编辑并点「更新应用」后刷新；不会主动刷新正在编辑的页面。
+
+Service Worker 仅缓存公开图标、安装清单和离线页，不缓存任何 `/api` 响应、工作台内容、附件、语料和游戏图片。离线时不能读取或修改服务器数据，联网后重新验证登录。安装桌面应用不会创建独立数据库，也不会改变 VPS 的数据卷和备份方式。
+
 示例 Caddy 配置：
 
 ```caddyfile

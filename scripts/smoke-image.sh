@@ -54,6 +54,20 @@ for (const [path, status] of [['/', 200], ['/api/state', 401]]) {
   assert.equal(response.status, status, `Unexpected status for ${path}`)
   await response.body?.cancel()
 }
+const manifestResponse = await get('/manifest.webmanifest')
+assert.equal(manifestResponse.status, 200)
+assert.match(manifestResponse.headers.get('content-type'), /application\/manifest\+json/)
+assert.equal((await manifestResponse.json()).display, 'standalone')
+const workerResponse = await get('/sw.js')
+assert.equal(workerResponse.status, 200)
+assert.match(workerResponse.headers.get('content-type'), /javascript/)
+assert.match(workerResponse.headers.get('cache-control'), /no-cache/)
+await workerResponse.body?.cancel()
+for (const path of ['/offline.html', '/icons/icon-512.png']) {
+  const response = await get(path)
+  assert.equal(response.status, 200)
+  await response.body?.cancel()
+}
 
 assert.ok(statSync('/app/data/prts.sqlite').isFile(), 'SQLite file was not created')
 const database = new DatabaseSync('/app/data/prts.sqlite', { readOnly: true })
