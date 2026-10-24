@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import LoginView from './LoginView'
 import { advanceSessionEpoch, SESSION_EXPIRED_EVENT } from '../lib/api'
+import {
+  PASSKEYS_CHANGED,
+  authenticatePasskey,
+  cancelPasskeyCeremony,
+  passkeyRequest,
+  passkeyError,
+  supportsPasskeys,
+} from '../lib/passkeys'
 
 type Status = 'checking' | 'locked' | 'unconfigured' | 'offline' | 'authenticated'
 const LOCK_KEY = 'prts-lock-required'
@@ -35,11 +43,27 @@ export default function AuthGate({ children }: { children: (lock: () => void) =>
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [expiresAt, setExpiresAt] = useState(0)
+  const [passkeyAvailable, setPasskeyAvailable] = useState(false)
+  const [passkeyBusy, setPasskeyBusy] = useState(false)
+  const [passkeyNote, setPasskeyNote] = useState('')
+  const autoAttempted = useRef(false)
+  const passkeyOperation = useRef<{
+    controller: AbortController
+    cancelled: boolean
+    phase: 'options' | 'device' | 'verify'
+  } | null>(null)
   const generation = useRef(0)
   const mutating = useRef(false)
   const pendingLock = useRef(lockPending())
 
   const lock = useCallback(async () => {
+    autoAttempted.current = true
+    const operation = passkeyOperation.current
+    if (operation) {
+      operation.cancelled = true
+      if (operation.phase !== 'verify') operation.controller.abort()
+      void cancelPasskeyCeremony()
+    }
     ++generation.current
     advanceSessionEpoch()
     pendingLock.current = true
@@ -88,6 +112,7 @@ export default function AuthGate({ children }: { children: (lock: () => void) =>
       if (!response.ok) throw new Error('无法验证登录状态，请重新连接。')
       const session = await response.json()
       if (version !== generation.current) return
+      setPasskeyAvailable(session.passkeyAvailable === true)
       setError('')
       if (session.configured === false) setStatus('unconfigured')
       else if (
@@ -98,7 +123,10 @@ export default function AuthGate({ children }: { children: (lock: () => void) =>
         advanceSessionEpoch()
         setExpiresAt(session.expiresAt)
         setStatus('authenticated')
-      } else setStatus('locked')
+      } else {
+        if (session.passkeyAvailable !== true) autoAttempted.current = true
+        setStatus('locked')
+      }
     } catch (cause) {
       if (version !== generation.current) return
       setStatus('offline')
@@ -153,6 +181,98 @@ export default function AuthGate({ children }: { children: (lock: () => void) =>
     }
   }
 
+  async function loginPasskey() {
+    if (mutating.current || !supportsPasskeys()) return
+    autoAttempted.current = true
+    const version = ++generation.current
+    advanceSessionEpoch()
+    mutating.current = true
+    setBusy(true)
+    setPasskeyBusy(true)
+    setError('')
+    setPasskeyNote('')
+    const operation: {
+      controller: AbortController
+      cancelled: boolean
+      phase: 'options' | 'device' | 'verify'
+    } = { controller: new AbortController(), cancelled: false, phase: 'options' }
+    passkeyOperation.current = operation
+    try {
+      const options = await passkeyRequest(
+        '/api/auth/passkeys/authentication/options',
+        {},
+        { signal: operation.controller.signal },
+      )
+      operation.controller.signal.throwIfAborted()
+      operation.phase = 'device'
+      const credential = await authenticatePasskey(options, operation.controller.signal)
+      operation.controller.signal.throwIfAborted()
+      if (operation.cancelled) throw new DOMException('Cancelled', 'AbortError')
+      operation.phase = 'verify'
+      // Once verification can issue a cookie, let it settle before queued logout.
+      const session = await passkeyRequest('/api/auth/passkeys/authentication/verify', credential)
+      if (version !== generation.current || operation.cancelled) return
+      if (
+        session.authenticated !== true ||
+        !Number.isFinite(session.expiresAt) ||
+        session.expiresAt <= Date.now()
+      )
+        throw new Error('Passkey 登录响应异常。')
+      pendingLock.current = false
+      rememberLock(false)
+      setExpiresAt(session.expiresAt)
+      setStatus('authenticated')
+    } catch (cause) {
+      if (version === generation.current) setPasskeyNote(passkeyError(cause))
+    } finally {
+      if (passkeyOperation.current === operation) passkeyOperation.current = null
+      mutating.current = false
+      setBusy(false)
+      setPasskeyBusy(false)
+      if (pendingLock.current || lockPending()) void lock()
+    }
+  }
+  function usePassword() {
+    autoAttempted.current = true
+    const operation = passkeyOperation.current
+    if (operation) {
+      operation.cancelled = true
+      if (operation.phase === 'verify') {
+        void lock()
+        return
+      }
+      operation.controller.abort()
+      void cancelPasskeyCeremony()
+    }
+    setPasskeyNote('可以使用访问密码登录。')
+  }
+
+  useEffect(() => {
+    if (status !== 'locked' || !passkeyAvailable || autoAttempted.current || !supportsPasskeys())
+      return
+    const begin = () => {
+      if (document.visibilityState === 'visible' && !autoAttempted.current && !mutating.current) {
+        autoAttempted.current = true
+        void loginPasskey()
+      }
+    }
+    begin()
+    document.addEventListener('visibilitychange', begin)
+    return () => document.removeEventListener('visibilitychange', begin)
+  }, [status, passkeyAvailable])
+
+  useEffect(
+    () => () => {
+      const operation = passkeyOperation.current
+      if (operation) {
+        operation.cancelled = true
+        if (operation.phase !== 'verify') operation.controller.abort()
+        void cancelPasskeyCeremony()
+      }
+    },
+    [],
+  )
+
   useEffect(() => {
     void checkSession()
     const onFocus = () => void checkSession()
@@ -166,6 +286,13 @@ export default function AuthGate({ children }: { children: (lock: () => void) =>
       if (document.visibilityState === 'visible') void checkSession()
     }
     const onExpired = () => {
+      autoAttempted.current = true
+      const operation = passkeyOperation.current
+      if (operation) {
+        operation.cancelled = true
+        if (operation.phase !== 'verify') operation.controller.abort()
+        void cancelPasskeyCeremony()
+      }
       ++generation.current
       advanceSessionEpoch()
       resetBoot()
@@ -181,6 +308,7 @@ export default function AuthGate({ children }: { children: (lock: () => void) =>
     document.addEventListener('visibilitychange', onVisible)
     window.addEventListener(SESSION_EXPIRED_EVENT, onExpired)
     window.addEventListener('storage', onStorage)
+    window.addEventListener(PASSKEYS_CHANGED, onFocus)
     const timer = window.setInterval(() => {
       if (document.visibilityState === 'visible') void checkSession()
     }, 60_000)
@@ -193,6 +321,7 @@ export default function AuthGate({ children }: { children: (lock: () => void) =>
       document.removeEventListener('visibilitychange', onVisible)
       window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired)
       window.removeEventListener('storage', onStorage)
+      window.removeEventListener(PASSKEYS_CHANGED, onFocus)
     }
   }, [checkSession, lock])
 
@@ -215,6 +344,11 @@ export default function AuthGate({ children }: { children: (lock: () => void) =>
       busy={busy}
       onLogin={login}
       onRetry={() => void checkSession()}
+      passkeyAvailable={passkeyAvailable && supportsPasskeys()}
+      passkeyBusy={passkeyBusy}
+      passkeyNote={passkeyNote}
+      onPasskey={() => void loginPasskey()}
+      onUsePassword={usePassword}
     />
   )
 }

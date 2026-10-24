@@ -133,7 +133,22 @@ export function createAuth({
     hash.fill(0)
   })
   if (generatedPassword) logger(`PRTS 初始访问密码（仅显示一次）：${generatedPassword}`)
-  const currentVersion = () => credential().version
+  database
+    .prepare('INSERT OR IGNORE INTO auth_metadata (key,value) VALUES (?,?)')
+    .run('session-revocation', Buffer.from('0'))
+  function revocation() {
+    const row = database
+      .prepare('SELECT value FROM auth_metadata WHERE key=?')
+      .get('session-revocation')
+    const value = Number(Buffer.from(row.value).toString())
+    if (!Number.isSafeInteger(value) || value < 0) throw new Error('会话撤销状态无效。')
+    return value
+  }
+  const currentVersion = () => {
+    const version = credential().version
+    const epoch = revocation()
+    return epoch === 0 ? version : createHash('sha256').update(`${version}:${epoch}`).digest('hex')
+  }
   const sessions = sqliteMap(database, 'auth_sessions', currentVersion)
   const failures = sqliteMap(database, 'auth_failures', currentVersion)
 
@@ -231,6 +246,21 @@ export function createAuth({
     }
   }
 
+  function issueSession(request) {
+    const time = now()
+    for (const [key, expiresAt] of sessions) if (expiresAt <= time) sessions.delete(key)
+    const previous = sessionKey(request)
+    if (previous) sessions.delete(previous)
+    if (sessions.size >= MAX_SESSIONS) throw new HttpError(503, '当前登录会话过多，请稍后重试。')
+    const token = randomBytes(32).toString('base64url')
+    const expiresAt = time + SESSION_DURATION_MS
+    sessions.set(createHash('sha256').update(token).digest('hex'), expiresAt)
+    return {
+      state: { configured: true, authenticated: true, expiresAt },
+      cookie: cookie(token, expiresAt),
+    }
+  }
+
   async function login(request, readPayload) {
     const attempt = reserveAttempt(request)
     let acquiredSlot = false
@@ -246,29 +276,15 @@ export function createAuth({
       // Slow request bodies must not occupy the global, memory-bound scrypt slots.
       acquireSlot(attempt)
       acquiredSlot = true
-      const saved = credential()
+      const saved = { ...credential(), version: currentVersion() }
       if (!(await matches(payload.password, saved)))
         throw new HttpError(401, '访问密码错误，请重新输入。')
       return atomic(() => {
         // A password update may have completed while scrypt was running.
-        if (saved.version !== currentVersion())
+        if (saved.version !== currentVersion() || attempt.version !== saved.version)
           throw new HttpError(401, '访问密码已修改，请重新登录。')
         releaseReserved(attempt)
-        const time = now()
-        for (const [key, expiresAt] of sessions) {
-          if (expiresAt <= time) sessions.delete(key)
-        }
-        const previous = sessionKey(request)
-        if (previous) sessions.delete(previous)
-        if (sessions.size >= MAX_SESSIONS)
-          throw new HttpError(503, '当前登录会话过多，请稍后重试。')
-        const token = randomBytes(32).toString('base64url')
-        const expiresAt = time + SESSION_DURATION_MS
-        sessions.set(createHash('sha256').update(token).digest('hex'), expiresAt)
-        return {
-          state: { configured: true, authenticated: true, expiresAt },
-          cookie: cookie(token, expiresAt),
-        }
+        return issueSession(request)
       })
     } finally {
       if (acquiredSlot) parallelLogins -= 1
@@ -277,6 +293,52 @@ export function createAuth({
 
   function requireSession(request) {
     if (!state(request).authenticated) throw new HttpError(401, '请先登录工作台。')
+  }
+
+  async function reauthenticate(request, password) {
+    requireSession(request)
+    const attempt = reserveAttempt(request)
+    let acquired = false
+    try {
+      if (
+        typeof password !== 'string' ||
+        !password ||
+        Buffer.byteLength(password) > MAX_PASSWORD_BYTES
+      )
+        throw new HttpError(400, '请输入有效的当前密码。')
+      acquireSlot(attempt)
+      acquired = true
+      const saved = { ...credential(), version: currentVersion() }
+      if (!(await matches(password, saved))) throw new HttpError(400, '当前密码错误，请重新输入。')
+      return atomic(() => {
+        requireSession(request)
+        if (saved.version !== currentVersion() || saved.version !== attempt.version)
+          throw new HttpError(401, '访问凭据已更新，请重新登录。')
+        releaseReserved(attempt)
+        return saved.version
+      })
+    } finally {
+      if (acquired) parallelLogins -= 1
+    }
+  }
+  async function loginWithProof(request, verify) {
+    const attempt = reserveAttempt(request)
+    let acquired = false
+    try {
+      acquireSlot(attempt)
+      acquired = true
+      const commit = await verify(attempt.version)
+      return atomic(() => {
+        if (attempt.version !== currentVersion())
+          throw new HttpError(401, '访问凭据已更新，请重新登录。')
+        if (typeof commit !== 'function') throw new HttpError(401, 'Passkey 验证失败。')
+        commit()
+        releaseReserved(attempt)
+        return issueSession(request)
+      })
+    } finally {
+      if (acquired) parallelLogins -= 1
+    }
   }
 
   async function changePassword(request, readPayload) {
@@ -303,13 +365,13 @@ export function createAuth({
       }
       acquireSlot(attempt)
       acquiredSlot = true
-      const saved = credential()
+      const saved = { ...credential(), version: currentVersion() }
       if (!(await matches(payload.currentPassword, saved)))
         throw new HttpError(400, '当前密码错误，请重新输入。')
       const salt = randomBytes(16)
       newHash = await deriveKey(payload.newPassword, salt, 64, SCRYPT_OPTIONS)
       atomic(() => {
-        if (saved.version !== currentVersion())
+        if (saved.version !== currentVersion() || saved.version !== attempt.version)
           throw new HttpError(401, '访问密码已修改，请重新登录。')
         requireSession(request)
         saveCredential(salt, newHash)
@@ -328,6 +390,26 @@ export function createAuth({
     login,
     changePassword,
     requireSession,
+    reauthenticate,
+    loginWithProof,
+    currentVersion,
+    sessionBinding: sessionKey,
+    origin(request) {
+      const host = request.headers.host
+      if (typeof host !== 'string' || /[\s/@\\?#]/.test(host))
+        throw new HttpError(400, '访问地址无效。')
+      return new URL(`${secure || request.socket.encrypted ? 'https' : 'http'}://${host}`).origin
+    },
+    secure,
+    // Call within the management mutation's transaction.
+    revokeSessions() {
+      const next = revocation() + 1
+      if (!Number.isSafeInteger(next)) throw new Error('会话撤销状态无效。')
+      database
+        .prepare('UPDATE auth_metadata SET value=? WHERE key=?')
+        .run(Buffer.from(String(next)), 'session-revocation')
+      database.exec('DELETE FROM auth_sessions; DELETE FROM auth_failures;')
+    },
     logout(request) {
       const key = sessionKey(request)
       if (key) sessions.delete(key)

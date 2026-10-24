@@ -9,6 +9,7 @@ import {
   RefreshCw,
   ShieldCheck,
   WifiOff,
+  Fingerprint,
 } from 'lucide-react'
 import { Logo } from './UI'
 import '../styles/auth.css'
@@ -19,6 +20,11 @@ interface LoginViewProps {
   busy: boolean
   onLogin: (password: string) => Promise<void>
   onRetry: () => void
+  passkeyAvailable: boolean
+  passkeyBusy: boolean
+  passkeyNote: string
+  onPasskey: () => void
+  onUsePassword: () => void
 }
 
 const statusCopy = {
@@ -44,7 +50,18 @@ const statusCopy = {
   },
 }
 
-export default function LoginView({ status, error, busy, onLogin, onRetry }: LoginViewProps) {
+export default function LoginView({
+  status,
+  error,
+  busy,
+  onLogin,
+  onRetry,
+  passkeyAvailable,
+  passkeyBusy,
+  passkeyNote,
+  onPasskey,
+  onUsePassword,
+}: LoginViewProps) {
   const [password, setPassword] = useState('')
   const [revealed, setRevealed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -69,7 +86,7 @@ export default function LoginView({ status, error, busy, onLogin, onRetry }: Log
 
   useEffect(() => {
     const input = passwordInput.current
-    if (status === 'locked') input?.focus({ preventScroll: true })
+    if (status === 'locked' && !passkeyAvailable) input?.focus({ preventScroll: true })
     else {
       setPassword('')
       setRevealed(false)
@@ -78,7 +95,7 @@ export default function LoginView({ status, error, busy, onLogin, onRetry }: Log
     return () => {
       if (input) input.value = ''
     }
-  }, [status])
+  }, [status, passkeyAvailable])
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -183,7 +200,11 @@ export default function LoginView({ status, error, busy, onLogin, onRetry }: Log
                   )}
                 </div>
                 <h1 id={headingId}>{copy.title}</h1>
-                <p className="auth-panel-description">{copy.description}</p>
+                <p className="auth-panel-description">
+                  {status === 'locked' && passkeyAvailable
+                    ? '使用设备上的 Passkey 解锁，也可以输入访问密码。'
+                    : copy.description}
+                </p>
 
                 {errorMessage ? (
                   <div id={errorId} className="auth-error" role="alert">
@@ -193,66 +214,99 @@ export default function LoginView({ status, error, busy, onLogin, onRetry }: Log
                 ) : null}
 
                 {status === 'locked' ? (
-                  <form className="auth-form" onSubmit={submit} aria-busy={pending}>
-                    <label htmlFor={passwordId}>
-                      访问密码<span aria-hidden="true">PASSWORD</span>
-                    </label>
-                    <div className={`auth-password-field${errorMessage ? ' has-error' : ''}`}>
-                      <LockKeyhole size={16} aria-hidden="true" />
-                      <input
-                        ref={passwordInput}
-                        id={passwordId}
-                        name="password"
-                        aria-label="访问密码"
-                        type={revealed ? 'text' : 'password'}
-                        value={password}
-                        onChange={(event) => {
-                          setPassword(event.target.value)
-                          setSubmissionError('')
-                        }}
-                        autoComplete="current-password"
-                        autoCapitalize="none"
-                        autoCorrect="off"
-                        spellCheck={false}
-                        required
-                        disabled={pending}
-                        placeholder="请输入访问密码"
-                        aria-invalid={Boolean(errorMessage)}
-                        aria-describedby={`${hintId}${errorMessage ? ` ${errorId}` : ''}`}
-                      />
-                      <button
-                        type="button"
-                        className="auth-password-toggle"
-                        aria-label={revealed ? '隐藏密码' : '显示密码'}
-                        aria-pressed={revealed}
-                        aria-controls={passwordId}
-                        disabled={pending}
-                        onClick={() => setRevealed(!revealed)}
-                      >
-                        {revealed ? (
-                          <EyeOff size={17} aria-hidden="true" />
+                  <>
+                    {passkeyAvailable && (
+                      <div className="auth-passkey">
+                        <button
+                          className="auth-submit"
+                          type="button"
+                          disabled={pending}
+                          onClick={onPasskey}
+                        >
+                          <Fingerprint size={20} />
+                          {passkeyBusy ? '等待设备认证…' : '使用 Passkey 登录'}
+                        </button>
+                        <button
+                          className="button button-ghost auth-passkey-cancel"
+                          type="button"
+                          disabled={busy && !passkeyBusy}
+                          onClick={() => {
+                            onUsePassword()
+                            requestAnimationFrame(() =>
+                              passwordInput.current?.focus({ preventScroll: true }),
+                            )
+                          }}
+                        >
+                          改用密码登录
+                        </button>
+                        {passkeyNote && (
+                          <p className="auth-passkey-note" role="status">
+                            {passkeyNote}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    <form className="auth-form" onSubmit={submit} aria-busy={pending}>
+                      <label htmlFor={passwordId}>
+                        访问密码<span aria-hidden="true">PASSWORD</span>
+                      </label>
+                      <div className={`auth-password-field${errorMessage ? ' has-error' : ''}`}>
+                        <LockKeyhole size={16} aria-hidden="true" />
+                        <input
+                          ref={passwordInput}
+                          id={passwordId}
+                          name="password"
+                          aria-label="访问密码"
+                          type={revealed ? 'text' : 'password'}
+                          value={password}
+                          onChange={(event) => {
+                            setPassword(event.target.value)
+                            setSubmissionError('')
+                          }}
+                          autoComplete="current-password"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck={false}
+                          required
+                          disabled={pending}
+                          placeholder="请输入访问密码"
+                          aria-invalid={Boolean(errorMessage)}
+                          aria-describedby={`${hintId}${errorMessage ? ` ${errorId}` : ''}`}
+                        />
+                        <button
+                          type="button"
+                          className="auth-password-toggle"
+                          aria-label={revealed ? '隐藏密码' : '显示密码'}
+                          aria-pressed={revealed}
+                          aria-controls={passwordId}
+                          disabled={pending}
+                          onClick={() => setRevealed(!revealed)}
+                        >
+                          {revealed ? (
+                            <EyeOff size={17} aria-hidden="true" />
+                          ) : (
+                            <Eye size={17} aria-hidden="true" />
+                          )}
+                        </button>
+                      </div>
+                      <p id={hintId} className="auth-field-hint">
+                        首次使用随机密码时，请查看服务启动日志。
+                      </p>
+                      <button type="submit" className="auth-submit" disabled={pending}>
+                        {pending ? (
+                          <>
+                            <LoaderCircle size={16} className="auth-spinner" aria-hidden="true" />
+                            正在验证…
+                          </>
                         ) : (
-                          <Eye size={17} aria-hidden="true" />
+                          <>
+                            验证并进入
+                            <ArrowRight size={17} aria-hidden="true" />
+                          </>
                         )}
                       </button>
-                    </div>
-                    <p id={hintId} className="auth-field-hint">
-                      首次使用随机密码时，请查看服务启动日志。
-                    </p>
-                    <button type="submit" className="auth-submit" disabled={pending}>
-                      {pending ? (
-                        <>
-                          <LoaderCircle size={16} className="auth-spinner" aria-hidden="true" />
-                          正在验证…
-                        </>
-                      ) : (
-                        <>
-                          验证并进入
-                          <ArrowRight size={17} aria-hidden="true" />
-                        </>
-                      )}
-                    </button>
-                  </form>
+                    </form>
+                  </>
                 ) : status === 'checking' ? (
                   <div className="auth-checking" role="status">
                     <span className="auth-checking-line" />

@@ -3,20 +3,13 @@ import { X, ArrowUpRight } from 'lucide-react'
 
 export function Logo({ small = false }: { small?: boolean }) {
   return (
-    <svg
+    <img
       className={small ? 'brand-symbol small' : 'brand-symbol'}
-      viewBox="0 0 100 100"
+      src="/branding/rhodes-island.png"
+      alt=""
       aria-hidden="true"
-    >
-      <path d="M50 8 95 87H5Z" fill="none" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M50 13 88 83H12Z" fill="none" stroke="currentColor" strokeWidth=".5" />
-      <path
-        d="m43 28 3-1 4-13 4 13 3 1-1 13 7 7-2 19 12 15H27l12-15-2-19 7-7Z"
-        fill="currentColor"
-      />
-      <path d="M46 34h8v3h-8M44 47h12v2H44" stroke="var(--bg)" strokeWidth="2" />
-      <path d="M21 87h58M14 91h72" stroke="currentColor" />
-    </svg>
+      style={{ objectFit: 'contain' }}
+    />
   )
 }
 export function SectionTitle({

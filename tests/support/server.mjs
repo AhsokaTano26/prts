@@ -63,6 +63,8 @@ server.on('request', (request, response) => {
       workerRevision = 0
       const payload = JSON.parse(body || '{}')
       for (const table of [
+        'prts_passkeys',
+        'prts_passkey_challenges',
         'prts_reminder_deliveries',
         'prts_reminder_events',
         'prts_documents',

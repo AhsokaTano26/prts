@@ -71,7 +71,7 @@ export default function TaskReminders({
           const options = {
             body: `${reminder.title}\n截止：${new Date(reminder.dueAt).toLocaleString('zh-CN')}`,
             tag: `prts-task-${reminder.id}`,
-            icon: '/icons/icon-192.png',
+            icon: '/icons/rhodes-island-192.png',
             data: { url: '/#tasks' },
             silent: !sound,
           }

@@ -10,7 +10,7 @@ export default function MobileAppSettings() {
     <section className="panel settings-section mobile-app-settings" aria-label="手机桌面应用">
       <SectionTitle title="手机桌面应用" english="MOBILE APP" />
       <div className="pwa-app-identity">
-        <img src="/icons/icon-192.png" alt="PRTS 应用图标" />
+        <img src="/icons/rhodes-island-192.png" alt="PRTS 应用图标" />
         <div>
           <strong>PRTS</strong>
           <p>

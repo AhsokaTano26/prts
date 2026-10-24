@@ -63,7 +63,7 @@ assert.equal(workerResponse.status, 200)
 assert.match(workerResponse.headers.get('content-type'), /javascript/)
 assert.match(workerResponse.headers.get('cache-control'), /no-cache/)
 await workerResponse.body?.cancel()
-for (const path of ['/offline.html', '/icons/icon-512.png']) {
+for (const path of ['/offline.html', '/icons/rhodes-island-512.png', '/rhodes-island.svg', '/branding/rhodes-island.png']) {
   const response = await get(path)
   assert.equal(response.status, 200)
   await response.body?.cancel()
@@ -71,7 +71,7 @@ for (const path of ['/offline.html', '/icons/icon-512.png']) {
 
 assert.ok(statSync('/app/data/prts.sqlite').isFile(), 'SQLite file was not created')
 const database = new DatabaseSync('/app/data/prts.sqlite', { readOnly: true })
-for (const table of ['prts_documents', 'prts_messages', 'prts_files']) {
+for (const table of ['prts_documents', 'prts_messages', 'prts_files', 'prts_passkeys', 'prts_passkey_challenges']) {
   assert.equal(database.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count, 0)
 }
 database.close()

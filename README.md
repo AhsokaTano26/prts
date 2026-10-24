@@ -7,7 +7,7 @@
 ## 功能
 
 - **终端总览**：阿米娅原始游戏立绘，查看任务、最近笔记、操作动态和专注计时。素材来源与权利说明见 [图片素材记录](docs/assets.md)。
-- **密码入口**：进入任何模块前验证密码，支持刷新保留会话和主动锁定，后端接口同步验证登录。
+- **身份验证**：密码和 Passkey 登录，支持设置后自动唤起设备认证、刷新保留会话和主动锁定，后端接口同步验证登录。
 - **任务管理**：自定义分类，按分类分栏；总栏桌面每行三列，窄屏自动缩为两列或一列。支持栏内新增、编辑时换分类、完成和删除任务，以及优先级、截止日期、搜索和筛选。
 - **笔记档案**：Markdown 编辑与预览、自动保存、标签、置顶和搜索。
 - **文件资料**：选择或拖入文件，搜索、筛选、图片预览、下载和删除。
@@ -108,6 +108,18 @@ PRTS_COOKIE_SECURE=false
 会话使用 `HttpOnly`、`SameSite=Strict` Cookie；HTTPS 部署时设置 `PRTS_COOKIE_SECURE=true`，并由反向代理保留原始 Host。相关属性含义见 [MDN Set-Cookie 文档](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie)。默认开发环境仅监听本机 HTTP。
 
 密码入口控制界面和服务端 API。任务、笔记、聊天和设置存入服务器 SQLite，上传内容保存在服务器 data/uploads；锁定不会删除数据。会话和登录限流也持久化到 SQLite，重启服务不丢失有效会话，修改密码后旧会话失效。
+
+## Passkey 登录
+
+登录后在「系统设置 → Passkey」填写名称和当前访问密码，点击「添加 Passkey」，按设备提示完成指纹、面容、设备 PIN 或安全密钥验证。最多保存 10 个凭据；支持同步型 Passkey。设置后，未登录时打开页面会自动尝试一次设备认证；取消后可手动重试或改用密码，切换窗口不会反复弹出。已登录的有效会话直接进入工作台。
+
+主动点击「锁定终端」后，需要点击「使用 Passkey 登录」或输入密码解锁；重新打开或刷新登录页面时才会自动尝试。浏览器和系统可能要求额外点击，具体提示由设备决定。
+
+正式部署必须使用 **HTTPS 域名**，设置现有的 `PRTS_COOKIE_SECURE=true`，反向代理保留原始 Host。本地使用 `http://localhost:5173`；IP 地址（包括 `127.0.0.1`）不支持注册 Passkey。凭据绑定当前域名，换域名后需使用密码登录并重新注册。协议说明见 [MDN Passkeys](https://developer.mozilla.org/en-US/docs/Web/Security/Authentication/Passkeys)。
+
+Passkey 公钥、计数器、名称和挑战记录保存在 SQLite；私钥和生物识别信息始终留在设备或密码管理器。凭据不进入 AI 上下文或工作台 JSON 导出。移除凭据需要当前密码和二次确认，并撤销所有设备的登录会话与待验证请求。修改密码保留已注册 Passkey，同时撤销旧会话和待验证请求。请保留访问密码用于管理凭据及设备不可用时恢复登录。
+
+应用使用 PRTS 收录的[罗德岛完整原始塔徽](https://prts.wiki/w/文件:Logo_罗德岛.png)，保留三角框、塔身、文字与原始比例。原图与来源校验记录位于 `static/branding/`，桌面图标由 `node scripts/generate-icons.mjs` 使用有头 Edge 生成。
 
 ## 配置 AI 服务
 

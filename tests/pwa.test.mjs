@@ -9,15 +9,17 @@ async function buildWorker(t) {
   const root = await mkdtemp(path.join(os.tmpdir(), 'prts-pwa-'))
   t.after(() => rm(root, { recursive: true, force: true }))
   await mkdir(path.join(root, 'icons'))
+  await mkdir(path.join(root, 'branding'))
   for (const file of [
     'index.html',
     'offline.html',
     'manifest.webmanifest',
-    'favicon.svg',
-    'icons/icon-192.png',
-    'icons/icon-512.png',
-    'icons/maskable-512.png',
-    'icons/apple-touch-icon.png',
+    'rhodes-island.svg',
+    'branding/rhodes-island.png',
+    'icons/rhodes-island-192.png',
+    'icons/rhodes-island-512.png',
+    'icons/rhodes-island-maskable-512.png',
+    'icons/rhodes-island-apple-180.png',
   ])
     await writeFile(path.join(root, file), file)
   const { writePwaWorker } = await import('../scripts/pwa.ts')
@@ -78,7 +80,7 @@ test('worker precaches only public install/offline assets and never handles priv
   worker.handlers.get('install')({ waitUntil: (promise) => (installed = promise) })
   await installed
   assert.ok(worker.cached.includes('/offline.html'))
-  assert.ok(worker.cached.includes('/icons/icon-512.png'))
+  assert.ok(worker.cached.includes('/icons/rhodes-island-512.png'))
   assert.equal(
     worker.cached.some((url) => url.startsWith('/api') || url === '/' || url === '/index.html'),
     false,
@@ -122,10 +124,10 @@ test('published app icons have real installable PNG dimensions', async () => {
   assert.equal(manifest.scope, '/')
   assert.equal(manifest.start_url, '/')
   for (const [name, size] of [
-    ['icon-192.png', 192],
-    ['icon-512.png', 512],
-    ['maskable-512.png', 512],
-    ['apple-touch-icon.png', 180],
+    ['rhodes-island-192.png', 192],
+    ['rhodes-island-512.png', 512],
+    ['rhodes-island-maskable-512.png', 512],
+    ['rhodes-island-apple-180.png', 180],
   ]) {
     const bytes = await readFile(new URL(`../static/icons/${name}`, import.meta.url))
     assert.equal(bytes.subarray(0, 8).toString('hex'), '89504e470d0a1a0a')

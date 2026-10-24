@@ -6,11 +6,12 @@ import type { Plugin } from 'vite'
 const publicAssets = [
   '/offline.html',
   '/manifest.webmanifest',
-  '/favicon.svg',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/maskable-512.png',
-  '/icons/apple-touch-icon.png',
+  '/rhodes-island.svg',
+  '/branding/rhodes-island.png',
+  '/icons/rhodes-island-192.png',
+  '/icons/rhodes-island-512.png',
+  '/icons/rhodes-island-maskable-512.png',
+  '/icons/rhodes-island-apple-180.png',
 ]
 
 export async function writePwaWorker(directory: string): Promise<string> {

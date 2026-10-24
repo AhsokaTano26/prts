@@ -13,6 +13,7 @@ import { getAsset, assetManager } from './resources.mjs'
 import { createSettings } from './settings.mjs'
 import { createWorkspaceTools } from './assistant-tools.mjs'
 import { createNotifications } from './notifications.mjs'
+import { createPasskeys } from './passkeys.mjs'
 
 const DEFAULT_DIST = fileURLToPath(new URL('../dist/', import.meta.url))
 const MAX_BODY_BYTES = 1024 * 1024
@@ -310,6 +311,7 @@ async function route(
   assetsDir,
   workspaceTools,
   notifications,
+  passkeys,
 ) {
   const corpus = knowledge.corpus
   response.setHeader('x-content-type-options', 'nosniff')
@@ -322,7 +324,11 @@ async function route(
       request.resume()
       return json(response, 405, { error: `此接口仅支持 ${method} 请求。` }, { allow: method })
     }
-    if (pathname === '/api/auth/session') return json(response, 200, auth.state(request))
+    if (pathname === '/api/auth/session')
+      return json(response, 200, {
+        ...auth.state(request),
+        ...(passkeys.status(request).available ? { passkeyAvailable: true } : {}),
+      })
     if (pathname === '/api/auth/logout') {
       request.resume()
       return json(response, 200, { authenticated: false }, { 'set-cookie': auth.logout(request) })
@@ -330,7 +336,57 @@ async function route(
     const result = await auth.login(request, () => readJson(request))
     return json(response, 200, result.state, { 'set-cookie': result.cookie })
   }
+  if (
+    pathname === '/api/auth/passkeys/authentication/options' ||
+    pathname === '/api/auth/passkeys/authentication/verify'
+  ) {
+    if (request.method !== 'POST')
+      throw new HttpError(405, '此接口仅支持 POST 请求。', { allow: 'POST' })
+    const payload = await readJson(request)
+    if (pathname.endsWith('/options')) {
+      const result = await passkeys.authenticationOptions(request)
+      return json(response, 200, result.options, { 'set-cookie': result.cookie })
+    }
+    const result = await passkeys.verifyAuthentication(request, payload)
+    return json(response, 200, result.state, {
+      'set-cookie': [result.cookie, passkeys.clearCookie()],
+    })
+  }
   if (pathname === '/api' || pathname.startsWith('/api/')) auth.requireSession(request)
+  if (pathname === '/api/auth/passkeys') {
+    if (request.method !== 'GET')
+      throw new HttpError(405, '此接口仅支持 GET 请求。', { allow: 'GET' })
+    return json(response, 200, passkeys.list(request))
+  }
+  if (
+    pathname === '/api/auth/passkeys/registration/options' ||
+    pathname === '/api/auth/passkeys/registration/verify'
+  ) {
+    if (request.method !== 'POST')
+      throw new HttpError(405, '此接口仅支持 POST 请求。', { allow: 'POST' })
+    const payload = await readJson(request)
+    auth.requireSession(request)
+    if (pathname.endsWith('/options')) {
+      const result = await passkeys.registrationOptions(request, payload)
+      return json(response, 200, result.options, { 'set-cookie': result.cookie })
+    }
+    const result = await passkeys.verifyRegistration(request, payload)
+    return json(response, 200, result, { 'set-cookie': passkeys.clearCookie() })
+  }
+  const passkeyMatch = /^\/api\/auth\/passkeys\/([a-f0-9-]{36})$/.exec(pathname)
+  if (passkeyMatch) {
+    if (request.method !== 'DELETE')
+      throw new HttpError(405, '此接口仅支持 DELETE 请求。', { allow: 'DELETE' })
+    const payload = await readJson(request)
+    auth.requireSession(request)
+    const result = await passkeys.remove(request, passkeyMatch[1], payload)
+    return json(
+      response,
+      200,
+      { removed: true, authenticated: false },
+      { 'set-cookie': [result.cookie, passkeys.clearCookie()] },
+    )
+  }
   const assistantAction = /^\/api\/assistant\/actions\/([a-f0-9-]{36})$/.exec(pathname)
   if (assistantAction) {
     if (request.method === 'GET')
@@ -539,6 +595,7 @@ export function createServer({
   const notifications = createNotifications(database, storage, { now, ...notificationOptions })
   const workspaceTools = createWorkspaceTools(database, storage, { now })
   const auth = createAuth({ env, now, database, logger })
+  const passkeys = createPasskeys(database, auth, { now })
   const knowledge = knowledgeManager({
     directory: corpusDir || path.join(dataDirectory, 'corpus'),
     synchronize: syncCorpus,
@@ -559,6 +616,7 @@ export function createServer({
       assetsDir,
       workspaceTools,
       notifications,
+      passkeys,
     ).catch((error) => {
       request.resume()
       json(

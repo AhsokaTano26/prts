@@ -9,6 +9,7 @@ import AssetSettings from './AssetSettings'
 import { AIConnectionSettings, PasswordSettings } from './RuntimeSettings'
 import MobileAppSettings from './MobileAppSettings'
 import NotificationSettings from './NotificationSettings'
+import PasskeySettings from './PasskeySettings'
 export default function SettingsView({
   workspace,
   health,
@@ -141,6 +142,7 @@ export default function SettingsView({
         </section>
         <AIConnectionSettings health={health} onRefresh={onRefresh} />
         <PasswordSettings />
+        <PasskeySettings />
         <MobileAppSettings />
         <NotificationSettings />
         <CorpusSettings />

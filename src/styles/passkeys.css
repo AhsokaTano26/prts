@@ -1,0 +1,129 @@
+.passkey-settings {
+  min-width: 0;
+}
+.passkey-intro {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  margin: 21px 0;
+}
+.passkey-intro-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.passkey-intro strong {
+  font-size: 16px;
+  font-weight: 500;
+}
+.passkey-intro p,
+.passkey-guidance,
+.passkey-empty {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-top: 7px;
+}
+.passkey-domain {
+  font-size: 12px;
+  color: var(--accent);
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+}
+.passkey-guidance {
+  padding: 14px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.passkey-guidance a {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--accent);
+  text-underline-offset: 4px;
+}
+.passkey-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.passkey-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding: 17px 0;
+}
+.passkey-list li > svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.passkey-list li > div {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+.passkey-list strong {
+  font-size: 14px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.passkey-list span,
+.passkey-list small {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.passkey-list button {
+  flex-shrink: 0;
+}
+.passkey-fields {
+  padding: 0;
+  border: 0;
+  margin: 20px 0 0;
+  min-width: 0;
+}
+.passkey-fields > .button {
+  margin-top: 18px;
+}
+.passkey-notice {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--success);
+  margin-top: 16px;
+}
+.passkey-remove-note {
+  color: var(--danger);
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 14px;
+}
+.passkey-cancel {
+  margin-top: 12px;
+}
+.auth-passkey {
+  padding: 3px 0 22px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 22px;
+}
+.auth-passkey .auth-submit {
+  margin-top: 0;
+}
+.auth-passkey .auth-passkey-cancel {
+  width: 100%;
+  justify-content: center;
+  margin-top: 12px;
+}
+.auth-passkey-note {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 12px;
+}

@@ -269,6 +269,10 @@ test('corrupt stored data remains recoverable after a new edit', async ({ page }
 })
 
 test('AI request retry has one user turn and does not load remote images', async ({ page }) => {
+  const remoteImages: string[] = []
+  page.on('request', (request) => {
+    if (request.url().startsWith('https://outside.example/')) remoteImages.push(request.url())
+  })
   await page.route('**/api/health', (route) =>
     route.fulfill({ json: { configured: true, model: 'mock-test', provider: 'Test' } }),
   )
@@ -302,6 +306,7 @@ test('AI request retry has one user turn and does not load remote images', async
   await page.getByRole('button', { name: '发送消息', exact: true }).click()
   await expect(page.locator('.chat-message.assistant')).toContainText('可以从一个小目标开始')
   await expect(page.locator('.chat-message.user')).toHaveCount(1)
-  await expect(page.locator('.chat-message img')).toHaveCount(0)
+  await expect(page.locator('.chat-message .markdown-content img')).toHaveCount(0)
+  expect(remoteImages).toEqual([])
   expect(histories.map((messages) => messages.length)).toEqual([1, 1])
 })
