@@ -1,18 +1,23 @@
 import { useState } from 'react'
 import { Smartphone, Download, RefreshCw, Share2 } from 'lucide-react'
 import { usePwa } from '../lib/pwa'
+import { useAppearance } from '../lib/appearance'
 import { SectionTitle } from './UI'
 
 export default function MobileAppSettings() {
   const pwa = usePwa()
+  const { theme } = useAppearance()
   const [showGuide, setShowGuide] = useState(false)
   return (
     <section className="panel settings-section mobile-app-settings" aria-label="手机桌面应用">
       <SectionTitle title="手机桌面应用" english="MOBILE APP" />
       <div className="pwa-app-identity">
-        <img src="/icons/rhodes-island-192.png" alt="PRTS 应用图标" />
+        <img
+          src={theme === 'rhine' ? '/icons/rhine-lab-192.png' : '/icons/rhodes-island-192.png'}
+          alt="PRTS 应用图标"
+        />
         <div>
-          <strong>PRTS</strong>
+          <strong>{theme === 'rhine' ? 'PRTS · 莱茵生命' : 'PRTS'}</strong>
           <p>
             {pwa.standalone
               ? '已在独立应用窗口中运行'

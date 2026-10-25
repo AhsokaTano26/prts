@@ -17,6 +17,7 @@ import {
 import { parseAssistantPreferences, type AssistantPreferences } from './assistant'
 import { listLegacyFiles, type LegacyWorkspaceFile } from './legacyFiles'
 import { storeFileRecords } from './files'
+import { DEFAULT_APPEARANCE, parseAppearance, type AppearancePreferences } from './appearance'
 import { Modal } from '../components/UI'
 import '../styles/server-storage.css'
 
@@ -25,6 +26,7 @@ export type ServerPreferences = {
   motionEnabled: boolean
   assistant: AssistantPreferences
   assistantMode: AssistantMode
+  appearance: AppearancePreferences
   migratedBrowserIds?: string[]
 }
 export type FocusState = { remaining: number; endAt: number | null; sessionId: string | null }
@@ -86,6 +88,7 @@ const defaults = (): ServerPreferences => ({
   motionEnabled: true,
   assistant: parseAssistantPreferences(null),
   assistantMode: 'local',
+  appearance: { ...DEFAULT_APPEARANCE },
 })
 
 async function request(path: string, init?: RequestInit) {
@@ -191,7 +194,12 @@ async function readLegacy(): Promise<Legacy> {
   }
   const fingerprint = JSON.stringify({
     raw,
-    preferences,
+    // Keep the original browser-data fingerprint stable as server-only settings grow.
+    preferences: {
+      motionEnabled: preferences.motionEnabled,
+      assistant: preferences.assistant,
+      assistantMode: preferences.assistantMode,
+    },
     focus: focus && { remaining: focus.remaining, endAt: focus.endAt },
     messages,
     files: files.map((f) => ({ id: f.id, size: f.size, name: f.name })),
@@ -249,6 +257,14 @@ export default function ServerStoreProvider({ children }: { children: ReactNode 
   } | null>(null)
 
   const apply = useCallback((next: Documents) => {
+    if (next.preferences)
+      next.preferences = {
+        ...next.preferences,
+        value: {
+          ...next.preferences.value,
+          appearance: parseAppearance(next.preferences.value.appearance),
+        },
+      }
     records.current = next
     revisions.current = {
       workspace: next.workspace?.revision || 0,
@@ -481,7 +497,12 @@ export default function ServerStoreProvider({ children }: { children: ReactNode 
           sourceId: previous.id,
           documents: {
             ...(previous.workspace || !current.workspace ? { workspace } : {}),
-            preferences: { ...previous.preferences, migratedBrowserIds },
+            preferences: {
+              ...previous.preferences,
+              // Themes and portraits never existed in browser storage. Keep the server choice.
+              appearance: current.preferences?.value.appearance || previous.preferences.appearance,
+              migratedBrowserIds,
+            },
             ...(previous.focus || !current.focus
               ? {
                   focus: previous.focus || {

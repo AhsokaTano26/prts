@@ -74,7 +74,7 @@ test('first download runs once, resumes after refresh, and activates the install
     }
     await route.fulfill({ status: route.request().method() === 'POST' ? 202 : 200, json: job })
   })
-  await page.goto('/#settings')
+  await page.goto('/#settings/resources')
   await expect(page.getByRole('button', { name: '首次下载语料', exact: true })).toBeEnabled()
   await expect(page.getByRole('button', { name: '检查并更新语料', exact: true })).toBeDisabled()
   await page.getByRole('button', { name: '首次下载语料', exact: true }).click()
@@ -114,7 +114,7 @@ test('update failure keeps the old corpus and retry reports current version; mob
     }
     await route.fulfill({ status: route.request().method() === 'POST' ? 202 : 200, json: job })
   })
-  await page.goto('/#settings')
+  await page.goto('/#settings/resources')
   await page.getByRole('button', { name: '检查并更新语料', exact: true }).click()
   await expect(page.getByRole('progressbar', { name: '语料同步进度' })).toBeVisible()
   job = { ...running, state: 'failed', error: '下载连接中断，请重试。' } as typeof job
@@ -150,7 +150,7 @@ test('a lost start response reconnects to the existing background job without a 
     }
     await route.fulfill({ json: job })
   })
-  await page.goto('/#settings')
+  await page.goto('/#settings/resources')
   await page.getByRole('button', { name: '检查并更新语料', exact: true }).click()
   await expect(page.locator('.corpus-settings-error')).toBeVisible()
   await page.getByRole('button', { name: '重新连接', exact: true }).click()

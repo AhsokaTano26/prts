@@ -133,6 +133,94 @@ test('update reuses verified files without network and keeps paths under the sel
   assert.equal(await getAsset(files.directory, '/assets/outside.png'), null)
 })
 
+test('a portrait catalog update adds both selectable characters and verifies all portrait files before activation', async (t) => {
+  const files = await fixture(t)
+  const first = await syncAssets({ ...files, transport, log() {} })
+  files.source.portraits = [
+    { ...AMIYA, width: 1024, height: 1024 },
+    ...[
+      ['priestess', 'https://media.prts.wiki/b/b8/Avg_avg_npc_083.png'],
+      [
+        'kaltsit',
+        'https://media.prts.wiki/7/72/%E7%AB%8B%E7%BB%98_%E5%87%AF%E5%B0%94%E5%B8%8C_1.png',
+      ],
+    ].map(([id, downloadUrl]) => ({
+      id,
+      downloadUrl,
+      size: PNG.length,
+      width: 1,
+      height: 1,
+      sha256: createHash('sha256').update(PNG).digest('hex'),
+    })),
+  ]
+  await writeFile(files.sourceFile, JSON.stringify(files.source))
+  const progress = []
+  const update = await syncAssets({
+    ...files,
+    transport,
+    onProgress: (state) => progress.push(state),
+    log() {},
+  })
+  assert.equal(update.files, 4)
+  assert.equal(update.downloaded, 2)
+  assert.equal(update.reused, 2)
+  assert.notEqual(update.release, first.release)
+  for (const id of ['priestess', 'kaltsit']) {
+    const asset = await getAsset(files.directory, `/assets/${id}.png`)
+    assert.deepEqual(await readFile(asset.file), PNG)
+  }
+  assert.ok(progress.every((state) => state.completedFiles <= state.totalFiles))
+  assert.equal(progress.at(-1).completedFiles, 4)
+  assert.equal(progress.at(-1).completedBytes, update.totalBytes)
+  const repeat = await syncAssets({
+    ...files,
+    transport() {
+      throw new Error('Verified portraits must be reused')
+    },
+    log() {},
+  })
+  assert.equal(repeat.downloaded, 0)
+  assert.equal(repeat.reused, 4)
+})
+
+test('invalid portrait sources and corrupt new portraits cannot replace the active image manifest', async (t) => {
+  const files = await fixture(t)
+  await syncAssets({ ...files, transport, log() {} })
+  const marker = path.join(files.directory, 'assets-manifest.json')
+  const before = await readFile(marker)
+  const priestess = {
+    id: 'priestess',
+    downloadUrl: 'https://untrusted.example/portrait.png',
+    size: PNG.length,
+    width: 1,
+    height: 1,
+    sha256: createHash('sha256').update(PNG).digest('hex'),
+  }
+  files.source.portraits = [AMIYA, priestess]
+  await writeFile(files.sourceFile, JSON.stringify(files.source))
+  let requests = 0
+  const corrupt = () => {
+    requests++
+    return Buffer.alloc(PNG.length)
+  }
+  await assert.rejects(
+    syncAssets({ ...files, transport: corrupt, log() {} }),
+    /Invalid pinned portrait/,
+  )
+  assert.equal(requests, 0)
+  priestess.downloadUrl = 'https://media.prts.wiki/b/b8/Avg_avg_npc_083.png'
+  await writeFile(files.sourceFile, JSON.stringify(files.source))
+  await assert.rejects(
+    syncAssets({ ...files, transport: corrupt, log() {} }),
+    /Invalid PNG: priestess/,
+  )
+  assert.equal(requests, 1)
+  assert.deepEqual(await readFile(marker), before)
+  assert.equal((await assetStatus(files.directory)).ready, true)
+  assert.equal(await getAsset(files.directory, '/assets/priestess.png'), null)
+  assert.deepEqual(await readFile(path.join(files.directory, 'amiya.png')), AMIYA_BYTES)
+})
+
 test('a mismatched new download fails without replacing valid existing images or the active manifest', async (t) => {
   const files = await fixture(t)
   await syncAssets({ ...files, transport, log() {} })

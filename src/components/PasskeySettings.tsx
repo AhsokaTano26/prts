@@ -114,7 +114,7 @@ export default function PasskeySettings() {
   const enabled = settings?.supported && supportsPasskeys()
   const localAlternative =
     window.location.hostname === '127.0.0.1'
-      ? `${window.location.protocol}//localhost${window.location.port ? `:${window.location.port}` : ''}/#settings`
+      ? `${window.location.protocol}//localhost${window.location.port ? `:${window.location.port}` : ''}/#settings/security`
       : null
   return (
     <section className="panel settings-section passkey-settings" aria-label="Passkey 设置">

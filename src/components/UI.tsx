@@ -1,11 +1,13 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { X, ArrowUpRight } from 'lucide-react'
+import { useAppearance } from '../lib/appearance'
 
 export function Logo({ small = false }: { small?: boolean }) {
+  const { theme } = useAppearance()
   return (
     <img
-      className={small ? 'brand-symbol small' : 'brand-symbol'}
-      src="/branding/rhodes-island.png"
+      className={`brand-symbol${small ? ' small' : ''}${theme === 'rhine' ? ' rhine-logo' : ''}`}
+      src={theme === 'rhine' ? '/branding/rhine-lab.png' : '/branding/rhodes-island.png'}
       alt=""
       aria-hidden="true"
       style={{ objectFit: 'contain' }}

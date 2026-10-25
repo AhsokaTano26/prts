@@ -21,7 +21,7 @@ async function authenticator(page: import('@playwright/test').Page) {
   return { cdp, authenticatorId }
 }
 async function register(page: import('@playwright/test').Page) {
-  await page.goto(`${origin}/#settings`)
+  await page.goto(`${origin}/#settings/security`)
   await page.getByLabel('访问密码', { exact: true }).fill(password)
   await page.getByRole('button', { name: '验证并进入', exact: true }).click()
   const settings = page.getByRole('region', { name: 'Passkey 设置', exact: true })

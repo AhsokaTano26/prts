@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Bell } from 'lucide-react'
 import { apiFetch } from '../lib/api'
 import {
@@ -17,7 +17,7 @@ async function read(path: string, init?: RequestInit) {
   if (!response.ok) throw new Error(result.error || '通知服务暂不可用。')
   return result
 }
-export default function NotificationSettings() {
+export default function NotificationSettings({ active = true }: { active?: boolean }) {
   const [config, setConfig] = useState<NotificationConfig | null>(null)
   const [days, setDays] = useState('')
   const [dirty, setDirty] = useState(false),
@@ -27,14 +27,16 @@ export default function NotificationSettings() {
   const [permission, setPermission] = useState(notificationPermission)
   const [deliveries, setDeliveries] = useState<ReminderDelivery[]>([])
   const alive = useRef(true)
-  async function logs() {
+  const logRequest = useRef(0)
+  const logs = useCallback(async () => {
+    const request = ++logRequest.current
     try {
       const result = await read('/api/notifications/deliveries')
-      if (alive.current) setDeliveries(result.deliveries)
+      if (alive.current && request === logRequest.current) setDeliveries(result.deliveries)
     } catch {
       /* main config surfaces connection failure */
     }
-  }
+  }, [])
   function accept(value: NotificationConfig) {
     setConfig({
       ...value,
@@ -59,11 +61,16 @@ export default function NotificationSettings() {
   useEffect(() => {
     alive.current = true
     void load()
-    void logs()
     return () => {
       alive.current = false
+      ++logRequest.current
     }
   }, [])
+  useEffect(() => {
+    if (!active) return
+    setPermission(notificationPermission())
+    void logs()
+  }, [active, logs])
   function change(value: NotificationConfig) {
     setConfig(value)
     setDirty(true)

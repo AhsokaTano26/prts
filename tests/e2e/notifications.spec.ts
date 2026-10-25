@@ -57,7 +57,7 @@ test('task deadline time persists and an open-page reminder stays dismissed acro
 test('notification settings persist lead days, hide SMTP secrets, and remain usable on mobile', async ({
   page,
 }) => {
-  await page.goto('/#settings')
+  await page.goto('/#settings/notifications')
   const settings = page.getByRole('region', { name: '任务通知设置', exact: true })
   await expect(settings).toBeVisible()
   await settings.getByLabel('启用任务提醒', { exact: true }).check()

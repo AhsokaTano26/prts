@@ -58,7 +58,7 @@ test('mobile install guidance and standalone layout remain usable without horizo
 }) => {
   await page.addInitScript(() => sessionStorage.setItem('prts-boot-seen', '1'))
   await page.request.post('/api/auth/login', { data: { password: 'prts-e2e-test-password-only' } })
-  await page.goto('/#settings')
+  await page.goto('/#settings/general')
   const section = page.getByRole('region', { name: '手机桌面应用' })
   await expect(section).toBeVisible()
   await section.getByRole('button', { name: '查看添加方法' }).click()
@@ -77,7 +77,7 @@ test('install prompt is user initiated and installed mode is reflected in settin
 }) => {
   await page.addInitScript(() => sessionStorage.setItem('prts-boot-seen', '1'))
   await page.request.post('/api/auth/login', { data: { password: 'prts-e2e-test-password-only' } })
-  await page.goto('/#settings')
+  await page.goto('/#settings/general')
   const section = page.getByRole('region', { name: '手机桌面应用' })
   await expect(section).toBeVisible()
   await page.evaluate(() => {
@@ -111,7 +111,7 @@ test('iPhone standalone mode shows installed state and keeps the mobile viewport
   })
   await page.setViewportSize({ width: 390, height: 844 })
   await page.request.post('/api/auth/login', { data: { password: 'prts-e2e-test-password-only' } })
-  await page.goto('/#settings')
+  await page.goto('/#settings/general')
   const section = page.getByRole('region', { name: '手机桌面应用' })
   await expect(section.getByText('已在独立应用窗口中运行')).toBeVisible()
   await expect(page.locator('html')).toHaveAttribute('data-standalone', 'true')
@@ -124,7 +124,7 @@ test('a real service worker update waits for approval without discarding current
 }) => {
   await page.addInitScript(() => sessionStorage.setItem('prts-boot-seen', '1'))
   await page.request.post('/api/auth/login', { data: { password: 'prts-e2e-test-password-only' } })
-  await page.goto('/#settings')
+  await page.goto('/#settings/general')
   await page.evaluate(async () => {
     await navigator.serviceWorker.ready
   })

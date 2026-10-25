@@ -319,6 +319,14 @@ async function route(
   response.setHeader('referrer-policy', 'same-origin')
   const pathname = requestPath(request.url)
   auth.checkOrigin(request)
+  if (pathname === '/api/appearance') {
+    if (request.method !== 'GET') {
+      request.resume()
+      return json(response, 405, { error: '此接口仅支持 GET 请求。' }, { allow: 'GET' })
+    }
+    const theme = storage.getDocument('preferences')?.value.appearance?.theme
+    return json(response, 200, { theme: theme === 'rhine' ? 'rhine' : 'rhodes' })
+  }
   if (['/api/auth/session', '/api/auth/login', '/api/auth/logout'].includes(pathname)) {
     const method = pathname === '/api/auth/session' ? 'GET' : 'POST'
     if (request.method !== method) {
@@ -543,7 +551,8 @@ async function route(
   }
   const storedAsset = await getAsset(assetsDir, pathname)
   const gameResource =
-    pathname === '/assets/amiya.png' || pathname.startsWith('/assets/corpus-images/')
+    ['/assets/amiya.png', '/assets/priestess.png', '/assets/kaltsit.png'].includes(pathname) ||
+    pathname.startsWith('/assets/corpus-images/')
   const asset = storedAsset || (gameResource ? null : await staticFile(distDir, pathname))
   if (!asset) return json(response, 404, { error: '页面或资源不存在，请先构建前端。' })
   const extension = path.extname(asset.file).toLowerCase()

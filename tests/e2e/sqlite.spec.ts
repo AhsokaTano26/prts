@@ -294,6 +294,12 @@ test('empty image resources show a placeholder and download only after a manual 
   await page.route('**/assets/amiya.png', (route) => route.fulfill({ status: 404 }))
   await page.goto('/')
   await page.getByRole('button', { name: '前往资源管理', exact: true }).click()
+  await expect(page).toHaveURL(/#settings\/resources$/)
+  await expect(
+    page
+      .getByRole('navigation', { name: '设置分类', exact: true })
+      .getByRole('link', { name: '资源管理', exact: true }),
+  ).toHaveAttribute('aria-current', 'page')
   await expect(page.getByRole('button', { name: '首次下载图片', exact: true })).toBeEnabled()
   expect(starts).toBe(0)
   await page.getByRole('button', { name: '首次下载图片', exact: true }).click()

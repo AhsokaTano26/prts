@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import {
   ArrowUpRight,
   Plus,
@@ -8,7 +7,6 @@ import {
   Clock3,
   Pin,
   ArrowRight,
-  ImageOff,
 } from 'lucide-react'
 import type { Workspace, Task } from '../lib/workspace'
 import { relativeTime } from '../lib/workspace'
@@ -17,8 +15,13 @@ import { SectionTitle } from './UI'
 import { TaskRow } from './TasksView'
 import FocusPanel from './FocusPanel'
 import '../styles/amiya.css'
+import '../styles/rhine-overview.css'
+import CharacterPortrait from './CharacterPortrait'
+import RhineHero from './RhineHero'
+import { useAppearance, type PortraitId } from '../lib/appearance'
 
 type Props = {
+  portrait: PortraitId
   workspace: Workspace
   timer: FocusTimer
   onNewTask: () => void
@@ -29,6 +32,7 @@ type Props = {
 }
 export default function Overview({
   workspace: w,
+  portrait,
   timer,
   onNewTask,
   onToggleTask,
@@ -36,7 +40,8 @@ export default function Overview({
   onNavigate,
   onNote,
 }: Props) {
-  const [portraitMissing, setPortraitMissing] = useState(false)
+  const { theme } = useAppearance()
+  const rhine = theme === 'rhine'
   const tasks = w.tasks.filter((t) => !t.done).slice(0, 3)
   const notes = [...w.notes]
     .sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.updatedAt.localeCompare(a.updatedAt))
@@ -66,15 +71,19 @@ export default function Overview({
     },
   ]
   return (
-    <div className="page-content overview">
+    <div className={`page-content overview${rhine ? ' rhine-overview' : ''}`}>
       <div className="view-heading">
         <div>
           <h1>
-            欢迎回来，博士<span className="heading-dot">。</span>
+            {rhine ? '今日研究工作台' : '欢迎回来，博士'}
+            <span className="heading-dot">。</span>
           </h1>
           <p>
-            今天，也向前一步。<span className="welcome-divider">/</span>
-            <span className="mono welcome-en">A NEW DAY. A NEW POSSIBILITY.</span>
+            {rhine ? '把好奇心，写成下一步。' : '今天，也向前一步。'}
+            <span className="welcome-divider">/</span>
+            <span className="mono welcome-en">
+              {rhine ? 'OBSERVE. EXPLORE. ADVANCE.' : 'A NEW DAY. A NEW POSSIBILITY.'}
+            </span>
           </p>
         </div>
         <button className="button button-primary" onClick={onNewTask}>
@@ -82,65 +91,49 @@ export default function Overview({
           新建任务
         </button>
       </div>
-      <section className="hero-panel hero-panel--amiya">
-        <div className="hero-grid" />
-        <div className="corner top-left" />
-        <div className="corner top-right" />
-        <div className="corner bottom-left" />
-        <div className="corner bottom-right" />
-        <div className="hero-copy">
-          <div className="hero-label mono">
-            <span />
-            RHODES ISLAND
-          </div>
-          <h2>
-            ALL SYSTEMS
-            <br />
-            <em>READY.</em>
-          </h2>
-          <p>你的思绪，于此汇集。</p>
-          <div className="hero-foot mono">
-            <span />
-            PERSONAL RHODES ISLAND TERMINAL SYSTEM
-          </div>
-        </div>
-        <figure className={`amiya-visual${portraitMissing ? ' amiya-visual--empty' : ''}`}>
-          {portraitMissing ? (
-            <div className="amiya-empty">
-              <ImageOff size={30} aria-hidden="true" />
-              <strong>阿米娅立绘尚未就绪</strong>
-              <p>可在系统设置下载或更新图片资源。</p>
-              <button className="button button-ghost" onClick={() => onNavigate('settings')}>
-                前往资源管理
-              </button>
+      {rhine ? (
+        <RhineHero
+          portrait={portrait}
+          onResources={() => onNavigate('settings/resources')}
+          onAppearance={() => onNavigate('settings/appearance')}
+        />
+      ) : (
+        <section className="hero-panel hero-panel--amiya">
+          <div className="hero-grid" />
+          <div className="corner top-left" />
+          <div className="corner top-right" />
+          <div className="corner bottom-left" />
+          <div className="corner bottom-right" />
+          <div className="hero-copy">
+            <div className="hero-label mono">
+              <span />
+              RHODES ISLAND
             </div>
-          ) : (
-            <img
-              className="amiya-portrait"
-              src="/assets/amiya.png"
-              alt="《明日方舟》阿米娅游戏立绘"
-              width={1024}
-              height={1024}
-              loading="eager"
-              decoding="async"
-              draggable={false}
-              onError={() => setPortraitMissing(true)}
-            />
-          )}
-          <figcaption className="amiya-caption">
-            <strong>阿米娅</strong>
-            <span className="mono">AMIYA / RHODES ISLAND</span>
-          </figcaption>
-        </figure>
-        <div className="hero-status mono">
-          <span>TERMINAL ONLINE</span>
-          <strong>
-            <i />
-            终端已就绪
-          </strong>
-        </div>
-        <div className="hero-index mono">P / 001</div>
-      </section>
+            <h2>
+              ALL SYSTEMS
+              <br />
+              <em>READY.</em>
+            </h2>
+            <p>你的思绪，于此汇集。</p>
+            <div className="hero-foot mono">
+              <span />
+              PERSONAL RHODES ISLAND TERMINAL SYSTEM
+            </div>
+          </div>
+          <CharacterPortrait
+            portrait={portrait}
+            onResources={() => onNavigate('settings/resources')}
+          />
+          <div className="hero-status mono">
+            <span>TERMINAL ONLINE</span>
+            <strong>
+              <i />
+              终端已就绪
+            </strong>
+          </div>
+          <div className="hero-index mono">P / 001</div>
+        </section>
+      )}
       <div className="stat-strip">
         {stats.map((s) => (
           <button key={s.label} className="stat" onClick={() => onNavigate(s.page)}>

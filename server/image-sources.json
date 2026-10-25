@@ -1,5 +1,41 @@
 {
   "schemaVersion": 1,
+  "portraits": [
+    {
+      "id": "amiya",
+      "name": "阿米娅",
+      "fileName": "立绘_阿米娅_1+.png",
+      "size": 411842,
+      "width": 1024,
+      "height": 1024,
+      "sha256": "3fe7605b1dfb923ff83451de42eec7657310e7b859fc0b8ff893045b082807ce",
+      "downloadUrl": "https://media.prts.wiki/3/34/%E7%AB%8B%E7%BB%98_%E9%98%BF%E7%B1%B3%E5%A8%85_1%2B.png",
+      "sourceUrl": "https://prts.wiki/w/文件:立绘_阿米娅_1%2B.png"
+    },
+    {
+      "id": "priestess",
+      "name": "普瑞赛斯",
+      "fileName": "Avg_avg_npc_083.png",
+      "size": 221651,
+      "width": 1024,
+      "height": 1024,
+      "sha256": "448e927bffede4ff46e22baa8c394626b9a82ecc735b2acc977c124a39816627",
+      "downloadUrl": "https://media.prts.wiki/b/b8/Avg_avg_npc_083.png",
+      "sourceUrl": "https://prts.wiki/w/文件:Avg_avg_npc_083.png",
+      "identitySource": "https://prts.wiki/w/剧情角色一览"
+    },
+    {
+      "id": "kaltsit",
+      "name": "凯尔希",
+      "fileName": "立绘_凯尔希_1.png",
+      "size": 1299871,
+      "width": 2048,
+      "height": 2048,
+      "sha256": "57ef9ed92eb45c622a435324b58d957f39c3f076b924d0645b1a0fca8085144d",
+      "downloadUrl": "https://media.prts.wiki/7/72/%E7%AB%8B%E7%BB%98_%E5%87%AF%E5%B0%94%E5%B8%8C_1.png",
+      "sourceUrl": "https://prts.wiki/w/文件:立绘_凯尔希_1.png"
+    }
+  ],
   "upstream": {
     "repository": "https://github.com/555me/EndfieldAssets",
     "commit": "966ed92d2556386a37e4ec076a812ff46ca2fae9",

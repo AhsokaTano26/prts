@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Logo } from './UI'
+import { useAppearance } from '../lib/appearance'
+import RhineInstrument from './RhineInstrument'
 
 interface BootSequenceProps {
   onComplete: () => void
@@ -26,6 +28,7 @@ function readMilliseconds(style: CSSStyleDeclaration, token: string, fallback: n
 
 /** Presentation only: these phases describe preparing the local interface, not remote checks. */
 export default function BootSequence({ onComplete, onReplay = false }: BootSequenceProps) {
+  const { theme } = useAppearance()
   const [phase, setPhase] = useState<BootPhase>('load')
   const rootRef = useRef<HTMLDivElement>(null)
   const skipRef = useRef<HTMLButtonElement>(null)
@@ -87,6 +90,88 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
       }
     }
   }, [complete])
+
+  if (theme === 'rhine')
+    return (
+      <div
+        ref={rootRef}
+        className="boot-sequence boot-sequence--rhine"
+        data-phase={phase}
+        data-replay={onReplay || undefined}
+        role="dialog"
+        aria-modal="true"
+        aria-label={onReplay ? '重播 PRTS 启动序列' : 'PRTS 启动序列'}
+        onKeyDown={(event) => {
+          event.stopPropagation()
+          if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k')
+            event.preventDefault()
+          if (event.key === 'Escape') complete()
+          if (event.key === 'Tab') {
+            event.preventDefault()
+            skipRef.current?.focus()
+          }
+        }}
+      >
+        <div className="rhine-boot-brand" aria-hidden="true">
+          <strong>RHINE LAB</strong>
+          <span>SYNTHESIZE INFORMATION</span>
+          <span>
+            ANALYSIS <b>OS</b>
+          </span>
+        </div>
+        <span className="rhine-boot-edition mono" aria-hidden="true">
+          PERSONAL RESEARCH TERMINAL / 01
+        </span>
+        <div className="rhine-boot-center">
+          <div className="rhine-boot-instrument">
+            <RhineInstrument />
+            <Logo />
+          </div>
+          <div className="rhine-boot-copy">
+            <p className="mono">WORKSPACE INITIALIZATION</p>
+            <h1>
+              CONNECT.
+              <br />
+              <mark>DISCOVER.</mark>
+            </h1>
+            <div className="rhine-boot-status" role="status" aria-live="polite" aria-atomic="true">
+              <i aria-hidden="true" />
+              {phase === 'load'
+                ? '载入科研工作空间'
+                : phase === 'prepare'
+                  ? '展开任务与档案'
+                  : '研究终端已就绪'}
+            </div>
+            <div className="rhine-boot-steps" aria-hidden="true">
+              {['WORKSPACE', 'ARCHIVES', 'READY'].map((label, i) => (
+                <span
+                  key={label}
+                  className={
+                    i === 0 ||
+                    (i === 1 && phase !== 'load') ||
+                    phase === 'ready' ||
+                    phase === 'exit'
+                      ? 'is-complete'
+                      : ''
+                  }
+                >
+                  <b>{String(i + 1).padStart(2, '0')}</b>
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="rhine-boot-footer mono" aria-hidden="true">
+          <span>IDEAS BECOME DISCOVERIES.</span>
+          <span>RHINE LAB / PRTS</span>
+        </div>
+        <button ref={skipRef} className="boot-skip mono" type="button" onClick={complete}>
+          <span>跳过启动</span>
+          <span aria-hidden="true">↗</span>
+        </button>
+      </div>
+    )
 
   return (
     <div

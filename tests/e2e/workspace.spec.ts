@@ -160,6 +160,10 @@ test('settings backup round-trip and invalid import do not destroy data', async 
     .click()
   await page.getByLabel('博士代号', { exact: true }).fill('测试博士')
   await page.getByRole('button', { name: '保存偏好', exact: true }).click()
+  await page
+    .getByRole('navigation', { name: '设置分类', exact: true })
+    .getByRole('link', { name: '数据备份', exact: true })
+    .click()
   const downloadPromise = page.waitForEvent('download')
   await page.getByRole('button', { name: '导出备份', exact: true }).click()
   const path = await (await downloadPromise).path()
@@ -175,6 +179,10 @@ test('settings backup round-trip and invalid import do not destroy data', async 
   await page.getByRole('button', { name: '确认替换并导入' }).click()
   await waitSaved(page)
   await page.reload()
+  await page
+    .getByRole('navigation', { name: '设置分类', exact: true })
+    .getByRole('link', { name: '常规偏好', exact: true })
+    .click()
   await expect(page.getByLabel('博士代号', { exact: true })).toHaveValue('测试博士')
 })
 

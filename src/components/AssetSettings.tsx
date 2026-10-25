@@ -80,7 +80,7 @@ export default function AssetSettings() {
     <section className="panel settings-section asset-settings">
       <SectionTitle title="图片资源" english="ILLUSTRATION ASSETS" />
       <p className="settings-copy">
-        阿米娅立绘和语料配图保存在服务器资源目录。首次部署为空，点击下载后启用。
+        阿米娅、普瑞赛斯、凯尔希立绘和语料配图保存在服务器资源目录。首次部署为空，点击下载后启用。
       </p>
       <p role="status">
         {running

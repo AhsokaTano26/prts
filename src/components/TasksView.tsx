@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import {
   Plus,
   Search,
@@ -14,6 +14,7 @@ import { Modal } from './UI'
 import PrtsSelect from './PrtsSelect'
 import TaskCategoriesDialog from './TaskCategoriesDialog'
 import { taskLocalDate, taskLocalTime, editedTaskDeadline } from '../lib/reminders'
+import { transitionView } from '../lib/motion'
 import '../styles/task-board.css'
 
 const priorityNames = { high: '高优先级', medium: '中优先级', low: '低优先级' }
@@ -292,6 +293,27 @@ export default function TasksView({
     [query, setQuery] = useState(''),
     [priority, setPriority] = useState('all')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const requestedView = useRef({ category: null as string | null, filter: 'all', priority: 'all' })
+  function changeView(patch: Partial<typeof requestedView.current>, direction = 1) {
+    const previous = requestedView.current
+    const next = { ...previous, ...patch }
+    if (
+      next.category === previous.category &&
+      next.filter === previous.filter &&
+      next.priority === previous.priority
+    )
+      return
+    requestedView.current = next
+    // Commit the whole requested view: independently clicked criteria must compose.
+    transitionView(
+      () => {
+        setSelectedCategory(next.category)
+        setFilter(next.filter)
+        setPriority(next.priority)
+      },
+      { scope: 'collection', direction },
+    )
+  }
   const [manageCategories, setManageCategories] = useState(false)
   const categoryIds = new Set(categories.map((category) => category.id))
   const taskCategory = (task: Task) => (categoryIds.has(task.categoryId) ? task.categoryId : '')
@@ -373,7 +395,7 @@ export default function TasksView({
             type="button"
             className="task-category-chip"
             aria-pressed={currentCategory === null}
-            onClick={() => setSelectedCategory(null)}
+            onClick={() => changeView({ category: null }, -1)}
           >
             <span className="task-category-chip-name">总栏</span>
             <span className="task-category-chip-count mono" aria-hidden="true">
@@ -386,7 +408,7 @@ export default function TasksView({
               key={category.id}
               className="task-category-chip"
               aria-pressed={currentCategory === category.id}
-              onClick={() => setSelectedCategory(category.id)}
+              onClick={() => changeView({ category: category.id })}
             >
               <span className="task-category-chip-name">{category.name}</span>
               <span className="task-category-chip-count mono" aria-hidden="true">
@@ -407,7 +429,7 @@ export default function TasksView({
               key={id}
               aria-pressed={filter === id}
               className={filter === id ? 'active' : ''}
-              onClick={() => setFilter(id)}
+              onClick={() => changeView({ filter: id })}
             >
               {label}
               <span>
@@ -434,7 +456,7 @@ export default function TasksView({
             <PrtsSelect
               aria-label="筛选优先级"
               value={priority}
-              onValueChange={(value) => setPriority(value)}
+              onValueChange={(value) => changeView({ priority: value })}
               options={[
                 { value: 'all', label: '全部优先级' },
                 { value: 'high', label: '高优先级' },
@@ -454,7 +476,7 @@ export default function TasksView({
         </p>
       )}
       <div
-        className={`task-board-grid${currentCategory !== null ? ' task-board-grid--single' : ''}`}
+        className={`task-board-grid motion-collection${currentCategory !== null ? ' task-board-grid--single' : ''}`}
       >
         {columns.map((category) => {
           const columnTasks = visible.filter((task) => taskCategory(task) === category.id)

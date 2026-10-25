@@ -1,0 +1,457 @@
+/* Content changes share one interruptible timeline; navigation chrome stays still. */
+:root {
+  --motion-route: 320ms;
+  --motion-route-exit: 160ms;
+  --motion-content: 220ms;
+  --motion-sign: 1;
+  view-transition-name: none;
+}
+:root[data-theme='rhine'] {
+  --motion-route: 340ms;
+  --motion-route-exit: 150ms;
+}
+:root[data-motion-direction='backward'] {
+  --motion-sign: -1;
+}
+
+/* Suppress the old mount-only reveal, which would be captured mid-animation. */
+html .motion-page,
+html[data-theme='rhine'] .motion-page {
+  animation: none;
+}
+html[data-transition='page'] .motion-page,
+html[data-transition='settings'] .settings-category-content,
+html[data-transition='collection'] .motion-collection {
+  view-transition-name: prts-content;
+}
+html[data-transition='page'] .motion-page .view-heading {
+  view-transition-name: prts-heading;
+}
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-group(prts-content) {
+  animation: none;
+  overflow: clip;
+}
+::view-transition-image-pair(prts-content) {
+  isolation: isolate;
+}
+::view-transition-old(prts-content),
+::view-transition-new(prts-content) {
+  height: auto;
+  object-position: left top;
+  mix-blend-mode: normal;
+}
+::view-transition-old(prts-content) {
+  animation: prts-page-out var(--motion-route-exit) ease-out both;
+}
+::view-transition-new(prts-content) {
+  animation: prts-rhodes-page-in var(--motion-route) var(--ease-out) both;
+}
+/* The title resolves first, so the destination is clear while its content settles. */
+::view-transition-group(prts-heading) {
+  animation: none;
+}
+::view-transition-old(prts-heading) {
+  mix-blend-mode: normal;
+  animation: prts-page-out 110ms ease-out both;
+}
+::view-transition-new(prts-heading) {
+  mix-blend-mode: normal;
+  animation: prts-heading-in 240ms var(--ease-out) both;
+}
+@keyframes prts-heading-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+html[data-theme='rhine']::view-transition-old(prts-content) {
+  animation-name: prts-rhine-page-out;
+}
+html[data-theme='rhine']::view-transition-new(prts-content) {
+  animation-name: prts-rhine-page-in;
+}
+html:is([data-transition='settings'], [data-transition='collection'])::view-transition-group(
+    prts-content
+  ) {
+  animation-duration: var(--motion-content);
+}
+html:is([data-transition='settings'], [data-transition='collection'])::view-transition-old(
+    prts-content
+  ) {
+  animation: prts-content-out 120ms ease-out both;
+}
+html:is([data-transition='settings'], [data-transition='collection'])::view-transition-new(
+    prts-content
+  ) {
+  animation: prts-content-in var(--motion-content) var(--ease-out) both;
+}
+html[data-theme='rhine']:is(
+    [data-transition='settings'],
+    [data-transition='collection']
+  )::view-transition-new(prts-content) {
+  animation-name: prts-rhine-content-in;
+}
+
+@keyframes prts-page-out {
+  to {
+    opacity: 0;
+    transform: translateX(calc(-12px * var(--motion-sign)));
+  }
+}
+@keyframes prts-rhodes-page-in {
+  from {
+    opacity: 0;
+    transform: translateX(calc(26px * var(--motion-sign)));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes prts-rhine-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(calc(-7px * var(--motion-sign))) scale(0.994);
+  }
+}
+@keyframes prts-rhine-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(18px * var(--motion-sign))) scale(0.99);
+    clip-path: inset(0 0 18% 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0);
+  }
+}
+@keyframes prts-content-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes prts-content-in {
+  from {
+    opacity: 0;
+    transform: translateX(calc(12px * var(--motion-sign)));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes prts-rhine-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(9px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* A single route scan provides feedback without adding a blocking loading screen. */
+.topbar {
+  position: relative;
+}
+html[data-transition='page'] .topbar::before {
+  content: '';
+  position: absolute;
+  z-index: 5;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  background: var(--accent);
+  transform-origin: left center;
+  animation: prts-route-scan var(--motion-route) var(--ease-out) both;
+}
+html[data-theme='rhine'][data-transition='page'] .topbar::before {
+  height: 2px;
+  transform-origin: right center;
+}
+@keyframes prts-route-scan {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  24% {
+    opacity: 0.9;
+  }
+  75% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
+}
+
+/* Frequent controls use short transitions, never a waiting period. */
+:is(.nav-item, .settings-subnav a, .task-category-chip, .files-filter, .notes-list-item) {
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+.nav-item > svg,
+.settings-subnav a > svg,
+.nav-item > div,
+.settings-nav-arrow,
+.button > svg,
+.profile-button > svg {
+  transition:
+    transform 180ms var(--ease-out),
+    opacity 180ms ease;
+}
+.nav-item.active > svg {
+  transform: translateX(2px);
+}
+.nav-active-mark {
+  transform-origin: center;
+  animation: prts-nav-marker 220ms var(--ease-out) both;
+}
+.breadcrumb > strong {
+  animation: prts-label-reveal 180ms var(--ease-out) both;
+}
+@keyframes prts-nav-marker {
+  from {
+    opacity: 0;
+    transform: scaleY(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+@keyframes prts-label-reveal {
+  from {
+    opacity: 0.3;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.button,
+.icon-button,
+.task-check,
+.task-category-add,
+.prts-select-trigger {
+  transition:
+    transform 140ms var(--ease-out),
+    color 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+html:not([data-input='keyboard']) .button:active:not(:disabled),
+html:not([data-input='keyboard']) .icon-button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.975);
+}
+.field,
+.search-field,
+.workspace-search,
+.select-field {
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+.task-card,
+.task-row,
+.note-preview,
+.notes-list-item,
+.files-table tbody tr,
+.stat,
+.theme-choice,
+.portrait-choice {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease,
+    transform 180ms var(--ease-out);
+}
+.task-check svg {
+  animation: prts-check-reveal 180ms var(--ease-out) both;
+}
+.task-title,
+.task-card-title {
+  transition:
+    color 180ms ease,
+    opacity 180ms ease,
+    text-decoration-color 180ms ease;
+}
+@keyframes prts-check-reveal {
+  from {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Popovers remain native top-layer elements, with matching open/close paths. */
+html .prts-select-popover,
+html[data-theme='rhine'] .prts-select-popover {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.985);
+  transform-origin: top center;
+  transition:
+    opacity 120ms ease-out,
+    transform 160ms var(--ease-out),
+    display 160ms allow-discrete,
+    overlay 160ms allow-discrete;
+}
+html .prts-select-popover[data-placement='top'] {
+  transform: translateY(4px) scale(0.985);
+  transform-origin: bottom center;
+}
+html .prts-select-popover:popover-open,
+html[data-theme='rhine'] .prts-select-popover:popover-open {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+@starting-style {
+  html .prts-select-popover:popover-open,
+  html[data-theme='rhine'] .prts-select-popover:popover-open {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.985);
+  }
+  html .prts-select-popover[data-placement='top']:popover-open {
+    transform: translateY(4px) scale(0.985);
+  }
+}
+
+html .modal[open]:not(.command-modal),
+html .files-preview-dialog[open] {
+  animation: prts-dialog-in 240ms var(--ease-out) both;
+}
+html[data-theme='rhine'] .modal[open]:not(.command-modal),
+html[data-theme='rhine'] .files-preview-dialog[open] {
+  animation-name: prts-rhine-dialog-in;
+}
+@keyframes prts-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes prts-rhine-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+    clip-path: inset(0 0 10% 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0);
+  }
+}
+/* File previews already own a short exit animation. */
+html .files-preview-dialog[open].is-closing,
+html[data-theme='rhine'] .files-preview-dialog[open].is-closing {
+  animation: workspace-preview-out 160ms ease-out both;
+}
+html .files-preview-dialog[open].files-preview-instant,
+html[data-theme='rhine'] .files-preview-dialog[open].files-preview-instant {
+  animation: none;
+}
+
+.storage-warning,
+.task-reminder-tray,
+.inline-error,
+.workspace-error,
+.pwa-install-notice,
+.pwa-update-notice {
+  animation: prts-label-reveal 180ms var(--ease-out) backwards;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-item:hover > div {
+    transform: translateX(3px);
+  }
+  .settings-subnav a:hover .settings-nav-arrow,
+  .profile-button:hover > svg {
+    transform: translateX(3px);
+  }
+  .button:hover:not(:disabled) > svg {
+    transform: translateY(-1px);
+  }
+  .task-card:hover,
+  .note-preview:hover,
+  .theme-choice:hover,
+  .portrait-choice:hover {
+    transform: translateY(-2px);
+  }
+  .task-category-add:hover {
+    transform: translateX(2px);
+  }
+}
+@media (max-width: 760px) {
+  :root {
+    --motion-route: 280ms;
+  }
+  :root[data-theme='rhine'] {
+    --motion-route: 300ms;
+  }
+  .sidebar-overlay {
+    animation: prts-opacity-in 180ms ease-out both;
+  }
+}
+
+/* These also cover UA-generated snapshot pseudo-elements and WAAPI fallbacks. */
+html[data-input='keyboard'] .breadcrumb > strong,
+html[data-input='keyboard'] .nav-active-mark,
+html[data-input='keyboard'] .modal[open]:not(.command-modal),
+html[data-input='keyboard'] .files-preview-dialog[open] {
+  animation: none;
+}
+html[data-input='keyboard'] .prts-select-popover {
+  transition: none;
+}
+html[data-motion='off']::view-transition-group(*),
+html[data-motion='off']::view-transition-old(*),
+html[data-motion='off']::view-transition-new(*) {
+  animation: none !important;
+}
+html[data-motion='off'] *,
+html[data-motion='off'] *::before,
+html[data-motion='off'] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

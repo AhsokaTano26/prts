@@ -2,11 +2,13 @@ import { test, expect, type Page } from './fixture'
 
 const password = 'prts-e2e-test-password-only'
 
-async function openSettings(page: Page) {
+async function openSettings(page: Page, section: 'ai' | 'security' = 'ai') {
   expect((await page.request.post('/api/auth/login', { data: { password } })).ok()).toBe(true)
   await page.addInitScript(() => sessionStorage.setItem('prts-boot-seen', '1'))
-  await page.goto('/#settings')
-  await expect(page.getByLabel('AI 服务地址', { exact: true })).toBeVisible()
+  await page.goto(`/#settings/${section}`)
+  await expect(
+    page.getByLabel(section === 'ai' ? 'AI 服务地址' : '当前密码', { exact: true }),
+  ).toBeVisible()
 }
 
 test('AI configuration saves to the server, survives reload and never returns the key', async ({
@@ -73,7 +75,7 @@ test('changing password validates input, locks every session and accepts only th
   page,
   browser,
 }) => {
-  await openSettings(page)
+  await openSettings(page, 'security')
   const peer = await browser.newContext({ baseURL: 'http://127.0.0.1:8791' })
   try {
     expect((await peer.request.post('/api/auth/login', { data: { password } })).ok()).toBe(true)

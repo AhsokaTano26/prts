@@ -1,0 +1,24 @@
+{
+  "name": "Rhine Lab original emblem",
+  "source": "https://prts.wiki/w/文件:Logo_莱茵生命.png",
+  "original": "https://media.prts.wiki/b/b4/Logo_%E8%8E%B1%E8%8C%B5%E7%94%9F%E5%91%BD.png",
+  "sha256": "420fedea92d40020961b8060b69ae306f9924a2f46f3b187e26a161547b837d6",
+  "width": 510,
+  "height": 510,
+  "bytes": 20730,
+  "retrievedAt": "2026-10-25",
+  "processing": "Original PNG; no redraw or generated artwork. Theme may tint the image using CSS.",
+  "derivedIcons": {
+    "generator": "node scripts/generate-icons.mjs --theme rhine",
+    "renderer": "Headed Microsoft Edge, SVG composition and Canvas PNG export",
+    "background": "#f0f2ed",
+    "foreground": "#173c31",
+    "processing": "Preserve the full original emblem and wordmark, tint through the source alpha mask, and resize proportionally. Maskable artwork stays inside the central 80% safe circle.",
+    "files": [
+      "icons/rhine-lab-192.png",
+      "icons/rhine-lab-512.png",
+      "icons/rhine-lab-maskable-512.png",
+      "icons/rhine-lab-180.png"
+    ]
+  }
+}

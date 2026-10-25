@@ -12,6 +12,8 @@ import {
   Fingerprint,
 } from 'lucide-react'
 import { Logo } from './UI'
+import { useAppearance } from '../lib/appearance'
+import RhineInstrument from './RhineInstrument'
 import '../styles/auth.css'
 
 interface LoginViewProps {
@@ -62,6 +64,8 @@ export default function LoginView({
   onPasskey,
   onUsePassword,
 }: LoginViewProps) {
+  const { theme } = useAppearance()
+  const rhine = theme === 'rhine'
   const [password, setPassword] = useState('')
   const [revealed, setRevealed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -125,8 +129,9 @@ export default function LoginView({
           <div className="auth-wordmark">
             <Logo small />
             <span>
-              PRTS<span className="auth-wordmark-slash"> / </span>
-              <small>PERSONAL TERMINAL</small>
+              {rhine ? 'RHINE LAB' : 'PRTS'}
+              <span className="auth-wordmark-slash"> / </span>
+              <small>{rhine ? 'ANALYSIS OS' : 'PERSONAL TERMINAL'}</small>
             </span>
           </div>
           <span className="auth-topbar-index">
@@ -135,55 +140,83 @@ export default function LoginView({
         </header>
 
         <div className="auth-layout">
-          <section className="auth-identity" aria-label="PRTS 个人终端">
-            <p className="auth-eyebrow">RHODES ISLAND / PERSONAL TERMINAL</p>
-            <div className="auth-emblem" aria-hidden="true">
-              <svg className="auth-emblem-lines" viewBox="0 0 360 360" fill="none">
-                <circle cx="180" cy="180" r="148" />
-                <circle cx="180" cy="180" r="114" strokeDasharray="2 8" />
-                <path
-                  d="M180 18v324M18 180h324M76 76l208 208M76 284 284 76"
-                  className="auth-emblem-axis"
-                />
-                <path d="m180 32 148 148-148 148L32 180Z" />
-                <path d="m180 32 78 148-78 148-78-148Z" />
-                <path
-                  d="M32 180h296M180 32 32 180l148 78 148-78L180 32ZM180 328 32 180l148-78 148 78-148 148Z"
-                  className="auth-emblem-detail"
-                />
-                <path
-                  d="M18 60V18h42M300 18h42v42M342 300v42h-42M60 342H18v-42"
-                  className="auth-emblem-corners"
-                />
-                <circle cx="180" cy="32" r="3" className="auth-emblem-point" />
-                <circle cx="328" cy="180" r="3" className="auth-emblem-point" />
-                <circle cx="180" cy="328" r="3" className="auth-emblem-point" />
-                <circle cx="32" cy="180" r="3" className="auth-emblem-point" />
-              </svg>
-              <div className="auth-emblem-core">
-                <Logo />
+          {rhine ? (
+            <section className="auth-identity auth-identity--rhine" aria-label="莱茵生命科研终端">
+              <p className="auth-eyebrow">RHINE LAB / PERSONAL RESEARCH TERMINAL</p>
+              <h2 className="rhine-auth-title">
+                IDEAS BECOME
+                <br />
+                <mark>DISCOVERIES.</mark>
+              </h2>
+              <p className="rhine-auth-intro">每一个问题，都通往新的可能。</p>
+              <div className="rhine-auth-array">
+                <RhineInstrument />
+                <span className="mono">
+                  RL—01
+                  <br />
+                  ANALYSIS
+                  <br />
+                  WORKSPACE
+                </span>
               </div>
-              <span className="auth-emblem-coordinate">35° / 139°</span>
-            </div>
-            <div className="auth-identity-copy">
-              <strong className="auth-brand-title">
-                PRTS<span>®</span>
-              </strong>
-              <p>你的思绪，于此汇集。</p>
-              <span>PERSONAL RHODES ISLAND TERMINAL SYSTEM</span>
-            </div>
-            <div className="auth-identity-foot">
-              <span />
-              思想 · 任务 · 知识
-              <span />
-            </div>
-          </section>
+              <div className="rhine-auth-index mono">
+                <span>OBSERVE</span>
+                <span>CONNECT</span>
+                <span>DISCOVER</span>
+              </div>
+            </section>
+          ) : (
+            <section className="auth-identity" aria-label="PRTS 个人终端">
+              <p className="auth-eyebrow">RHODES ISLAND / PERSONAL TERMINAL</p>
+              <div className="auth-emblem" aria-hidden="true">
+                <svg className="auth-emblem-lines" viewBox="0 0 360 360" fill="none">
+                  <circle cx="180" cy="180" r="148" />
+                  <circle cx="180" cy="180" r="114" strokeDasharray="2 8" />
+                  <path
+                    d="M180 18v324M18 180h324M76 76l208 208M76 284 284 76"
+                    className="auth-emblem-axis"
+                  />
+                  <path d="m180 32 148 148-148 148L32 180Z" />
+                  <path d="m180 32 78 148-78 148-78-148Z" />
+                  <path
+                    d="M32 180h296M180 32 32 180l148 78 148-78L180 32ZM180 328 32 180l148-78 148 78-148 148Z"
+                    className="auth-emblem-detail"
+                  />
+                  <path
+                    d="M18 60V18h42M300 18h42v42M342 300v42h-42M60 342H18v-42"
+                    className="auth-emblem-corners"
+                  />
+                  <circle cx="180" cy="32" r="3" className="auth-emblem-point" />
+                  <circle cx="328" cy="180" r="3" className="auth-emblem-point" />
+                  <circle cx="180" cy="328" r="3" className="auth-emblem-point" />
+                  <circle cx="32" cy="180" r="3" className="auth-emblem-point" />
+                </svg>
+                <div className="auth-emblem-core">
+                  <Logo />
+                </div>
+                <span className="auth-emblem-coordinate">35° / 139°</span>
+              </div>
+              <div className="auth-identity-copy">
+                <strong className="auth-brand-title">
+                  PRTS<span>®</span>
+                </strong>
+                <p>你的思绪，于此汇集。</p>
+                <span>PERSONAL RHODES ISLAND TERMINAL SYSTEM</span>
+              </div>
+              <div className="auth-identity-foot">
+                <span />
+                思想 · 任务 · 知识
+                <span />
+              </div>
+            </section>
+          )}
 
           <section className="auth-access" aria-labelledby={headingId}>
             <div className="auth-panel">
               <div className="auth-panel-top">
                 <span>
-                  <span className="auth-panel-number">01</span> IDENTITY VERIFICATION
+                  <span className="auth-panel-number">01</span>{' '}
+                  {rhine ? 'RESEARCHER ACCESS' : 'IDENTITY VERIFICATION'}
                 </span>
                 <LockKeyhole size={16} aria-hidden="true" />
               </div>
@@ -354,10 +387,11 @@ export default function LoginView({
 
         <footer className="auth-footer">
           <span>
-            PRTS <span>//</span> ACCESS CONTROL
+            {rhine ? 'RHINE LAB' : 'PRTS'} <span>//</span> ACCESS CONTROL
           </span>
           <span>
-            PERSONAL WORKSPACE <span>·</span> v1.0
+            {rhine ? 'PERSONAL RESEARCH WORKSPACE' : 'PERSONAL WORKSPACE'} <span>·</span>{' '}
+            {rhine ? 'PRTS' : 'v1.0'}
           </span>
         </footer>
       </div>

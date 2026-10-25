@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f0f2ed" />
+    <title>PRTS · 莱茵生命 · 暂时离线</title>
+    <link rel="icon" type="image/png" href="/icons/rhine-lab-192.png" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        background: #f0f2ed;
+        background-image:
+          linear-gradient(#173c3107 1px, transparent 1px),
+          linear-gradient(90deg, #173c3107 1px, transparent 1px);
+        background-size: 32px 32px;
+        color: #173c31;
+        font:
+          16px/1.8 system-ui,
+          sans-serif;
+        padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+          max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+      }
+      main {
+        width: min(100%, 760px);
+      }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding-bottom: 24px;
+        border-bottom: 2px solid #173c31;
+      }
+      header img {
+        width: 92px;
+        height: 92px;
+      }
+      header strong {
+        display: block;
+        font-size: 18px;
+        letter-spacing: 3px;
+      }
+      header span {
+        font-size: 12px;
+        color: #57665d;
+        letter-spacing: 2px;
+      }
+      .body {
+        display: grid;
+        grid-template-columns: 152px minmax(0, 1fr);
+        gap: 40px;
+        padding: 44px 0;
+      }
+      .instrument {
+        border: 1px solid #c0c9bf;
+        min-height: 214px;
+        position: relative;
+        overflow: hidden;
+        background: #fafbf7;
+      }
+      .instrument::before,
+      .instrument::after {
+        content: '';
+        position: absolute;
+        height: 1px;
+        background: #173c31;
+        top: 50%;
+        width: 38%;
+      }
+      .instrument::before {
+        left: 0;
+      }
+      .instrument::after {
+        right: 0;
+      }
+      .instrument i {
+        position: absolute;
+        width: 64px;
+        height: 64px;
+        top: calc(50% - 32px);
+        left: calc(50% - 32px);
+        border: 1px solid #173c31;
+        border-radius: 50%;
+      }
+      .instrument i::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 1px solid #173c31;
+        top: 20px;
+        left: 20px;
+        background: #bdd43b;
+      }
+      .instrument span {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        font: 11px/1.5 monospace;
+        color: #57665d;
+        letter-spacing: 1px;
+      }
+      .instrument span:first-child {
+        top: 12px;
+      }
+      .instrument span:last-child {
+        bottom: 12px;
+      }
+      small {
+        display: inline-block;
+        padding: 3px 10px;
+        background: #bdd43b;
+        font: 11px/1.8 monospace;
+        letter-spacing: 1px;
+      }
+      h1 {
+        font-size: clamp(25px, 5vw, 36px);
+        font-weight: 500;
+        line-height: 1.4;
+        margin: 18px 0 14px;
+      }
+      p {
+        margin: 0 0 28px;
+        color: #57665d;
+        font-size: 15px;
+      }
+      a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 32px;
+        min-height: 48px;
+        padding: 10px 18px;
+        background: #173c31;
+        color: #fafbf7;
+        text-decoration: none;
+      }
+      a:hover {
+        background: #285442;
+      }
+      a:focus-visible {
+        outline: 3px solid #617315;
+        outline-offset: 4px;
+      }
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding-top: 16px;
+        border-top: 1px solid #c0c9bf;
+        color: #57665d;
+        font: 11px/1.8 monospace;
+        letter-spacing: 1px;
+      }
+      @media (max-width: 520px) {
+        header {
+          gap: 12px;
+          padding-bottom: 18px;
+        }
+        header img {
+          width: 68px;
+          height: 68px;
+        }
+        header strong {
+          font-size: 15px;
+          letter-spacing: 2px;
+        }
+        header span {
+          letter-spacing: 1px;
+          font-size: 11px;
+        }
+        .body {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 24px;
+          padding: 28px 0;
+        }
+        .instrument {
+          min-height: 82px;
+        }
+        .instrument i {
+          width: 48px;
+          height: 48px;
+          top: calc(50% - 24px);
+          left: calc(50% - 24px);
+        }
+        .instrument i::after {
+          width: 14px;
+          height: 14px;
+          top: 16px;
+          left: 16px;
+        }
+        .instrument span:last-child {
+          text-align: right;
+        }
+        a {
+          width: 100%;
+        }
+        footer {
+          flex-wrap: wrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <img src="/icons/rhine-lab-192.png" alt="莱茵生命" />
+        <div><strong>RHINE LAB</strong><span>科研终端 / PERSONAL WORKSPACE</span></div>
+      </header>
+      <div class="body">
+        <div class="instrument" aria-hidden="true">
+          <span>LINK / 00</span><i></i><span>DISCONNECTED</span>
+        </div>
+        <section aria-labelledby="offline-title">
+          <small>CONNECTION INTERRUPTED</small>
+          <h1 id="offline-title">终端暂时离线</h1>
+          <p>当前无法连接服务器。任务、笔记和文件仍保存在你的服务器上，恢复网络后即可继续使用。</p>
+          <a href="/">重新连接终端<span aria-hidden="true">↗</span></a>
+        </section>
+      </div>
+      <footer><span>RHINE LAB · RESEARCH TERMINAL</span><span>等待恢复连接</span></footer>
+    </main>
+  </body>
+</html>

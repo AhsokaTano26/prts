@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { listFiles, removeFile, storeFiles, readFileBlob, type WorkspaceFile } from '../lib/files'
 import { formatBytes, relativeTime } from '../lib/workspace'
+import { motionAllowed, stopInterfaceMotion, transitionView } from '../lib/motion'
 import '../styles/workspace-views.css'
 
 interface FilesViewProps {
@@ -73,6 +74,18 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
   const [error, setError] = useState('')
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<FileCategory>('all')
+  const requestedFilter = useRef<FileCategory>('all')
+  function changeFilter(value: FileCategory) {
+    if (requestedFilter.current === value) return
+    requestedFilter.current = value
+    transitionView(
+      () => {
+        setFilter(value)
+        setConfirmDelete(null)
+      },
+      { scope: 'collection' },
+    )
+  }
   const [dragging, setDragging] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [enteringIds, setEnteringIds] = useState<string[]>([])
@@ -149,12 +162,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
   }, [enteringIds])
 
   function waitForMotion(duration: number, animate = true): Promise<void> {
-    if (
-      !animate ||
-      document.hidden ||
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    )
-      return Promise.resolve()
+    if (!animate || !motionAllowed()) return Promise.resolve()
     return new Promise((resolve) => {
       const timer = window.setTimeout(() => {
         motionTimers.current.delete(timer)
@@ -207,6 +215,8 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
         [...added, ...current].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)),
       )
       setQuery('')
+      stopInterfaceMotion('collection')
+      requestedFilter.current = 'all'
       setFilter('all')
       onNotify(`已上传 ${added.length} 个文件`)
       onActivity(`上传了 ${added.length} 个文件`)
@@ -386,7 +396,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
         </div>
       ) : null}
 
-      <div className="files-library panel" aria-busy={loading || busy}>
+      <div className="files-library panel motion-collection" aria-busy={loading || busy}>
         <div className="files-library-toolbar">
           <div className="files-filter-group" role="group" aria-label="按文件类型筛选">
             {FILTERS.map((item) => (
@@ -394,10 +404,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
                 key={item.value}
                 className={`files-filter${filter === item.value ? ' is-active' : ''}`}
                 aria-pressed={filter === item.value}
-                onClick={() => {
-                  setFilter(item.value)
-                  setConfirmDelete(null)
-                }}
+                onClick={() => changeFilter(item.value)}
               >
                 {item.label}
                 {item.value === 'all' ? <span>{files.length}</span> : null}
@@ -455,7 +462,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
                 className="button button-ghost"
                 onClick={() => {
                   setQuery('')
-                  setFilter('all')
+                  changeFilter('all')
                 }}
               >
                 清除筛选

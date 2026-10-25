@@ -11,6 +11,8 @@ export default defineConfig({
     proxy: {
       '/api': { target: 'http://127.0.0.1:8787', changeOrigin: false },
       '/assets/amiya.png': { target: 'http://127.0.0.1:8787', changeOrigin: false },
+      '/assets/priestess.png': { target: 'http://127.0.0.1:8787', changeOrigin: false },
+      '/assets/kaltsit.png': { target: 'http://127.0.0.1:8787', changeOrigin: false },
       '/assets/corpus-images': { target: 'http://127.0.0.1:8787', changeOrigin: false },
     },
   },

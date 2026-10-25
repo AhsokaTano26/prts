@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   LayoutDashboard,
   ListTodo,
@@ -39,6 +39,8 @@ import CommandPalette from './components/CommandPalette'
 import BootSequence from './components/BootSequence'
 import { apiFetch } from './lib/api'
 import { useServerStore } from './lib/serverStore'
+import { useAppearance } from './lib/appearance'
+import { observeInterfaceMotion, stopInterfaceMotion, transitionView } from './lib/motion'
 const navItems = [
   { id: 'overview', label: '总览', en: 'OVERVIEW', icon: LayoutDashboard },
   { id: 'tasks', label: '任务中枢', en: 'TASK CENTER', icon: ListTodo },
@@ -49,6 +51,7 @@ const navItems = [
 const validPages = ['overview', 'tasks', 'notes', 'files', 'assistant', 'settings']
 function readPage() {
   const h = location.hash.slice(1)
+  if (h.startsWith('settings/')) return 'settings'
   return validPages.includes(h) ? h : 'overview'
 }
 function activity(text: string, type: Activity['type']): Activity {
@@ -58,6 +61,12 @@ export default function App({ onLock }: { onLock: () => void }) {
   const store = useServerStore()
   const workspace = store.documents.workspace.value
   const preferences = store.documents.preferences.value
+  const { theme, applyTheme } = useAppearance()
+  const rhine = theme === 'rhine'
+  useLayoutEffect(
+    () => applyTheme(preferences.appearance.theme),
+    [preferences.appearance.theme, applyTheme],
+  )
   const motionEnabled = preferences.motionEnabled
   const storageError = store.error
   const [page, setPage] = useState(readPage),
@@ -84,6 +93,8 @@ export default function App({ onLock }: { onLock: () => void }) {
     }
   })
   const bootTriggerRef = useRef<HTMLElement | null>(null)
+  const pageRef = useRef(page)
+  const focusOnNavigation = useRef(false)
   const workspaceRef = useRef(workspace),
     toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null),
     mainRef = useRef<HTMLElement>(null),
@@ -114,6 +125,7 @@ export default function App({ onLock }: { onLock: () => void }) {
   useEffect(() => {
     document.documentElement.dataset.motion = motionEnabled ? 'on' : 'off'
   }, [motionEnabled])
+  useEffect(observeInterfaceMotion, [])
   const finishBoot = useCallback(() => {
     setBooting(false)
     try {
@@ -134,17 +146,39 @@ export default function App({ onLock }: { onLock: () => void }) {
     }
   }, [])
   const navigate = useCallback((target: string) => {
-    if (!validPages.includes(target)) return
-    location.hash = target
-    setPage(target)
+    const targetPage = target.startsWith('settings/') ? 'settings' : target
+    if (!validPages.includes(targetPage)) return
     setMobileOpen(false)
-    mainRef.current?.scrollTo({ top: 0 })
-    requestAnimationFrame(() => mainRef.current?.focus({ preventScroll: true }))
+    if (location.hash === `#${target}`) {
+      mainRef.current?.scrollTo({ top: 0 })
+      mainRef.current?.focus({ preventScroll: true })
+      return
+    }
+    focusOnNavigation.current = true
+    location.hash = target
   }, [])
   useEffect(() => {
     const onHash = () => {
-      setPage(readPage())
+      const next = readPage()
       setMobileOpen(false)
+      if (next === pageRef.current) {
+        // A settings hash has its own content transition, managed by SettingsView.
+        stopInterfaceMotion(next === 'settings' ? 'page' : undefined)
+        return
+      }
+      const direction = validPages.indexOf(next) - validPages.indexOf(pageRef.current)
+      transitionView(
+        () => {
+          pageRef.current = next
+          setPage(next)
+          mainRef.current?.scrollTo({ top: 0 })
+          if (focusOnNavigation.current) {
+            focusOnNavigation.current = false
+            requestAnimationFrame(() => mainRef.current?.focus({ preventScroll: true }))
+          }
+        },
+        { scope: 'page', direction },
+      )
     }
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -364,12 +398,14 @@ export default function App({ onLock }: { onLock: () => void }) {
           <button className="brand" onClick={() => navigate('overview')} aria-label="PRTS 返回总览">
             <Logo />
             <strong>
-              PRTS<span>®</span>
+              {rhine ? 'RHINE LAB' : 'PRTS'}
+              <span>®</span>
             </strong>
-            <small className="mono">PERSONAL TERMINAL</small>
+            <small className="mono">{rhine ? 'ANALYSIS OS' : 'PERSONAL TERMINAL'}</small>
           </button>
           <div className="nav-section-label mono">
-            WORKSPACE<span>01—05</span>
+            {rhine ? 'RESEARCH INDEX' : 'WORKSPACE'}
+            <span>01—05</span>
           </div>
           <nav>
             {navItems.map((n) => (
@@ -397,7 +433,8 @@ export default function App({ onLock }: { onLock: () => void }) {
           <div className="sidebar-bottom">
             <div className="sidebar-message mono">
               <span className="live-dot" />
-              SYSTEM OPERATIONAL<div>思绪有序，自由前行。</div>
+              {rhine ? 'RESEARCH IN PROGRESS' : 'SYSTEM OPERATIONAL'}
+              <div>{rhine ? '让好奇心，抵达更远。' : '思绪有序，自由前行。'}</div>
             </div>
             <button
               className={`nav-item settings-nav ${page === 'settings' ? 'active' : ''}`}
@@ -420,7 +457,7 @@ export default function App({ onLock }: { onLock: () => void }) {
               </div>
               <div>
                 <strong className="mono">Dr. {workspace.settings.name}</strong>
-                <span>罗德岛 · 个人终端</span>
+                <span>{rhine ? '莱茵生命 · 科研终端' : '罗德岛 · 个人终端'}</span>
               </div>
               <ChevronRight size={15} />
             </button>
@@ -439,14 +476,17 @@ export default function App({ onLock }: { onLock: () => void }) {
                 <Menu size={20} />
               </button>
               <span className="breadcrumb-icon">◈</span>
-              <span>工作空间</span>
+              <span>{rhine ? '研究工作台' : '工作空间'}</span>
               <ChevronRight size={12} />
-              <strong>{currentLabel}</strong>
+              <strong key={page}>{currentLabel}</strong>
             </div>
             <div className="topbar-right">
               <button
                 className="icon-button"
-                onClick={onLock}
+                onClick={() => {
+                  stopInterfaceMotion()
+                  onLock()
+                }}
                 aria-label="锁定终端"
                 title="锁定终端"
               >
@@ -519,6 +559,7 @@ export default function App({ onLock }: { onLock: () => void }) {
             >
               {page === 'overview' && (
                 <Overview
+                  portrait={preferences.appearance.portrait}
                   workspace={workspace}
                   timer={timer}
                   onNewTask={() => openNewTask()}
@@ -575,7 +616,7 @@ export default function App({ onLock }: { onLock: () => void }) {
                 <AssistantView
                   workspace={workspace}
                   health={health}
-                  onSettings={() => navigate('settings')}
+                  onSettings={() => navigate('settings/ai')}
                   onNewTask={createTask}
                   preferences={preferences.assistant}
                   mode={preferences.assistantMode}
@@ -622,7 +663,9 @@ export default function App({ onLock }: { onLock: () => void }) {
                   ? '正在保存到服务器…'
                   : 'SQLite · 已保存到服务器'}
               <span className="status-divider">/</span>
-              <span className="footer-device mono">PERSONAL WORKSPACE</span>
+              <span className="footer-device mono">
+                {rhine ? 'RHINE LAB / ANALYSIS OS' : 'PERSONAL WORKSPACE'}
+              </span>
             </span>
             <span className="mono">
               {timer.running && (

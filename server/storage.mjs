@@ -93,6 +93,15 @@ function validateDocument(key, value) {
       assistant: { persona: assistant.persona, knowledge: assistant.knowledge },
       assistantMode: value.assistantMode,
     }
+    if (value.appearance !== undefined) {
+      const appearance = object(value.appearance)
+      if (
+        !['rhodes', 'rhine'].includes(appearance.theme) ||
+        !['amiya', 'priestess', 'kaltsit'].includes(appearance.portrait)
+      )
+        invalid('主题或首页立绘选择无效。')
+      result.appearance = { theme: appearance.theme, portrait: appearance.portrait }
+    }
     if (value.migratedBrowserIds !== undefined) {
       if (!Array.isArray(value.migratedBrowserIds) || value.migratedBrowserIds.length > 100)
         invalid('浏览器迁移记录格式无效。')
@@ -317,7 +326,12 @@ export function createStorage(
           '服务器数据已被其他页面修改。请先保留当前草稿，再重新加载服务器数据。',
         )
       const revision = payload.expectedRevision + 1
-      const result = writeDocument(key, value, revision)
+      // A tab running an older frontend must not erase newly saved appearance preferences.
+      const next =
+        key === 'preferences' && !value.appearance && current?.value.appearance
+          ? { ...value, appearance: current.value.appearance }
+          : value
+      const result = writeDocument(key, next, revision)
       db.prepare(
         'INSERT INTO prts_mutations (key,mutation_id,request_hash,revision) VALUES (?,?,?,?)',
       ).run(key, mutationId, requestHash, revision)
@@ -365,7 +379,14 @@ export function createStorage(
           )
       }
       for (const key of DOCUMENT_KEYS) {
-        if (Object.hasOwn(values, key)) writeDocument(key, values[key], expectedRevisions[key] + 1)
+        if (Object.hasOwn(values, key)) {
+          const value = values[key]
+          const next =
+            key === 'preferences' && !value.appearance && current[key]?.value.appearance
+              ? { ...value, appearance: current[key].value.appearance }
+              : value
+          writeDocument(key, next, expectedRevisions[key] + 1)
+        }
       }
       db.prepare('INSERT INTO prts_imports (mutation_id,request_hash) VALUES (?,?)').run(
         mutationId,

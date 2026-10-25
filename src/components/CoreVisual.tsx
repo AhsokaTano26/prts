@@ -1,4 +1,9 @@
+import { useAppearance } from '../lib/appearance'
+import RhineInstrument from './RhineInstrument'
+
 export default function CoreVisual() {
+  const { theme } = useAppearance()
+  if (theme === 'rhine') return <RhineInstrument />
   const top = [200, 30],
     bottom = [200, 290]
   const ring = Array.from({ length: 12 }, (_, i) => {
