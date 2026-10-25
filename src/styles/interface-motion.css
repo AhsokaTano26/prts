@@ -19,12 +19,12 @@ html .motion-page,
 html[data-theme='rhine'] .motion-page {
   animation: none;
 }
-html[data-transition='page'] .motion-page,
-html[data-transition='settings'] .settings-category-content,
-html[data-transition='collection'] .motion-collection {
+html[data-motion-engine='native'][data-transition='page'] .motion-page,
+html[data-motion-engine='native'][data-transition='settings'] .settings-category-content,
+html[data-motion-engine='native'][data-transition='collection'] .motion-collection {
   view-transition-name: prts-content;
 }
-html[data-transition='page'] .motion-page .view-heading {
+html[data-motion-engine='native'][data-transition='page'] .motion-page .view-heading {
   view-transition-name: prts-heading;
 }
 ::view-transition {

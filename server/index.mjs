@@ -226,9 +226,12 @@ async function completeChat(response, messages, config, timeoutMs, agent, author
       if (typeof content !== 'string' || !content.trim()) {
         throw new HttpError(502, 'AI 服务返回了无效响应，请稍后重试。')
       }
+      authorize()
+      if (controller.signal.aborted || response.destroyed)
+        throw new HttpError(499, '对话已取消，工作台修改未执行。')
       return {
         message: content,
-        ...(agent?.actions.length ? { actions: agent.actions } : {}),
+        ...agent?.finalize(),
         ...(agent?.toolsUsed.length ? { toolsUsed: agent.toolsUsed } : {}),
       }
     }
@@ -396,6 +399,19 @@ async function route(
       { 'set-cookie': [result.cookie, passkeys.clearCookie()] },
     )
   }
+  if (pathname === '/api/assistant/actions') {
+    if (request.method !== 'GET')
+      throw new HttpError(405, '此接口仅支持 GET 请求。', { allow: 'GET' })
+    const ids = new URL(request.url, 'http://localhost').searchParams.get('ids')?.split(',')
+    return json(response, 200, { actions: workspaceTools.getActions(ids) })
+  }
+  if (pathname === '/api/assistant/actions/batch') {
+    if (request.method !== 'POST')
+      throw new HttpError(405, '此接口仅支持 POST 请求。', { allow: 'POST' })
+    const payload = await readJson(request)
+    auth.requireSession(request)
+    return json(response, 200, workspaceTools.decideBatch(payload?.ids, payload?.decision))
+  }
   const assistantAction = /^\/api\/assistant\/actions\/([a-f0-9-]{36})$/.exec(pathname)
   if (assistantAction) {
     if (request.method === 'GET')
@@ -526,12 +542,18 @@ async function route(
     if (!config.configured) return completeChat(response, messages, config, upstreamTimeoutMs)
     const sources = await corpus.context(messages, knowledge)
     auth.requireSession(request)
+    const agent = workspaceTools.session()
     const result = await completeChat(
       response,
-      [systemMessage(persona, sources, workspaceTools.overview()), ...messages],
+      [
+        systemMessage(persona, sources, workspaceTools.overview(), {
+          autoConfirm: agent.autoConfirm,
+        }),
+        ...messages,
+      ],
       config,
       upstreamTimeoutMs,
-      workspaceTools.session(),
+      agent,
       () => auth.requireSession(request),
     )
     return json(response, 200, { ...result, model: config.model, persona, sources })
@@ -603,7 +625,12 @@ export function createServer({
   })
   const assets = assetManager({ database, directory: assetsDir, synchronize: syncAssets, now })
   const settings = createSettings(database)
-  const notifications = createNotifications(database, storage, { now, log, ...notificationOptions })
+  const notifications = createNotifications(database, storage, {
+    now,
+    log,
+    assetsDir,
+    ...notificationOptions,
+  })
   const workspaceTools = createWorkspaceTools(database, storage, { now })
   const auth = createAuth({ env, now, database, logger })
   const passkeys = createPasskeys(database, auth, { now })

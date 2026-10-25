@@ -68,6 +68,14 @@ function hash(value) {
 function jsonDocument(row) {
   return row ? { value: JSON.parse(row.data), revision: row.revision } : null
 }
+function preservePreferences(key, value, current) {
+  if (key !== 'preferences') return value
+  const result = { ...value }
+  for (const field of ['appearance', 'assistantAutoConfirm'])
+    if (result[field] === undefined && current?.[field] !== undefined)
+      result[field] = current[field]
+  return result
+}
 
 function validateDocument(key, value) {
   if (!DOCUMENT_KEYS.includes(key)) throw new HttpError(404, '此存储项目不存在。')
@@ -92,6 +100,10 @@ function validateDocument(key, value) {
       motionEnabled: value.motionEnabled,
       assistant: { persona: assistant.persona, knowledge: assistant.knowledge },
       assistantMode: value.assistantMode,
+    }
+    if (value.assistantAutoConfirm !== undefined) {
+      if (typeof value.assistantAutoConfirm !== 'boolean') invalid('自动确认选项格式无效。')
+      result.assistantAutoConfirm = value.assistantAutoConfirm
     }
     if (value.appearance !== undefined) {
       const appearance = object(value.appearance)
@@ -153,6 +165,16 @@ function validateMessage(value) {
   } catch {
     invalid('消息工具记录格式无效。')
   }
+  if (value.actionConfirmation !== undefined) {
+    if (
+      value.role !== 'assistant' ||
+      value.mode !== 'ai' ||
+      !['manual', 'automatic'].includes(value.actionConfirmation)
+    )
+      invalid('操作确认记录格式无效。')
+    result.actionConfirmation = value.actionConfirmation
+  }
+  if (value.actionError !== undefined) result.actionError = text(value.actionError, '操作错误', 500)
   return result
 }
 
@@ -326,11 +348,8 @@ export function createStorage(
           '服务器数据已被其他页面修改。请先保留当前草稿，再重新加载服务器数据。',
         )
       const revision = payload.expectedRevision + 1
-      // A tab running an older frontend must not erase newly saved appearance preferences.
-      const next =
-        key === 'preferences' && !value.appearance && current?.value.appearance
-          ? { ...value, appearance: current.value.appearance }
-          : value
+      // Older tabs must not erase newer server preferences they do not understand.
+      const next = preservePreferences(key, value, current?.value)
       const result = writeDocument(key, next, revision)
       db.prepare(
         'INSERT INTO prts_mutations (key,mutation_id,request_hash,revision) VALUES (?,?,?,?)',
@@ -381,10 +400,7 @@ export function createStorage(
       for (const key of DOCUMENT_KEYS) {
         if (Object.hasOwn(values, key)) {
           const value = values[key]
-          const next =
-            key === 'preferences' && !value.appearance && current[key]?.value.appearance
-              ? { ...value, appearance: current[key].value.appearance }
-              : value
+          const next = preservePreferences(key, value, current[key]?.value)
           writeDocument(key, next, expectedRevisions[key] + 1)
         }
       }

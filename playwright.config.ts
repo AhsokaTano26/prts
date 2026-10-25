@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test'
+const browserName = process.env.PRTS_TEST_BROWSER === 'webkit' ? 'webkit' : 'chromium'
 // Browser tests never read credentials or write to the user's running database.
 process.env.PRTS_PASSWORD = 'prts-e2e-test-password-only'
 export default defineConfig({
@@ -15,7 +16,8 @@ export default defineConfig({
     timeout: 30000,
   },
   use: {
-    channel: 'msedge',
+    browserName,
+    channel: browserName === 'chromium' ? 'msedge' : undefined,
     headless: false,
     baseURL: 'http://127.0.0.1:8791',
     viewport: { width: 1440, height: 1000 },

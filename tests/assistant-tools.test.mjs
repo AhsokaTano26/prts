@@ -103,6 +103,230 @@ async function fixture(t, reply) {
   return { base, server, storage, workspace, requests, call, chat }
 }
 
+function autoConfirm(client, enabled) {
+  const current = client.storage.getDocument('preferences')
+  client.storage.putDocument('preferences', {
+    value: {
+      motionEnabled: true,
+      assistant: { persona: 'prts', knowledge: 'none' },
+      assistantMode: 'ai',
+      ...current?.value,
+      assistantAutoConfirm: enabled,
+    },
+    expectedRevision: current?.revision ?? 0,
+    mutationId: randomUUID(),
+  })
+}
+
+test('one authenticated batch confirms multiple changes atomically and repeat requests are idempotent', async (t) => {
+  const client = await fixture(t, () => ({ content: 'ok' }))
+  const tools = createWorkspaceTools(client.server.database, client.storage)
+  const session = tools.session()
+  const actions = ['合并确认 A', '合并确认 B'].map(
+    (title) =>
+      session.execute(
+        'propose_workspace_change',
+        JSON.stringify({ operation: 'create_task', fields: { title } }),
+      ).action,
+  )
+  const ids = actions.map((action) => action.id)
+  const url = '/api/assistant/actions/batch'
+  assert.equal(
+    (
+      await fetch(`${client.base}${url}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ ids, decision: 'apply' }),
+      })
+    ).status,
+    401,
+  )
+  const read = await client.call(`/api/assistant/actions?ids=${ids.join(',')}`)
+  assert.equal(read.status, 200)
+  assert.ok((await read.json()).actions.every((action) => action.status === 'pending'))
+  for (let retry = 0; retry < 2; retry++) {
+    const response = await client.call(url, { ids, decision: 'apply' })
+    assert.equal(response.status, 200)
+    assert.ok((await response.json()).actions.every((action) => action.status === 'applied'))
+  }
+  assert.equal(
+    client.storage
+      .getDocument('workspace')
+      .value.tasks.filter((task) => task.title.startsWith('合并确认')).length,
+    2,
+  )
+  assert.equal((await client.call(url, { ids: [ids[0], ids[0]], decision: 'apply' })).status, 400)
+})
+
+test('a conflicting or failed batch writes none of its proposed changes', async (t) => {
+  const client = await fixture(t, () => ({ content: 'ok' }))
+  const tools = createWorkspaceTools(client.server.database, client.storage)
+  const session = tools.session()
+  const first = session.execute(
+    'propose_workspace_change',
+    JSON.stringify({ operation: 'create_task', fields: { title: '整批回滚任务' } }),
+  ).action
+  const second = session.execute(
+    'propose_workspace_change',
+    JSON.stringify({ operation: 'update_note', id: 'note-tools', fields: { content: '计划内容' } }),
+  ).action
+  const initial = client.storage.getDocument('workspace')
+  client.server.database.exec(
+    `CREATE TRIGGER fail_batch BEFORE UPDATE ON prts_assistant_actions WHEN NEW.id='${second.id}' BEGIN SELECT RAISE(ABORT, 'injected failure'); END`,
+  )
+  assert.throws(() => tools.decideBatch([first.id, second.id], 'apply'))
+  assert.deepEqual(client.storage.getDocument('workspace'), initial)
+  assert.equal(tools.getAction(first.id).status, 'pending')
+  client.server.database.exec('DROP TRIGGER fail_batch')
+  initial.value.notes[0].content = '另一页面的新内容'
+  client.storage.putDocument('workspace', {
+    value: initial.value,
+    expectedRevision: initial.revision,
+    mutationId: randomUUID(),
+  })
+  assert.throws(() => tools.decideBatch([first.id, second.id], 'apply'), { status: 409 })
+  assert.equal(
+    client.storage
+      .getDocument('workspace')
+      .value.tasks.some((task) => task.title === '整批回滚任务'),
+    false,
+  )
+  assert.equal(tools.getAction(second.id).status, 'pending')
+})
+
+test('batched edits of the same item compose in order and cancellation applies to the whole batch', async (t) => {
+  const client = await fixture(t, () => ({ content: 'ok' }))
+  const tools = createWorkspaceTools(client.server.database, client.storage)
+  const session = tools.session()
+  const ids = [{ content: '合并后的正文' }, { pinned: true }].map(
+    (fields) =>
+      session.execute(
+        'propose_workspace_change',
+        JSON.stringify({ operation: 'update_note', id: 'note-tools', fields }),
+      ).action.id,
+  )
+  tools.decideBatch(ids, 'apply')
+  assert.equal(client.storage.getDocument('workspace').value.notes[0].content, '合并后的正文')
+  assert.equal(client.storage.getDocument('workspace').value.notes[0].pinned, true)
+  const cancelled = ['取消 A', '取消 B'].map(
+    (title) =>
+      session.execute(
+        'propose_workspace_change',
+        JSON.stringify({ operation: 'create_task', fields: { title } }),
+      ).action.id,
+  )
+  assert.ok(
+    tools
+      .decideBatch(cancelled, 'dismiss')
+      .actions.every((action) => action.status === 'dismissed'),
+  )
+  assert.throws(() => tools.decideBatch(cancelled, 'apply'), { status: 409 })
+})
+
+test('saved automatic confirmation executes the complete successful reply and reports actual statuses', async (t) => {
+  const client = await fixture(t, (_body, round) =>
+    round === 0
+      ? {
+          content: null,
+          tool_calls: ['自动执行 A', '自动执行 B'].map((title) =>
+            toolCall('propose_workspace_change', { operation: 'create_task', fields: { title } }),
+          ),
+        }
+      : { content: '博士，我会统一处理这两项任务。' },
+  )
+  autoConfirm(client, true)
+  const response = await client.chat()
+  assert.equal(response.status, 200)
+  const result = await response.json()
+  assert.equal(result.actionConfirmation, 'automatic')
+  assert.ok(result.actions.every((action) => action.status === 'applied'))
+  assert.equal(
+    client.storage
+      .getDocument('workspace')
+      .value.tasks.filter((task) => task.title.startsWith('自动执行')).length,
+    2,
+  )
+  assert.match(client.requests[0].messages[0].content, /自动确认/)
+  const toolResult = JSON.parse(
+    client.requests[1].messages.filter((message) => message.role === 'tool')[0].content,
+  )
+  assert.equal(toolResult.requiresConfirmation, false)
+})
+
+test('request flags cannot enable auto confirmation and failed replies never execute prepared changes', async (t) => {
+  let fail = false
+  const client = await fixture(t, (_body, round) =>
+    round % 2 === 0
+      ? {
+          content: null,
+          tool_calls: [
+            toolCall('propose_workspace_change', {
+              operation: 'create_task',
+              fields: { title: '不应自动执行' },
+            }),
+          ],
+        }
+      : { content: fail ? '' : '请确认本轮操作。' },
+  )
+  const response = await client.call('/api/chat', {
+    messages: [{ role: 'user', content: '创建任务' }],
+    knowledge: 'none',
+    autoConfirm: true,
+  })
+  assert.equal(response.status, 200)
+  assert.equal((await response.json()).actions[0].status, 'pending')
+  autoConfirm(client, true)
+  fail = true
+  assert.equal((await client.chat()).status, 502)
+  assert.equal(
+    client.storage
+      .getDocument('workspace')
+      .value.tasks.some((task) => task.title === '不应自动执行'),
+    false,
+  )
+})
+
+test('automatic confirmation falls back to a visible pending batch if concurrent edits conflict', async (t) => {
+  let client
+  client = await fixture(t, (_body, round) => {
+    if (round === 0)
+      return {
+        content: null,
+        tool_calls: [
+          toolCall('propose_workspace_change', {
+            operation: 'create_task',
+            fields: { title: '自动失败回滚' },
+          }),
+          toolCall('propose_workspace_change', {
+            operation: 'update_note',
+            id: 'note-tools',
+            fields: { content: '拟修改内容' },
+          }),
+        ],
+      }
+    const document = client.storage.getDocument('workspace')
+    document.value.notes[0].content = '外部已修改'
+    client.storage.putDocument('workspace', {
+      value: document.value,
+      expectedRevision: document.revision,
+      mutationId: randomUUID(),
+    })
+    return { content: '本轮计划已整理。' }
+  })
+  autoConfirm(client, true)
+  const response = await client.chat()
+  assert.equal(response.status, 200)
+  const result = await response.json()
+  assert.match(result.actionError, /变化|冲突/)
+  assert.ok(result.actions.every((action) => action.status === 'pending'))
+  assert.equal(
+    client.storage
+      .getDocument('workspace')
+      .value.tasks.some((task) => task.title === '自动失败回滚'),
+    false,
+  )
+})
+
 test('AI receives live workspace context and callable tools while credentials stay private', async (t) => {
   const client = await fixture(t, () => ({ content: '我能看到你的工作台。' }))
   const response = await client.chat()
@@ -432,4 +656,115 @@ test('expired actions cannot be applied and current data remains intact', async 
   assert.equal(tools.getAction(result.action.id).status, 'expired')
   assert.throws(() => tools.decide(result.action.id, 'apply'), { status: 409 })
   assert.equal(client.storage.getDocument('workspace').value.notes.length, 1)
+})
+
+test('disabling automatic confirmation before the final reply keeps all changes pending', async (t) => {
+  let client
+  client = await fixture(t, (_body, round) => {
+    if (round === 0)
+      return {
+        content: null,
+        tool_calls: [
+          toolCall('propose_workspace_change', {
+            operation: 'create_task',
+            fields: { title: '中途关闭自动确认' },
+          }),
+        ],
+      }
+    autoConfirm(client, false)
+    return { content: '计划已整理。' }
+  })
+  autoConfirm(client, true)
+  const response = await client.chat()
+  assert.equal(response.status, 200)
+  const answer = await response.json()
+  assert.equal(answer.actionConfirmation, 'manual')
+  assert.equal(answer.actions[0].status, 'pending')
+  assert.equal(
+    client.storage
+      .getDocument('workspace')
+      .value.tasks.some((task) => task.title === '中途关闭自动确认'),
+    false,
+  )
+})
+
+test('a session revoked during the final reply cannot automatically write proposed changes', async (t) => {
+  let client
+  client = await fixture(t, async (_body, round) => {
+    if (round === 0)
+      return {
+        content: null,
+        tool_calls: [
+          toolCall('propose_workspace_change', {
+            operation: 'create_task',
+            fields: { title: '撤销会话不执行' },
+          }),
+        ],
+      }
+    const logout = await client.call('/api/auth/logout', {})
+    assert.equal(logout.status, 200)
+    return { content: '最终回复。' }
+  })
+  autoConfirm(client, true)
+  assert.equal((await client.chat()).status, 401)
+  assert.equal(
+    client.storage
+      .getDocument('workspace')
+      .value.tasks.some((task) => task.title === '撤销会话不执行'),
+    false,
+  )
+})
+
+test('canceling a reply after proposals were prepared never auto-executes them', async (t) => {
+  const reached = Promise.withResolvers()
+  const release = Promise.withResolvers()
+  t.after(() => release.resolve())
+  const client = await fixture(t, async (_body, round) => {
+    if (round === 0)
+      return {
+        content: null,
+        tool_calls: [
+          toolCall('propose_workspace_change', {
+            operation: 'create_task',
+            fields: { title: '取消生成不执行' },
+          }),
+        ],
+      }
+    reached.resolve()
+    await release.promise
+    return { content: '已整理计划。' }
+  })
+  autoConfirm(client, true)
+  const login = await client.call('/api/auth/login', { password: PASSWORD })
+  const cookie = login.headers.get('set-cookie').split(';')[0]
+  await login.json()
+  const closed = Promise.withResolvers()
+  client.server.on('request', (request, response) => {
+    if (request.url === '/api/chat') response.once('close', () => closed.resolve())
+  })
+  const controller = new AbortController()
+  const request = fetch(`${client.base}/api/chat`, {
+    method: 'POST',
+    headers: { cookie, 'content-type': 'application/json' },
+    body: JSON.stringify({ messages: [{ role: 'user', content: '创建任务' }], knowledge: 'none' }),
+    signal: controller.signal,
+  })
+  // Attach the rejection handler before aborting the in-flight request.
+  const rejected = assert.rejects(request, { name: 'AbortError' })
+  await reached.promise
+  controller.abort()
+  await rejected
+  await closed.promise
+  release.resolve()
+  assert.equal(
+    client.storage
+      .getDocument('workspace')
+      .value.tasks.some((task) => task.title === '取消生成不执行'),
+    false,
+  )
+  assert.equal(
+    client.server.database.prepare('SELECT status FROM prts_assistant_actions LIMIT 1').get()
+      .status,
+    'pending',
+  )
 })

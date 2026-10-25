@@ -4,6 +4,9 @@ import { createDatabase } from '../server/database.mjs'
 import { createStorage } from '../server/storage.mjs'
 import { createNotifications } from '../server/notifications.mjs'
 import { createInitialWorkspace } from '../src/lib/workspace.ts'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
 
 const day = 86400_000
 const minute = 60_000
@@ -89,6 +92,77 @@ function fixture(t, options = {}) {
     },
   }
 }
+
+test('SMTP reminders include escaped HTML and plain text in the saved appearance theme', async (t) => {
+  const f = fixture(t)
+  const title = '审阅 <报告> & "附件"\n<img src=x onerror=alert(1)>'
+  f.task({ title })
+  f.store.putDocument('preferences', {
+    value: {
+      motionEnabled: true,
+      assistant: { persona: 'prts', knowledge: 'all' },
+      assistantMode: 'local',
+      appearance: { theme: 'rhine', portrait: 'amiya' },
+    },
+    expectedRevision: 0,
+    mutationId: crypto.randomUUID(),
+  })
+  await f.notifications.tick()
+  const messages = f.sent.filter((value) => value.channel === 'smtp').map((value) => value.message)
+  assert.equal(messages.length, 2)
+  for (const message of messages) {
+    assert.match(message.html, /<!doctype html>/i)
+    assert.match(message.html, /lang="zh-CN"/)
+    assert.match(message.html, /RHINE LAB/)
+    assert.match(message.html, /截止时间/)
+    assert.match(message.html, /Asia\/Shanghai/)
+    assert.match(message.html, /&lt;报告&gt; &amp; &quot;附件&quot;/)
+    assert.match(message.html, /&lt;img src=x onerror=alert\(1\)&gt;/)
+    assert.doesNotMatch(message.html, /<img\b|<script\b|<iframe\b/i)
+    assert.ok(message.text.includes(title))
+    assert.match(message.text, /截止时间/)
+    assert.equal(message.subject, 'PRTS · 任务截止提醒')
+  }
+})
+
+test('SMTP test notifications use the HTML template too', async (t) => {
+  const f = fixture(t)
+  await f.notifications.test('smtp')
+  const { message } = f.sent.find((value) => value.channel === 'smtp')
+  assert.match(message.html, /PRTS 通知测试/)
+  assert.match(message.html, /<!doctype html>/i)
+  assert.match(message.text, /PRTS 通知测试/)
+})
+
+test('scheduled and test emails embed the portrait selected in SQLite', async (t) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'prts-email-selected-'))
+  t.after(() => rm(root, { recursive: true, force: true }))
+  const image = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j2ioAAAAASUVORK5CYII=',
+    'base64',
+  )
+  await writeFile(path.join(root, 'kaltsit.png'), image)
+  const f = fixture(t, { assetsDir: root })
+  f.store.putDocument('preferences', {
+    value: {
+      motionEnabled: true,
+      assistant: { persona: 'prts', knowledge: 'all' },
+      assistantMode: 'local',
+      appearance: { theme: 'rhine', portrait: 'kaltsit' },
+    },
+    expectedRevision: 0,
+    mutationId: crypto.randomUUID(),
+  })
+  await f.notifications.tick()
+  await f.notifications.test('smtp')
+  const messages = f.sent.filter((value) => value.channel === 'smtp').map((value) => value.message)
+  assert.equal(messages.length, 3)
+  for (const message of messages) {
+    assert.match(message.html, /cid:prts-portrait-kaltsit@prts\.local/)
+    assert.equal(message.attachments[0].filename, 'kaltsit.png')
+    assert.deepEqual(message.attachments[0].content, image)
+  }
+})
 
 test('latest checkpoint sends once per channel and recipient, persists across restart and acknowledges browser inbox', async (t) => {
   const f = fixture(t)

@@ -1,7 +1,8 @@
 import { createHash, randomUUID } from 'node:crypto'
 import { createNotificationSettings } from './notification-settings.mjs'
 import { sendWebhook, sendSmtp } from './notification-delivery.mjs'
-import { taskDeadline, reminderOffsets, qqReminderPayload } from '../src/lib/reminders.ts'
+import { loadEmailPortrait, renderReminderEmail } from './notification-email.mjs'
+import { taskDeadline, reminderOffsets } from '../src/lib/reminders.ts'
 import { HttpError } from './errors.mjs'
 import { createLogger, errorDetails } from './logging.mjs'
 
@@ -10,7 +11,13 @@ const retryDelay = [60_000, 300_000]
 export function createNotifications(
   database,
   storage,
-  { now = Date.now, fetchImpl = fetch, sendMail = sendSmtp, log = createLogger({ now }) } = {},
+  {
+    now = Date.now,
+    fetchImpl = fetch,
+    sendMail = sendSmtp,
+    log = createLogger({ now }),
+    assetsDir,
+  } = {},
 ) {
   const settings = createNotificationSettings(database)
   database.exec(`CREATE TABLE IF NOT EXISTS prts_reminder_events (
@@ -165,16 +172,19 @@ export function createNotifications(
           now: now(),
           signal: controller.signal,
         })
-      const payload = qqReminderPayload(event, { now: now(), timeZone: config.timeZone })
+      const appearance = storage.getDocument('preferences')?.value.appearance
+      const content = renderReminderEmail(event, {
+        now: now(),
+        timeZone: config.timeZone,
+        theme: appearance?.theme,
+        portrait: await loadEmailPortrait(assetsDir, appearance?.portrait),
+      })
       const result = await sendMail(
         config.smtp,
         {
           from: config.smtp.from,
           to: target.to,
-          subject: `PRTS · ${payload.title}`,
-          text: `${payload.message}\n\n${Object.entries(payload.fields)
-            .map(([key, value]) => `${key}：${value}`)
-            .join('\n')}`,
+          ...content,
           messageId: `<prts-${event.id}-${target.target.slice(0, 16)}@prts.local>`,
           date: new Date(now()),
         },

@@ -513,37 +513,94 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       return publicAction(action(id))
     })
   }
-  function decide(id, decision) {
+  function actionIds(ids) {
+    if (!Array.isArray(ids) || !ids.length || ids.length > 12 || new Set(ids).size !== ids.length)
+      throw new HttpError(400, '每批应包含 1 至 12 个不重复的操作ID。')
+    return ids.map((id) => action(id))
+  }
+  function getActions(ids) {
+    return actionIds(ids).map(publicAction)
+  }
+  function decideBatch(ids, decision) {
     if (!['apply', 'dismiss'].includes(decision)) throw new HttpError(400, '操作选项无效。')
     return storage.atomic(() => {
-      const row = action(id)
-      if (row.status === 'applied') return { action: publicAction(row) }
-      if (row.status !== 'pending' || row.expires_at <= now())
-        throw new HttpError(409, '该操作已取消或过期，请重新发起请求。')
-      if (decision === 'apply') {
-        const saved = JSON.parse(row.data)
-        if (guard(saved.change) !== saved.guard)
+      const rows = actionIds(ids)
+      const pending = rows.filter(
+        (row) =>
+          row.status !== 'applied' && !(decision === 'dismiss' && row.status === 'dismissed'),
+      )
+      // Compare every guard against the original state before applying ordered edits.
+      for (const row of pending) {
+        if (row.status !== 'pending' || row.expires_at <= now())
+          throw new HttpError(409, '该批次包含已取消或过期的操作，请重新发起请求。')
+        if (
+          decision === 'apply' &&
+          guard(JSON.parse(row.data).change) !== JSON.parse(row.data).guard
+        )
           throw new HttpError(409, '工作台数据已变化，请让 AI 重新读取并准备操作，当前数据未覆盖。')
-        const change = mutation(saved.change)
-        storage.putDocument(change.key, {
-          value: change.value,
-          expectedRevision: change.revision,
-          mutationId: `assistant-${id}`,
-        })
       }
-      database
-        .prepare('UPDATE prts_assistant_actions SET status = ? WHERE id = ?')
-        .run(decision === 'apply' ? 'applied' : 'dismissed', id)
-      return { action: publicAction(action(id)) }
+      for (const row of pending) {
+        if (decision === 'apply') {
+          const change = mutation(JSON.parse(row.data).change)
+          storage.putDocument(change.key, {
+            value: change.value,
+            expectedRevision: change.revision,
+            mutationId: `assistant-${row.id}`,
+          })
+        }
+        database
+          .prepare('UPDATE prts_assistant_actions SET status = ? WHERE id = ?')
+          .run(decision === 'apply' ? 'applied' : 'dismissed', row.id)
+      }
+      return { actions: getActions(ids) }
     })
+  }
+  function decide(id, decision) {
+    return { action: decideBatch([id], decision).actions[0] }
   }
   function session() {
     const actions = [],
       toolsUsed = []
+    const autoConfirm = storage.getDocument('preferences')?.value.assistantAutoConfirm === true
     return {
-      definitions: WORKSPACE_TOOLS,
+      autoConfirm,
+      definitions: WORKSPACE_TOOLS.map((tool) =>
+        tool.function.name === 'propose_workspace_change' && autoConfirm
+          ? {
+              ...tool,
+              function: {
+                ...tool.function,
+                description:
+                  '仅在用户明确要求修改时准备操作。用户已开启自动确认；所有准备成功的操作将在最终回复生成后作为一个事务自动执行。当前工具尚未写入，不要提前声称完成；最终状态由系统卡片展示。',
+              },
+            }
+          : tool,
+      ),
       actions,
       toolsUsed,
+      finalize() {
+        if (!actions.length) return {}
+        const ids = actions.map((item) => item.id)
+        try {
+          return storage.atomic(() => {
+            if (
+              !autoConfirm ||
+              storage.getDocument('preferences')?.value.assistantAutoConfirm !== true
+            )
+              return { actions: getActions(ids), actionConfirmation: 'manual' }
+            return { ...decideBatch(ids, 'apply'), actionConfirmation: 'automatic' }
+          })
+        } catch (error) {
+          return {
+            actions: getActions(ids),
+            actionConfirmation: 'manual',
+            actionError:
+              error instanceof HttpError
+                ? `自动确认未执行：${error.message}`
+                : '自动确认未执行，整批修改已回滚，请检查后重试。',
+          }
+        }
+      },
       execute(name, rawArgs) {
         let result
         try {
@@ -563,7 +620,11 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
           else if (name === 'propose_workspace_change') {
             const proposed = prepare(args)
             actions.push(proposed)
-            result = { action: proposed, requiresConfirmation: true }
+            result = {
+              action: proposed,
+              requiresConfirmation: !autoConfirm,
+              ...(autoConfirm ? { execution: 'after_reply' } : {}),
+            }
           } else throw new HttpError(400, '该工具不可用。')
           toolsUsed.push({ name, status: 'ok' })
           return result
@@ -576,5 +637,12 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       },
     }
   }
-  return { overview, session, getAction: (id) => publicAction(action(id)), decide }
+  return {
+    overview,
+    session,
+    getAction: (id) => publicAction(action(id)),
+    getActions,
+    decide,
+    decideBatch,
+  }
 }

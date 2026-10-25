@@ -17,6 +17,12 @@ let revision = 0
 let active: { scope: MotionScope; finish: () => void } | undefined
 let keyboardInput = false
 
+function preferLiveMotion() {
+  // Safari/iOS WebKit can lose scrolled/clipped snapshot layers. Keep its DOM painted.
+  const agent = navigator.userAgent
+  return /AppleWebKit\//.test(agent) && !/(?:Chrome|Chromium|Edg|OPR)\//.test(agent)
+}
+
 export function motionAllowed() {
   return (
     document.documentElement.dataset.motion !== 'off' &&
@@ -33,6 +39,7 @@ export function stopInterfaceMotion(scope?: MotionScope) {
   active = undefined
   delete document.documentElement.dataset.transition
   delete document.documentElement.dataset.motionDirection
+  delete document.documentElement.dataset.motionEngine
 }
 
 /** One live React tree; the browser owns only temporary, non-interactive snapshots. */
@@ -44,6 +51,7 @@ export function transitionView(update: () => void, options: MotionOptions) {
   }
   stopInterfaceMotion()
   const version = revision
+  let timeout: ReturnType<typeof setTimeout> | undefined
   let committed = false
   const commit = () => {
     if (committed || version !== revision) return
@@ -61,12 +69,15 @@ export function transitionView(update: () => void, options: MotionOptions) {
   root.dataset.transition = options.scope
   root.dataset.motionDirection = direction < 0 ? 'backward' : 'forward'
   const cleanup = () => {
+    clearTimeout(timeout)
     if (version !== revision) return
     delete root.dataset.transition
     delete root.dataset.motionDirection
+    delete root.dataset.motionEngine
     active = undefined
   }
   const fallback = () => {
+    root.dataset.motionEngine = 'live'
     commit()
     const element = document.querySelector<HTMLElement>(selector)
     if (!element?.animate || !motionAllowed()) {
@@ -78,7 +89,7 @@ export function transitionView(update: () => void, options: MotionOptions) {
       [
         {
           opacity: 0.35,
-          transform: rhine ? `translateY(${direction * 10}px)` : `translateX(${direction * 18}px)`,
+          transform: `translateY(${direction * (rhine ? 10 : 6)}px)`,
         },
         { opacity: 1, transform: 'none' },
       ],
@@ -99,22 +110,30 @@ export function transitionView(update: () => void, options: MotionOptions) {
       startViewTransition?: (callback: () => void) => Transition
     }
   ).startViewTransition
-  if (!start) {
+  if (!start || preferLiveMotion()) {
     fallback()
     return
   }
   try {
+    root.dataset.motionEngine = 'native'
     const transition = start.call(document, commit)
+    const finish = () => {
+      commit()
+      transition.skipTransition()
+      cleanup()
+    }
     active = {
       scope: options.scope,
-      finish: () => {
-        commit()
-        transition.skipTransition()
-        cleanup()
-      },
+      finish,
     }
+    // A browser capture must never become a navigation dependency until the next reload.
+    timeout = setTimeout(() => {
+      if (version === revision) finish()
+    }, 1000)
     // A cancelled capture rejects ready, while its update may still be scheduled.
-    void transition.ready.catch(() => {})
+    void transition.ready.catch(() => {
+      if (version === revision) finish()
+    })
     void transition.finished.then(cleanup, cleanup)
   } catch {
     fallback()

@@ -1,4 +1,6 @@
 import { test, expect, waitSaved } from './fixture'
+// Keep API mocks in page.route deterministic across browser engines.
+test.use({ serviceWorkers: 'block' })
 import { chooseOption } from './select-helper'
 
 test.beforeEach(async ({ page }) => {

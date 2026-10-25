@@ -43,8 +43,11 @@ type Message = {
   sources?: KnowledgeResult[]
   actions?: AssistantAction[]
   toolsUsed?: ToolUsage[]
+  actionConfirmation?: 'manual' | 'automatic'
+  actionError?: string
 }
-import { apiFetch } from '../lib/api'
+import { apiFetch, WORKSPACE_UPDATED_EVENT } from '../lib/api'
+import { useServerStore } from '../lib/serverStore'
 
 // Failed saves remain available when navigating away and returning to this view.
 const unsavedMessages = new Map<string, Message>()
@@ -75,6 +78,9 @@ export default function AssistantView({
   onPreferencesChange: (value: AssistantPreferences) => void
   onModeChange: (mode: 'local' | 'ai' | 'knowledge') => void
 }) {
+  const store = useServerStore()
+  const autoConfirm = store.documents.preferences.value.assistantAutoConfirm === true
+  const [policyError, setPolicyError] = useState('')
   const persona = PERSONALITIES.find((item) => item.id === preferences.persona)!
   const [messages, setMessages] = useState<Message[]>(() => [...unsavedMessages.values()])
   const scopeKey = mode === 'ai' ? `ai:${preferences.persona}` : mode
@@ -219,6 +225,10 @@ export default function AssistantView({
     const content = text.trim()
     if (!content || busy || saving || !loaded || unsavedMessages.size || mode === 'knowledge')
       return
+    if (mode === 'ai' && (store.saving || store.error)) {
+      setError('请等待工作台偏好保存成功后再发送消息。')
+      return
+    }
     if (mode === 'ai' && !health.configured) {
       setError(
         health.reachable
@@ -306,12 +316,20 @@ export default function AssistantView({
         sources: parseKnowledgeResults(data.sources),
         actions: parseAssistantActions(data.actions),
         toolsUsed: parseToolUsage(data.toolsUsed),
+        ...(data.actionConfirmation === 'manual' || data.actionConfirmation === 'automatic'
+          ? { actionConfirmation: data.actionConfirmation }
+          : {}),
+        ...(typeof data.actionError === 'string'
+          ? { actionError: data.actionError.slice(0, 500) }
+          : {}),
       }
       setMessages((p) => [
         ...p.map((m) => (m.id === user.id ? { ...m, pending: false } : m)),
         reply,
       ])
       await persistMessages([{ ...user, pending: false }, reply])
+      if (reply.actions?.some((action) => action.status === 'applied'))
+        window.dispatchEvent(new Event(WORKSPACE_UPDATED_EVENT))
     } catch (e) {
       setMessages((p) => p.filter((m) => m.id !== user.id))
       setInput((current) => current || content)
@@ -462,9 +480,36 @@ export default function AssistantView({
               </div>
             )}
             {mode === 'ai' && (
+              <div className="assistant-confirmation-setting">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={autoConfirm}
+                    disabled={busy || saving || store.saving || !!store.error}
+                    onChange={async (event) => {
+                      setPolicyError('')
+                      const saved = await store.save('preferences', {
+                        ...store.documents.preferences.value,
+                        assistantAutoConfirm: event.target.checked,
+                      })
+                      if (!saved) setPolicyError('自动确认偏好尚未保存，请重试保存后再发送消息。')
+                    }}
+                  />
+                  <span>自动确认工作台操作</span>
+                  <small>{store.saving ? '正在保存…' : autoConfirm ? '已开启' : '默认关闭'}</small>
+                </label>
+                <p>
+                  开启后，后续回复中的任务、笔记、分类、普通设置和计时修改会自动执行，包括删除。结果仍保留在对话中；已有待确认操作需手动处理。
+                </p>
+                {policyError && <p role="alert">{policyError}</p>}
+              </div>
+            )}
+            {mode === 'ai' && (
               <p className="assistant-access-note">
-                已连接工作台：可按需读取任务、笔记与文本附件，相关内容会发送给你配置的 AI
-                服务。修改需在操作卡片中确认。
+                已连接工作台：可按需读取任务、笔记与文本附件，相关内容会发送给你配置的 AI 服务。
+                {autoConfirm
+                  ? '本轮修改将统一自动执行。'
+                  : '本轮修改合并到一张操作卡片，统一确认。'}
               </p>
             )}
             <div className="chat-messages" aria-live="polite" aria-relevant="additions">
@@ -498,7 +543,9 @@ export default function AssistantView({
                     {mode === 'local'
                       ? '查看今天的任务，找回一个想法，或记录新的目标。'
                       : health.configured
-                        ? '查看工作台、整理任务与笔记，或为你准备一项待确认的操作。'
+                        ? autoConfirm
+                          ? '查看工作台、整理任务与笔记，按你的要求自动执行修改。'
+                          : '查看工作台、整理任务与笔记，或为你准备待确认的操作。'
                         : '连接你自己的 AI 服务，开启与 PRTS 的对话。'}
                   </p>
                   {mode === 'ai' && !health.configured ? (
@@ -543,7 +590,12 @@ export default function AssistantView({
                       <ReactMarkdown disallowedElements={['img']}>{m.content}</ReactMarkdown>
                     </div>
                     {m.role === 'assistant' && (
-                      <AssistantActions actions={m.actions} toolsUsed={m.toolsUsed} />
+                      <AssistantActions
+                        actions={m.actions}
+                        toolsUsed={m.toolsUsed}
+                        confirmation={m.actionConfirmation}
+                        error={m.actionError}
+                      />
                     )}
                     {!!m.sources?.length && (
                       <details className="message-sources">
@@ -643,7 +695,7 @@ export default function AssistantView({
                       saving ||
                       !!saveError ||
                       !input.trim() ||
-                      (mode === 'ai' && !health.configured)
+                      (mode === 'ai' && (!health.configured || store.saving || !!store.error))
                     }
                     aria-label="发送消息"
                   >

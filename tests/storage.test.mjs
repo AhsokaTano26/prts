@@ -479,3 +479,25 @@ test('storage HTTP routes enforce methods, media types, state validation and saf
   assert.equal(head.headers['content-length'], 6)
   assert.equal((await route(store, '/api/unrelated')).handled, false)
 })
+
+test('automatic confirmation is an optional persisted boolean and older clients cannot erase it', (t) => {
+  const { db, uploadsDir, store } = setup(t)
+  const legacy = {
+    motionEnabled: true,
+    assistant: { persona: 'amiya', knowledge: 'none' },
+    assistantMode: 'ai',
+  }
+  store.putDocument('preferences', write(legacy))
+  assert.equal(store.getDocument('preferences').value.assistantAutoConfirm, undefined)
+  assert.throws(
+    () => store.putDocument('preferences', write({ ...legacy, assistantAutoConfirm: 'true' }, 1)),
+    { status: 400 },
+  )
+  store.putDocument('preferences', write({ ...legacy, assistantAutoConfirm: true }, 1))
+  const reopened = createStorage(db, { uploadsDir })
+  assert.equal(reopened.getDocument('preferences').value.assistantAutoConfirm, true)
+  reopened.putDocument('preferences', write(legacy, 2))
+  assert.equal(reopened.getDocument('preferences').value.assistantAutoConfirm, true)
+  reopened.putDocument('preferences', write({ ...legacy, assistantAutoConfirm: false }, 3))
+  assert.equal(reopened.getDocument('preferences').value.assistantAutoConfirm, false)
+})

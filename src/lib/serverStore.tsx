@@ -26,6 +26,7 @@ export type ServerPreferences = {
   motionEnabled: boolean
   assistant: AssistantPreferences
   assistantMode: AssistantMode
+  assistantAutoConfirm?: boolean
   appearance: AppearancePreferences
   migratedBrowserIds?: string[]
 }
@@ -88,6 +89,7 @@ const defaults = (): ServerPreferences => ({
   motionEnabled: true,
   assistant: parseAssistantPreferences(null),
   assistantMode: 'local',
+  assistantAutoConfirm: false,
   appearance: { ...DEFAULT_APPEARANCE },
 })
 
@@ -263,6 +265,7 @@ export default function ServerStoreProvider({ children }: { children: ReactNode 
         value: {
           ...next.preferences.value,
           appearance: parseAppearance(next.preferences.value.appearance),
+          assistantAutoConfirm: next.preferences.value.assistantAutoConfirm === true,
         },
       }
     records.current = next
@@ -501,6 +504,7 @@ export default function ServerStoreProvider({ children }: { children: ReactNode 
               ...previous.preferences,
               // Themes and portraits never existed in browser storage. Keep the server choice.
               appearance: current.preferences?.value.appearance || previous.preferences.appearance,
+              assistantAutoConfirm: current.preferences?.value.assistantAutoConfirm === true,
               migratedBrowserIds,
             },
             ...(previous.focus || !current.focus

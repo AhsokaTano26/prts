@@ -89,7 +89,7 @@ test('SMTP sends through a real TLS session, authenticates and keeps certificate
   })
   const script = `import {sendSmtp} from ${JSON.stringify(new URL('../server/notification-delivery.mjs', import.meta.url).href)};
     const result=await sendSmtp({host:'127.0.0.1',port:${server.address().port},security:'tls',user:'doctor',password:'test-smtp-authorization-only'},
-      {from:'prts@example.test',to:'doctor@example.test',subject:'PRTS SMTP Test',text:'Deadline reminder test'});
+      {from:'prts@example.test',to:'doctor@example.test',subject:'PRTS SMTP Test',text:'Deadline reminder test',html:'<html><body style="background-image:url(cid:portrait@prts.local)"><h1>Deadline reminder test</h1></body></html>',attachments:[{filename:'amiya.png',content:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j2ioAAAAASUVORK5CYII=','base64'),contentType:'image/png',contentDisposition:'inline',cid:'portrait@prts.local'}]});
     if(result.accepted.length!==1)process.exitCode=1;`
   await exec(process.execPath, ['--input-type=module', '-e', script], {
     env: { PATH: process.env.PATH, NODE_EXTRA_CA_CERTS: cert },
@@ -100,6 +100,16 @@ test('SMTP sends through a real TLS session, authenticates and keeps certificate
   assert.equal(messages.length, 1)
   assert.match(messages[0], /Subject: PRTS SMTP Test/)
   assert.match(messages[0], /Deadline reminder test/)
+  assert.match(messages[0], /Content-Type: multipart\/alternative;/i)
+  assert.match(messages[0], /Content-Type: text\/plain; charset=utf-8/i)
+  assert.match(messages[0], /Content-Type: text\/html; charset=utf-8/i)
+  const unfolded = messages[0].replace(/=\r?\n/g, '')
+  assert.match(unfolded, /<h1>Deadline reminder test<\/h1>/)
+  assert.match(unfolded, /background-image:url\(cid:portrait@prts\.local\)/)
+  assert.match(messages[0], /Content-Type: multipart\/related;/i)
+  assert.match(messages[0], /Content-Type: image\/png;/i)
+  assert.match(messages[0], /Content-ID: <portrait@prts.local>/i)
+  assert.match(messages[0], /Content-Disposition: inline;/i)
   await assert.rejects(
     exec(process.execPath, ['--input-type=module', '-e', script], {
       env: { PATH: process.env.PATH },

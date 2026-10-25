@@ -1,4 +1,6 @@
 import { test, expect, waitSaved } from './fixture'
+// Keep API mocks in page.route deterministic across browser engines.
+test.use({ serviceWorkers: 'block' })
 
 test.beforeEach(async ({ page }) => {
   const login = await page.request.post('/api/auth/login', {
