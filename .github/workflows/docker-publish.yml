@@ -46,6 +46,12 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
+
+      - name: Read application version
+        id: version
+        shell: bash
+        run: printf 'value=%s\n' "$(git describe --tags --match 'v[0-9]*' --always --abbrev=7 --dirty)" >> "$GITHUB_OUTPUT"
 
       - name: Validate release tag
         if: startsWith(github.ref, 'refs/tags/')
@@ -96,6 +102,8 @@ jobs:
           load: true
           push: false
           tags: prts-smoke:ci
+          build-args: |
+            PRTS_VERSION=${{ steps.version.outputs.value }}
           cache-from: type=gha,scope=prts
 
       - name: Verify production container
@@ -116,6 +124,8 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
+          build-args: |
+            PRTS_VERSION=${{ steps.version.outputs.value }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=prts

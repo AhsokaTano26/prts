@@ -507,6 +507,10 @@
   margin: 0 8px;
   color: #566168;
 }
+.auth-footer .app-version {
+  margin: 0;
+  color: inherit;
+}
 .auth-spinner {
   animation: auth-spin 1s linear infinite;
 }

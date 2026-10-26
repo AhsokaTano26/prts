@@ -14,6 +14,7 @@ import {
 import { Logo } from './UI'
 import { useAppearance } from '../lib/appearance'
 import RhineInstrument from './RhineInstrument'
+import AppVersion from './AppVersion'
 import '../styles/auth.css'
 
 interface LoginViewProps {
@@ -391,7 +392,7 @@ export default function LoginView({
           </span>
           <span>
             {rhine ? 'PERSONAL RESEARCH WORKSPACE' : 'PERSONAL WORKSPACE'} <span>·</span>{' '}
-            {rhine ? 'PRTS' : 'v1.0'}
+            <AppVersion />
           </span>
         </footer>
       </div>

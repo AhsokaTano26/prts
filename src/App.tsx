@@ -37,6 +37,7 @@ import TaskReminders from './components/TaskReminders'
 import SettingsView from './components/SettingsView'
 import CommandPalette from './components/CommandPalette'
 import BootSequence from './components/BootSequence'
+import AppVersion from './components/AppVersion'
 import { apiFetch } from './lib/api'
 import { useServerStore } from './lib/serverStore'
 import { useAppearance } from './lib/appearance'
@@ -675,7 +676,7 @@ export default function App({ onLock }: { onLock: () => void }) {
                   <span> / </span>
                 </button>
               )}
-              PRTS <span className="muted">//</span> v1.0
+              PRTS <span className="muted">//</span> <AppVersion />
             </span>
           </footer>
         </div>

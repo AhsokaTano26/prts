@@ -71,6 +71,10 @@ PWA 继续使用同一台 VPS 和 SQLite；首次在桌面应用中打开时可�
 
 联网访问时检查更新，新版本就绪后提供「更新应用」按钮；点击前先保存当前编辑，确认后刷新。也可在设置页手动「检查更新」。Service Worker 只在 `npm run build` 的生产构建中启用，`npm run dev` 不启用离线缓存。本地 `localhost` / `127.0.0.1` 可验证；手机访问普通 HTTP 局域网 IP 不满足安装条件，应使用部署后的 HTTPS 域名。参见 [MDN 安装条件](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable)。
 
+登录页、工作台底栏及「手机桌面应用」设置显示当前加载页面的构建版本。构建时优先使用 `PRTS_VERSION`，否则读取 Git 标签与提交，例如 `v1.5.0`、`v1.5.0-2-gabcdef0`；有未提交修改时附加 `-dirty`。没有 Git 元数据时使用 `package.json` 版本并附加 `-local`。版本固定在前端构建中，更新后刷新页面即可看到新版本。
+
+GitHub Actions 发布的 Docker 镜像会自动注入版本。手动构建镜像时可用 `docker build --build-arg PRTS_VERSION=v1.5.0 -t prts:local .` 指定；运行容器时设置该变量不会改变已构建页面的版本。
+
 ## 任务截止提醒
 
 在任务编辑器中可填写「截止日期」和可选的「截止时间」。具体时刻按本机时区保存为绝对时间，其他设备按自己的时区显示；清空时间可恢复为仅日期。旧任务和旧备份保持兼容，仅日期的任务按通知设置中的时区在当天 **23:59** 截止，默认时区 `Asia/Shanghai`。

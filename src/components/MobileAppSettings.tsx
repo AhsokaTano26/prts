@@ -3,6 +3,7 @@ import { Smartphone, Download, RefreshCw, Share2 } from 'lucide-react'
 import { usePwa } from '../lib/pwa'
 import { useAppearance } from '../lib/appearance'
 import { SectionTitle } from './UI'
+import AppVersion from './AppVersion'
 
 export default function MobileAppSettings() {
   const pwa = usePwa()
@@ -28,6 +29,9 @@ export default function MobileAppSettings() {
         </div>
         <Smartphone size={22} />
       </div>
+      <p className="pwa-app-version">
+        当前版本 <AppVersion />
+      </p>
       <p className="settings-copy">
         从桌面图标打开，使用独立窗口访问同一份工作台。登录、任务与文件仍由你的服务器保存和验证。
       </p>
