@@ -8,6 +8,7 @@ import {
   Check,
   ArrowUpRight,
   ListTodo,
+  Rss,
 } from 'lucide-react'
 import type { CalendarEvent, Task, Workspace } from '../lib/workspace'
 import {
@@ -22,6 +23,7 @@ import {
 import { taskLocalDate } from '../lib/reminders'
 import { actualMonthDays, weekDays } from '../lib/calendarTimeline'
 import CalendarTimeGrid from './CalendarTimeGrid'
+import CalendarSubscriptionDialog from './CalendarSubscriptionDialog'
 import '../styles/calendar.css'
 
 function fullDate(day: string) {
@@ -51,6 +53,7 @@ export default function CalendarView({
   const [selected, setSelected] = useState(today)
   const [view, setView] = useState<'month' | 'week' | 'day'>('month')
   const [monthLayout, setMonthLayout] = useState<'calendar' | 'timeline'>('calendar')
+  const [subscriptionOpen, setSubscriptionOpen] = useState(false)
   const isMonthCalendar = view === 'month' && monthLayout === 'calendar'
   const month = selected.slice(0, 7)
   const days = useMemo(() => monthDays(`${month}-01`), [month])
@@ -170,10 +173,16 @@ export default function CalendarView({
           </h1>
           <p>为重要的事，留出时间。</p>
         </div>
-        <button className="button button-primary" onClick={() => onNew(selected)}>
-          <Plus size={17} />
-          新建日程
-        </button>
+        <div className="calendar-heading-actions">
+          <button className="button button-ghost" onClick={() => setSubscriptionOpen(true)}>
+            <Rss size={16} />
+            订阅日历
+          </button>
+          <button className="button button-primary" onClick={() => onNew(selected)}>
+            <Plus size={17} />
+            新建日程
+          </button>
+        </div>
       </div>
       <div
         className={`calendar-layout${view === 'month' ? (monthLayout === 'timeline' ? ' is-month-timeline' : '') : ` is-${view}`}`}
@@ -453,6 +462,9 @@ export default function CalendarView({
           </section>
         </div>
       </div>
+      {subscriptionOpen && (
+        <CalendarSubscriptionDialog onClose={() => setSubscriptionOpen(false)} />
+      )}
     </div>
   )
 }

@@ -78,6 +78,11 @@ server.on('request', (request, response) => {
       server.database
         .prepare('UPDATE prts_notification_settings SET data=?,revision=? WHERE id=1')
         .run(initialNotificationSettings.data, initialNotificationSettings.revision)
+      server.database
+        .prepare(
+          'UPDATE prts_calendar_subscription SET enabled=0,token=NULL,namespace=?,revision=1 WHERE id=1',
+        )
+        .run(randomUUID())
       if (!payload.keepSessions) {
         server.database.exec(
           'DELETE FROM auth_sessions; DELETE FROM auth_failures; DELETE FROM auth_metadata; DELETE FROM prts_ai_settings;',

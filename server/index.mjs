@@ -14,6 +14,7 @@ import { createSettings } from './settings.mjs'
 import { createWorkspaceTools } from './assistant-tools.mjs'
 import { createNotifications } from './notifications.mjs'
 import { createPasskeys } from './passkeys.mjs'
+import { createCalendarSubscription } from './calendar-subscription.mjs'
 import { createLogger, errorDetails, observeRequest } from './logging.mjs'
 
 const DEFAULT_DIST = fileURLToPath(new URL('../dist/', import.meta.url))
@@ -316,12 +317,27 @@ async function route(
   workspaceTools,
   notifications,
   passkeys,
+  calendarSubscription,
 ) {
   const corpus = knowledge.corpus
   response.setHeader('x-content-type-options', 'nosniff')
   response.setHeader('referrer-policy', 'same-origin')
   const pathname = requestPath(request.url)
   auth.checkOrigin(request)
+  if (pathname === '/api/calendar/feed.ics') {
+    if (!['GET', 'HEAD'].includes(request.method))
+      throw new HttpError(405, '订阅仅支持 GET 或 HEAD 请求。', { allow: 'GET, HEAD' })
+    const tokens = new URL(request.url, 'http://localhost').searchParams.getAll('token')
+    const body = calendarSubscription.feed(tokens.length === 1 ? tokens[0] : null)
+    response.writeHead(200, {
+      'content-type': 'text/calendar; charset=utf-8',
+      'content-length': Buffer.byteLength(body),
+      'cache-control': 'private, no-store',
+      'content-disposition': 'inline; filename="prts-calendar.ics"',
+      'referrer-policy': 'no-referrer',
+    })
+    return response.end(request.method === 'HEAD' ? undefined : body)
+  }
   if (pathname === '/api/appearance') {
     if (request.method !== 'GET') {
       request.resume()
@@ -365,6 +381,15 @@ async function route(
     })
   }
   if (pathname === '/api' || pathname.startsWith('/api/')) auth.requireSession(request)
+  if (pathname === '/api/calendar/subscription') {
+    if (request.method === 'GET') return json(response, 200, calendarSubscription.read())
+    if (request.method === 'POST') {
+      const payload = await readJson(request)
+      auth.requireSession(request)
+      return json(response, 200, calendarSubscription.update(payload))
+    }
+    throw new HttpError(405, '此接口仅支持 GET 或 POST 请求。', { allow: 'GET, POST' })
+  }
   if (pathname === '/api/auth/passkeys') {
     if (request.method !== 'GET')
       throw new HttpError(405, '此接口仅支持 GET 请求。', { allow: 'GET' })
@@ -634,6 +659,7 @@ export function createServer({
   const workspaceTools = createWorkspaceTools(database, storage, { now })
   const auth = createAuth({ env, now, database, logger })
   const passkeys = createPasskeys(database, auth, { now })
+  const calendarSubscription = createCalendarSubscription(database)
   const knowledge = knowledgeManager({
     directory: corpusDir || path.join(dataDirectory, 'corpus'),
     synchronize: syncCorpus,
@@ -656,6 +682,7 @@ export function createServer({
       workspaceTools,
       notifications,
       passkeys,
+      calendarSubscription,
     ).catch((error) => {
       if (!(error instanceof HttpError))
         log('error', 'http.error', { ...requestLog, ...errorDetails(error) })

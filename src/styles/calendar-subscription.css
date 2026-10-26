@@ -1,0 +1,105 @@
+.calendar-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.calendar-subscription-dialog {
+  width: min(580px, calc(100vw - 32px));
+  max-width: 580px;
+}
+.calendar-subscription-body {
+  padding: 0;
+}
+.calendar-subscription-body .form-intro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.calendar-subscription-body .modal-copy {
+  margin-bottom: 8px;
+}
+.subscription-loading,
+.subscription-link-actions,
+.subscription-manage-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.subscription-loading {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 24px 0;
+}
+.subscription-empty,
+.subscription-address {
+  margin: 20px 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  min-width: 0;
+}
+.subscription-empty strong {
+  font-size: 14px;
+}
+.subscription-empty p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 8px 0 16px;
+}
+.subscription-address .field {
+  min-width: 0;
+  width: 100%;
+  font-size: 11px;
+}
+.subscription-address .form-label {
+  margin-top: 0;
+}
+.subscription-link-actions {
+  margin: 12px 0;
+}
+.subscription-link-actions a {
+  text-decoration: none;
+}
+.subscription-manage-actions {
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.subscription-help {
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.subscription-help p,
+.subscription-status {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.subscription-help p + p {
+  margin-top: 6px;
+}
+.subscription-status {
+  color: var(--success);
+}
+@media (max-width: 600px) {
+  .calendar-heading-actions {
+    gap: 6px;
+  }
+  .calendar-heading-actions .button {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  .subscription-empty,
+  .subscription-address {
+    padding: 12px;
+  }
+  .subscription-link-actions .button {
+    flex: 1 1 180px;
+    justify-content: center;
+  }
+}
