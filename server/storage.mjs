@@ -349,7 +349,12 @@ export function createStorage(
         )
       const revision = payload.expectedRevision + 1
       // Older tabs must not erase newer server preferences they do not understand.
-      const next = preservePreferences(key, value, current?.value)
+      let next = preservePreferences(key, value, current?.value)
+      // Older tabs do not know this field; only an explicit array may replace it.
+      if (key === 'workspace' && payload.value.calendarEvents === undefined)
+        next = { ...next, calendarEvents: current?.value.calendarEvents || [] }
+      if (Buffer.byteLength(JSON.stringify(next)) > MAX_DOCUMENT_BYTES)
+        throw new HttpError(413, '单个存储项目不能超过 10 MB。')
       const result = writeDocument(key, next, revision)
       db.prepare(
         'INSERT INTO prts_mutations (key,mutation_id,request_hash,revision) VALUES (?,?,?,?)',

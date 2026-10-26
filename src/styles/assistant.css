@@ -1,8 +1,8 @@
 .assistant-options {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px 22px;
-  padding: 17px 24px;
+  gap: 8px 16px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--border);
   background: #14181b;
 }
@@ -43,6 +43,42 @@
   display: inline-block;
   color: var(--subtle);
   margin-left: 15px;
+}
+.main-content-chat .assistant-page,
+[data-theme='rhine'] .main-content-chat .assistant-page {
+  padding: 16px 20px 12px;
+}
+.assistant-page > .view-heading,
+[data-theme='rhine'] .assistant-page > .view-heading {
+  flex-shrink: 0;
+  min-height: 44px;
+  margin-bottom: 12px;
+  padding-bottom: 0;
+  border-bottom: 0;
+  align-items: center;
+}
+.assistant-page > .view-heading .page-index,
+.assistant-page > .view-heading > div > p {
+  display: none;
+}
+.assistant-guidance {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.assistant-guidance summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.assistant-guidance > p {
+  margin-top: 10px;
+}
+.assistant-guidance .assistant-access-note {
+  padding: 0;
+  border: 0;
+  font-size: inherit;
 }
 .message-sources {
   margin-top: 15px;
@@ -295,11 +331,25 @@
   }
 }
 @media (max-width: 600px) {
+  .main-content-chat .assistant-page,
+  [data-theme='rhine'] .main-content-chat .assistant-page {
+    padding: 12px;
+  }
+  .assistant-page > .view-heading {
+    min-height: 38px;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .assistant-page > .view-heading .page-index,
+  .assistant-page > .view-heading > div > p {
+    display: none;
+  }
   .assistant-page .chat-toolbar {
     gap: 10px;
   }
   .assistant-page .chat-toolbar .segmented {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     justify-content: space-between;
     gap: 0;
   }
@@ -311,11 +361,12 @@
     max-width: 100%;
   }
   .assistant-page .connection-status > span {
-    max-width: 230px;
+    display: none;
   }
-  .assistant-options {
-    padding: 14px;
-    gap: 12px;
+  .assistant-page .assistant-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 8px 12px;
+    gap: 10px;
   }
   .assistant-options select {
     font-size: 12px;
@@ -351,5 +402,10 @@
   }
   .corpus-card a {
     grid-column: 1 / -1;
+  }
+}
+@media (max-width: 600px) and (max-height: 700px) {
+  .assistant-page .chat-messages {
+    min-height: 64px;
   }
 }

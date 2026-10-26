@@ -39,6 +39,54 @@ const file = (id, content, name = '文档.txt') => ({
 })
 const message = (id, content = id) => ({ id, role: 'user', content, mode: 'local' })
 
+test('older workspace writers preserve calendars while explicit clearing and invalid changes are handled safely', (t) => {
+  const { store } = setup(t)
+  const workspace = createInitialWorkspace()
+  workspace.calendarEvents = [
+    {
+      id: 'calendar',
+      title: '会议',
+      description: '',
+      location: '',
+      allDay: true,
+      startDate: '2026-10-26',
+      endDate: '2026-10-26',
+      createdAt: '2026-10-26T00:00:00Z',
+      updatedAt: '2026-10-26T00:00:00Z',
+    },
+  ]
+  store.putDocument('workspace', write(workspace))
+  const older = structuredClone(workspace)
+  delete older.calendarEvents
+  older.tasks[0].title = '来自旧页面的修改'
+  const saved = store.putDocument('workspace', write(older, 1))
+  assert.deepEqual(saved.value.calendarEvents, workspace.calendarEvents)
+  assert.deepEqual(
+    store.getState().documents.workspace.value.calendarEvents,
+    workspace.calendarEvents,
+  )
+  assert.throws(
+    () =>
+      store.putDocument(
+        'workspace',
+        write(
+          {
+            ...workspace,
+            calendarEvents: [{ ...workspace.calendarEvents[0], endDate: '2026-10-25' }],
+          },
+          2,
+        ),
+      ),
+    { status: 400 },
+  )
+  assert.equal(store.getState().documents.workspace.revision, 2)
+  assert.deepEqual(
+    store.putDocument('workspace', write({ ...workspace, calendarEvents: [] }, 2)).value
+      .calendarEvents,
+    [],
+  )
+})
+
 test('SQLite documents survive reopening and stale revisions never overwrite saved content', async (t) => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'prts-sqlite-test-'))
   t.after(() => rm(root, { recursive: true, force: true }))
@@ -46,6 +94,19 @@ test('SQLite documents survive reopening and stale revisions never overwrite sav
   let db = createDatabase({ filename })
   let store = createStorage(db, { uploadsDir: path.join(root, 'uploads') })
   const workspace = createInitialWorkspace()
+  workspace.calendarEvents = [
+    {
+      id: 'persistent-calendar',
+      title: '全天安排',
+      description: '',
+      location: '',
+      allDay: true,
+      startDate: '2026-10-26',
+      endDate: '2026-10-28',
+      createdAt: '2026-10-26T00:00:00Z',
+      updatedAt: '2026-10-26T00:00:00Z',
+    },
+  ]
   const initial = write(workspace, 0, 'initial-write')
   assert.equal(store.putDocument('workspace', initial).revision, 1)
   assert.equal(store.putDocument('workspace', initial).revision, 1)

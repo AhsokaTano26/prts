@@ -14,6 +14,7 @@ import {
   PanelLeftClose,
   WifiOff,
   LockKeyhole,
+  CalendarDays,
 } from 'lucide-react'
 import {
   makeId,
@@ -23,6 +24,7 @@ import {
   type Note,
   type Activity,
   type Settings,
+  type CalendarEvent,
 } from './lib/workspace'
 import { listFiles, type WorkspaceFile } from './lib/files'
 import { useFocusTimer } from './lib/useFocusTimer'
@@ -38,6 +40,10 @@ import SettingsView from './components/SettingsView'
 import CommandPalette from './components/CommandPalette'
 import BootSequence from './components/BootSequence'
 import AppVersion from './components/AppVersion'
+import CalendarView from './components/CalendarView'
+import CalendarEventDialog from './components/CalendarEventDialog'
+import { dateKey, eventStartDate } from './lib/calendar'
+import { timelineSlotRange, type TimeRange } from './lib/calendarTimeline'
 import { apiFetch } from './lib/api'
 import { useServerStore } from './lib/serverStore'
 import { useAppearance } from './lib/appearance'
@@ -45,11 +51,12 @@ import { observeInterfaceMotion, stopInterfaceMotion, transitionView } from './l
 const navItems = [
   { id: 'overview', label: '总览', en: 'OVERVIEW', icon: LayoutDashboard },
   { id: 'tasks', label: '任务中枢', en: 'TASK CENTER', icon: ListTodo },
+  { id: 'calendar', label: '日历日程', en: 'CALENDAR', icon: CalendarDays },
   { id: 'notes', label: '个人档案', en: 'ARCHIVES', icon: FileText },
   { id: 'files', label: '文件资料库', en: 'FILE STORAGE', icon: FolderOpen },
   { id: 'assistant', label: 'PRTS 助手', en: 'INTELLIGENCE', icon: Sparkles },
 ]
-const validPages = ['overview', 'tasks', 'notes', 'files', 'assistant', 'settings']
+const validPages = ['overview', 'tasks', 'calendar', 'notes', 'files', 'assistant', 'settings']
 function readPage() {
   const h = location.hash.slice(1)
   if (h.startsWith('settings/')) return 'settings'
@@ -74,6 +81,11 @@ export default function App({ onLock }: { onLock: () => void }) {
     [mobileOpen, setMobileOpen] = useState(false),
     [searchOpen, setSearchOpen] = useState(false),
     [taskDialog, setTaskDialog] = useState<Task | null | undefined>(undefined),
+    [eventDialog, setEventDialog] = useState<{
+      event: CalendarEvent | null
+      day: string
+      range?: TimeRange
+    } | null>(null),
     [newTaskCategoryId, setNewTaskCategoryId] = useState(''),
     [selectedNoteId, setSelectedNoteId] = useState<string | null>(null),
     [toast, setToast] = useState(''),
@@ -368,6 +380,29 @@ export default function App({ onLock }: { onLock: () => void }) {
   function saveSettings(settings: Settings) {
     void update((w) => ({ ...w, settings }), '个人偏好已保存')
   }
+  function openEvent(id: string) {
+    const event = workspaceRef.current.calendarEvents.find((item) => item.id === id)
+    if (!event) return
+    navigate('calendar')
+    setEventDialog({ event, day: eventStartDate(event) })
+  }
+  async function saveEvent(event: CalendarEvent) {
+    const saved = await update(
+      (w) => ({
+        ...w,
+        calendarEvents: w.calendarEvents.some((item) => item.id === event.id)
+          ? w.calendarEvents.map((item) => (item.id === event.id ? event : item))
+          : [...w.calendarEvents, event],
+        activities: [
+          activity(`${eventDialog?.event ? '更新了' : '添加了'}日程「${event.title}」`, 'system'),
+          ...w.activities,
+        ].slice(0, 100),
+      }),
+      eventDialog?.event ? '日程已更新' : '日程已创建',
+    )
+    if (saved) setEventDialog(null)
+    return saved
+  }
   const currentLabel = navItems.find((n) => n.id === page)?.label || '系统设置'
   return (
     <>
@@ -406,7 +441,7 @@ export default function App({ onLock }: { onLock: () => void }) {
           </button>
           <div className="nav-section-label mono">
             {rhine ? 'RESEARCH INDEX' : 'WORKSPACE'}
-            <span>01—05</span>
+            <span>01—{String(navItems.length).padStart(2, '0')}</span>
           </div>
           <nav>
             {navItems.map((n) => (
@@ -496,10 +531,10 @@ export default function App({ onLock }: { onLock: () => void }) {
               <button
                 className="global-search"
                 onClick={() => setSearchOpen(true)}
-                aria-label="搜索任务、笔记或文件"
+                aria-label="搜索任务、日程、笔记或文件"
               >
                 <Search size={15} />
-                <span>搜索任务、笔记或文件…</span>
+                <span>搜索任务、日程、笔记或文件…</span>
                 <kbd>⌘ K</kbd>
               </button>
               <div className="topbar-date">
@@ -517,7 +552,7 @@ export default function App({ onLock }: { onLock: () => void }) {
           </header>
           <main
             id="main-content"
-            className="main-content"
+            className={`main-content${page === 'assistant' ? ' main-content-chat' : ''}`}
             ref={mainRef}
             inert={mobileOpen}
             tabIndex={-1}
@@ -606,6 +641,22 @@ export default function App({ onLock }: { onLock: () => void }) {
                   onSelectNote={setSelectedNoteId}
                 />
               )}{' '}
+              {page === 'calendar' && (
+                <CalendarView
+                  workspace={workspace}
+                  onNew={(day, minute) => {
+                    const range = minute === undefined ? undefined : timelineSlotRange(day, minute)
+                    if (range === null) {
+                      notify('此时刻在当前时区不存在，请选择其他时段。')
+                      return
+                    }
+                    setEventDialog({ event: null, day, range })
+                  }}
+                  onEdit={(event) => setEventDialog({ event, day: eventStartDate(event) })}
+                  onEditTask={setTaskDialog}
+                  onToggleTask={toggleTask}
+                />
+              )}
               {page === 'files' && (
                 <FilesView
                   onNotify={notify}
@@ -718,6 +769,38 @@ export default function App({ onLock }: { onLock: () => void }) {
             }
           />
         )}{' '}
+        {eventDialog && (
+          <CalendarEventDialog
+            key={
+              eventDialog.event?.id || `new-${eventDialog.day}-${eventDialog.range?.startAt || ''}`
+            }
+            event={eventDialog.event}
+            defaultDate={eventDialog.day}
+            defaultRange={eventDialog.range}
+            onSave={saveEvent}
+            onClose={() => setEventDialog(null)}
+            onDelete={
+              eventDialog.event
+                ? async () => {
+                    const event = eventDialog.event!
+                    const saved = await update(
+                      (w) => ({
+                        ...w,
+                        calendarEvents: w.calendarEvents.filter((item) => item.id !== event.id),
+                        activities: [
+                          activity(`删除了日程「${event.title}」`, 'system'),
+                          ...w.activities,
+                        ].slice(0, 100),
+                      }),
+                      '日程已删除',
+                    )
+                    if (saved) setEventDialog(null)
+                    return saved
+                  }
+                : undefined
+            }
+          />
+        )}
         {searchOpen && (
           <CommandPalette
             workspace={workspace}
@@ -731,6 +814,11 @@ export default function App({ onLock }: { onLock: () => void }) {
             onNote={openNote}
             onNewTask={() => openNewTask()}
             onNewNote={newNote}
+            onEvent={openEvent}
+            onNewEvent={() => {
+              navigate('calendar')
+              setEventDialog({ event: null, day: dateKey(new Date()) })
+            }}
           />
         )}
       </div>

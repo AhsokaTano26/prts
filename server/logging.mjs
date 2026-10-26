@@ -20,6 +20,8 @@ const routes = new Set([
   '/api/auth/passkeys/registration/verify',
   '/api/settings/ai',
   '/api/settings/notifications',
+  '/api/calendar/subscription',
+  '/api/calendar/feed.ics',
   '/api/notifications',
   '/api/notifications/test',
   '/api/notifications/retry',

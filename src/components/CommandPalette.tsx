@@ -9,6 +9,7 @@ import {
   FolderOpen,
   Settings2,
   Sparkles,
+  CalendarDays,
 } from 'lucide-react'
 import { Modal } from './UI'
 import type { Workspace } from '../lib/workspace'
@@ -22,6 +23,8 @@ export default function CommandPalette({
   onNote,
   onNewTask,
   onNewNote,
+  onEvent,
+  onNewEvent,
 }: {
   workspace: Workspace
   files: WorkspaceFile[]
@@ -31,6 +34,8 @@ export default function CommandPalette({
   onNote: (id: string) => void
   onNewTask: () => void
   onNewNote: () => void
+  onEvent: (id: string) => void
+  onNewEvent: () => void
 }) {
   const [query, setQuery] = useState(''),
     [selected, setSelected] = useState(0),
@@ -38,9 +43,11 @@ export default function CommandPalette({
   const actions = [
     { id: 'new-task', title: '新建任务', hint: '快捷操作', icon: Plus, action: onNewTask },
     { id: 'new-note', title: '新建笔记', hint: '快捷操作', icon: Plus, action: onNewNote },
+    { id: 'new-event', title: '新建日程', hint: '快捷操作', icon: Plus, action: onNewEvent },
     ...[
       { id: 'overview', title: '总览', icon: LayoutDashboard },
       { id: 'tasks', title: '任务中枢', icon: ListTodo },
+      { id: 'calendar', title: '日历日程', icon: CalendarDays },
       { id: 'notes', title: '个人档案', icon: FileText },
       { id: 'files', title: '文件资料库', icon: FolderOpen },
       { id: 'assistant', title: 'PRTS 助手', icon: Sparkles },
@@ -50,6 +57,19 @@ export default function CommandPalette({
   const q = query.trim().toLowerCase()
   const results = [
     ...actions.filter((a) => !q || a.title.toLowerCase().includes(q)),
+    ...(q
+      ? workspace.calendarEvents
+          .filter((event) =>
+            `${event.title} ${event.description} ${event.location}`.toLowerCase().includes(q),
+          )
+          .map((event) => ({
+            id: `event-${event.id}`,
+            title: event.title,
+            hint: event.allDay ? '全天日程' : '日程安排',
+            icon: CalendarDays,
+            action: () => onEvent(event.id),
+          }))
+      : []),
     ...(q
       ? workspace.tasks
           .filter((t) => t.title.toLowerCase().includes(q))
@@ -109,8 +129,8 @@ export default function CommandPalette({
           aria-controls="command-results"
           aria-autocomplete="list"
           aria-activedescendant={results[selected] ? `command-${selected}` : undefined}
-          aria-label="搜索任务、笔记、文件或模块"
-          placeholder="搜索任务、笔记、文件或模块…"
+          aria-label="搜索任务、日程、笔记、文件或模块"
+          placeholder="搜索任务、日程、笔记、文件或模块…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
