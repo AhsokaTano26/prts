@@ -462,7 +462,7 @@
 }
 [data-theme='rhine'] .chat-toolbar {
   background: var(--surface-raised);
-  padding-block: 15px;
+  padding-block: 10px;
 }
 [data-theme='rhine'] .segmented {
   border-radius: 0;
@@ -475,7 +475,7 @@
 }
 [data-theme='rhine'] .assistant-options {
   background: #f5f8f1;
-  padding-block: 20px;
+  padding-block: 10px;
 }
 [data-theme='rhine'] .persona-description,
 [data-theme='rhine'] .message-label {

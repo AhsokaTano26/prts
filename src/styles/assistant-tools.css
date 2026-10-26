@@ -91,7 +91,7 @@
   overflow-wrap: anywhere;
 }
 .assistant-confirmation-setting {
-  padding: 12px 20px;
+  padding: 8px 16px;
   border-bottom: 1px solid var(--border);
 }
 .assistant-confirmation-setting label {
@@ -99,7 +99,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
 }
 .assistant-confirmation-setting input {

@@ -20,6 +20,8 @@ import {
   timeText,
 } from '../lib/calendar'
 import { taskLocalDate } from '../lib/reminders'
+import { actualMonthDays, weekDays } from '../lib/calendarTimeline'
+import CalendarTimeGrid from './CalendarTimeGrid'
 import '../styles/calendar.css'
 
 function fullDate(day: string) {
@@ -40,15 +42,29 @@ export default function CalendarView({
   onToggleTask,
 }: {
   workspace: Workspace
-  onNew: (day: string) => void
+  onNew: (day: string, minute?: number) => void
   onEdit: (event: CalendarEvent) => void
   onEditTask: (task: Task) => void
   onToggleTask: (id: string) => void
 }) {
   const today = dateKey(new Date())
   const [selected, setSelected] = useState(today)
+  const [view, setView] = useState<'month' | 'week' | 'day'>('month')
+  const [monthLayout, setMonthLayout] = useState<'calendar' | 'timeline'>('calendar')
+  const isMonthCalendar = view === 'month' && monthLayout === 'calendar'
   const month = selected.slice(0, 7)
   const days = useMemo(() => monthDays(`${month}-01`), [month])
+  const displayedDays = useMemo(
+    () =>
+      view === 'month'
+        ? monthLayout === 'calendar'
+          ? days
+          : actualMonthDays(selected)
+        : view === 'week'
+          ? weekDays(selected)
+          : [selected],
+    [view, monthLayout, days, selected],
+  )
   const buttons = useRef(new Map<string, HTMLButtonElement>())
   const pendingFocus = useRef(false)
   const entries = useMemo(() => {
@@ -63,7 +79,7 @@ export default function CalendarView({
       if (day) tasks.set(day, [...(tasks.get(day) || []), task])
     }
     return new Map(
-      days.map((day) => {
+      displayedDays.map((day) => {
         const [start, end] = dayBounds(day)
         const events = ranges
           .filter((item) =>
@@ -90,7 +106,7 @@ export default function CalendarView({
         ] as const
       }),
     )
-  }, [days, workspace.calendarEvents, workspace.tasks])
+  }, [displayedDays, workspace.calendarEvents, workspace.tasks])
   useEffect(() => {
     if (pendingFocus.current) {
       buttons.current.get(selected)?.focus({ preventScroll: true })
@@ -122,6 +138,28 @@ export default function CalendarView({
   }
   const current = entries.get(selected) || { events: [], tasks: [] }
   const monthTitle = `${Number(month.slice(0, 4))} 年 ${Number(month.slice(5))} 月`
+  const periodTitle =
+    view === 'month'
+      ? monthTitle
+      : view === 'day'
+        ? fullDate(selected)
+        : `${new Date(`${displayedDays[0]}T12:00:00Z`).toLocaleDateString('zh-CN', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })} — ${new Date(`${displayedDays[6]}T12:00:00Z`).toLocaleDateString('zh-CN', { timeZone: 'UTC', ...(displayedDays[0].slice(0, 4) !== displayedDays[6].slice(0, 4) ? { year: 'numeric' } : {}), month: 'long', day: 'numeric' })}`
+  function movePeriod(direction: number) {
+    if (view === 'month') {
+      setSelected(shiftMonth(selected, direction))
+      return
+    }
+    const day = addDays(selected, direction * (view === 'week' ? 7 : 1))
+    setSelected(
+      day.length !== 10
+        ? direction > 0
+          ? '9999-12-31'
+          : '0001-01-01'
+        : day < '0001-01-01'
+          ? '0001-01-01'
+          : day,
+    )
+  }
   return (
     <div className="page-content calendar-page">
       <div className="view-heading">
@@ -137,14 +175,39 @@ export default function CalendarView({
           新建日程
         </button>
       </div>
-      <div className="calendar-layout">
-        <section className="calendar-month panel" aria-label="月历">
+      <div
+        className={`calendar-layout${view === 'month' ? (monthLayout === 'timeline' ? ' is-month-timeline' : '') : ` is-${view}`}`}
+      >
+        <section
+          className="calendar-month panel"
+          aria-label={
+            view === 'month'
+              ? isMonthCalendar
+                ? '月历'
+                : '月时间线'
+              : view === 'week'
+                ? '周时间线'
+                : '日时间线'
+          }
+        >
           <header className="calendar-toolbar">
             <div>
               <span className="calendar-kicker mono">TIME / OVERVIEW</span>
               <h2 className="calendar-month-title" aria-live="polite">
-                {monthTitle}
+                {periodTitle}
               </h2>
+            </div>
+            <div className="calendar-view-switch" role="group" aria-label="日历视图">
+              {(['month', 'week', 'day'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  aria-label={`${mode === 'month' ? '月' : mode === 'week' ? '周' : '日'}视图`}
+                  aria-pressed={view === mode}
+                  onClick={() => setView(mode)}
+                >
+                  {mode === 'month' ? '月' : mode === 'week' ? '周' : '日'}
+                </button>
+              ))}
             </div>
             <div className="calendar-month-controls">
               <button
@@ -155,96 +218,135 @@ export default function CalendarView({
               </button>
               <button
                 className="icon-button"
-                aria-label="上个月"
-                disabled={month === '0001-01'}
-                onClick={() => setSelected(shiftMonth(selected, -1))}
+                aria-label={view === 'month' ? '上个月' : view === 'week' ? '上一周' : '前一天'}
+                disabled={view === 'month' ? month === '0001-01' : selected === '0001-01-01'}
+                onClick={() => movePeriod(-1)}
               >
                 <ChevronLeft size={18} />
               </button>
               <button
                 className="icon-button"
-                aria-label="下个月"
-                disabled={month === '9999-12'}
-                onClick={() => setSelected(shiftMonth(selected, 1))}
+                aria-label={view === 'month' ? '下个月' : view === 'week' ? '下一周' : '后一天'}
+                disabled={view === 'month' ? month === '9999-12' : selected === '9999-12-31'}
+                onClick={() => movePeriod(1)}
               >
                 <ChevronRight size={18} />
               </button>
             </div>
           </header>
-          <div className="calendar-grid" role="grid" aria-label={monthTitle}>
-            <div className="calendar-week calendar-weekdays" role="row">
-              {['一', '二', '三', '四', '五', '六', '日'].map((name) => (
-                <span role="columnheader" key={name}>
-                  周{name}
-                </span>
-              ))}
+          {view === 'month' && (
+            <div className="calendar-month-layout-toolbar">
+              <div className="calendar-month-layout-switch" role="group" aria-label="月视图布局">
+                <button
+                  aria-label="月历模式"
+                  aria-pressed={monthLayout === 'calendar'}
+                  onClick={() => setMonthLayout('calendar')}
+                >
+                  月历
+                </button>
+                <button
+                  aria-label="月时间线模式"
+                  aria-pressed={monthLayout === 'timeline'}
+                  onClick={() => setMonthLayout('timeline')}
+                >
+                  时间线
+                </button>
+              </div>
+              <p>
+                {monthLayout === 'timeline'
+                  ? '左右滚动浏览本月 · 点击空白时段新建'
+                  : '切换时间线，按小时查看整月安排。'}
+              </p>
             </div>
-            {Array.from({ length: 6 }, (_, row) => (
-              <div className="calendar-week" role="row" key={row}>
-                {days.slice(row * 7, row * 7 + 7).map((day) => {
-                  const items = entries.get(day)!
-                  const count = items.events.length + items.tasks.length
-                  return (
-                    <div
-                      role="gridcell"
-                      aria-selected={day === selected}
-                      key={day}
-                      className="calendar-cell"
-                    >
-                      <button
-                        ref={(el) => {
-                          if (el) buttons.current.set(day, el)
-                          else buttons.current.delete(day)
-                        }}
-                        className={`calendar-day${day.slice(0, 7) !== month ? ' is-outside' : ''}${day === today ? ' is-today' : ''}${day === selected ? ' is-selected' : ''}`}
-                        data-date={day}
-                        disabled={day.length !== 10 || day < '0001-01-01' || day > '9999-12-31'}
-                        aria-current={day === today ? 'date' : undefined}
-                        aria-pressed={day === selected}
-                        aria-label={`${fullDate(day)}，${items.events.length} 项日程，${items.tasks.length} 项任务`}
-                        tabIndex={day === selected ? 0 : -1}
-                        onClick={() => {
-                          pendingFocus.current = true
-                          setSelected(day)
-                        }}
-                        onKeyDown={(e) => keyDown(e, day)}
+          )}
+          {isMonthCalendar ? (
+            <div className="calendar-grid" role="grid" aria-label={monthTitle}>
+              <div className="calendar-week calendar-weekdays" role="row">
+                {['一', '二', '三', '四', '五', '六', '日'].map((name) => (
+                  <span role="columnheader" key={name}>
+                    周{name}
+                  </span>
+                ))}
+              </div>
+              {Array.from({ length: 6 }, (_, row) => (
+                <div className="calendar-week" role="row" key={row}>
+                  {days.slice(row * 7, row * 7 + 7).map((day) => {
+                    const items = entries.get(day)!
+                    const count = items.events.length + items.tasks.length
+                    return (
+                      <div
+                        role="gridcell"
+                        aria-selected={day === selected}
+                        key={day}
+                        className="calendar-cell"
                       >
-                        <span className="calendar-day-number mono">
-                          {Number(day.slice(-2))}
-                          <span className="calendar-day-today">{day === today ? '今' : ''}</span>
-                        </span>
-                        <span className="calendar-day-previews">
-                          {items.events.slice(0, 2).map((event) => (
-                            <span className="calendar-preview" key={event.id}>
-                              <i />
-                              {event.allDay ? '全天 · ' : ''}
-                              {event.title}
-                            </span>
-                          ))}
-                          {items.events.length < 2 &&
-                            items.tasks.slice(0, 2 - items.events.length).map((task) => (
-                              <span
-                                className={`calendar-preview is-task${task.done ? ' is-done' : ''}`}
-                                key={task.id}
-                              >
+                        <button
+                          ref={(el) => {
+                            if (el) buttons.current.set(day, el)
+                            else buttons.current.delete(day)
+                          }}
+                          className={`calendar-day${day.slice(0, 7) !== month ? ' is-outside' : ''}${day === today ? ' is-today' : ''}${day === selected ? ' is-selected' : ''}`}
+                          data-date={day}
+                          disabled={day.length !== 10 || day < '0001-01-01' || day > '9999-12-31'}
+                          aria-current={day === today ? 'date' : undefined}
+                          aria-pressed={day === selected}
+                          aria-label={`${fullDate(day)}，${items.events.length} 项日程，${items.tasks.length} 项任务`}
+                          tabIndex={day === selected ? 0 : -1}
+                          onClick={() => {
+                            pendingFocus.current = true
+                            setSelected(day)
+                          }}
+                          onKeyDown={(e) => keyDown(e, day)}
+                        >
+                          <span className="calendar-day-number mono">
+                            {Number(day.slice(-2))}
+                            <span className="calendar-day-today">{day === today ? '今' : ''}</span>
+                          </span>
+                          <span className="calendar-day-previews">
+                            {items.events.slice(0, 2).map((event) => (
+                              <span className="calendar-preview" key={event.id}>
                                 <i />
-                                {task.title}
+                                {event.allDay ? '全天 · ' : ''}
+                                {event.title}
                               </span>
                             ))}
-                          {count > 2 && <span className="calendar-more">+{count - 2} 项</span>}
-                        </span>
-                        <span className="calendar-day-markers" aria-hidden="true">
-                          {items.events.length > 0 && <i />}
-                          {items.tasks.length > 0 && <i className="is-task" />}
-                          {count > 0 && <small>{count}</small>}
-                        </span>
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-            ))}
-          </div>
+                            {items.events.length < 2 &&
+                              items.tasks.slice(0, 2 - items.events.length).map((task) => (
+                                <span
+                                  className={`calendar-preview is-task${task.done ? ' is-done' : ''}`}
+                                  key={task.id}
+                                >
+                                  <i />
+                                  {task.title}
+                                </span>
+                              ))}
+                            {count > 2 && <span className="calendar-more">+{count - 2} 项</span>}
+                          </span>
+                          <span className="calendar-day-markers" aria-hidden="true">
+                            {items.events.length > 0 && <i />}
+                            {items.tasks.length > 0 && <i className="is-task" />}
+                            {count > 0 && <small>{count}</small>}
+                          </span>
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <CalendarTimeGrid
+              span={view}
+              days={displayedDays}
+              selected={selected}
+              events={workspace.calendarEvents}
+              tasks={workspace.tasks}
+              onSelect={setSelected}
+              onNew={(day, minute) => onNew(day, minute)}
+              onEdit={onEdit}
+              onEditTask={onEditTask}
+            />
+          )}
           <div className="calendar-legend">
             <span>
               <i />

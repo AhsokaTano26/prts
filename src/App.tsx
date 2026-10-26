@@ -43,6 +43,7 @@ import AppVersion from './components/AppVersion'
 import CalendarView from './components/CalendarView'
 import CalendarEventDialog from './components/CalendarEventDialog'
 import { dateKey, eventStartDate } from './lib/calendar'
+import { timelineSlotRange, type TimeRange } from './lib/calendarTimeline'
 import { apiFetch } from './lib/api'
 import { useServerStore } from './lib/serverStore'
 import { useAppearance } from './lib/appearance'
@@ -80,9 +81,11 @@ export default function App({ onLock }: { onLock: () => void }) {
     [mobileOpen, setMobileOpen] = useState(false),
     [searchOpen, setSearchOpen] = useState(false),
     [taskDialog, setTaskDialog] = useState<Task | null | undefined>(undefined),
-    [eventDialog, setEventDialog] = useState<{ event: CalendarEvent | null; day: string } | null>(
-      null,
-    ),
+    [eventDialog, setEventDialog] = useState<{
+      event: CalendarEvent | null
+      day: string
+      range?: TimeRange
+    } | null>(null),
     [newTaskCategoryId, setNewTaskCategoryId] = useState(''),
     [selectedNoteId, setSelectedNoteId] = useState<string | null>(null),
     [toast, setToast] = useState(''),
@@ -549,7 +552,7 @@ export default function App({ onLock }: { onLock: () => void }) {
           </header>
           <main
             id="main-content"
-            className="main-content"
+            className={`main-content${page === 'assistant' ? ' main-content-chat' : ''}`}
             ref={mainRef}
             inert={mobileOpen}
             tabIndex={-1}
@@ -641,7 +644,14 @@ export default function App({ onLock }: { onLock: () => void }) {
               {page === 'calendar' && (
                 <CalendarView
                   workspace={workspace}
-                  onNew={(day) => setEventDialog({ event: null, day })}
+                  onNew={(day, minute) => {
+                    const range = minute === undefined ? undefined : timelineSlotRange(day, minute)
+                    if (range === null) {
+                      notify('此时刻在当前时区不存在，请选择其他时段。')
+                      return
+                    }
+                    setEventDialog({ event: null, day, range })
+                  }}
                   onEdit={(event) => setEventDialog({ event, day: eventStartDate(event) })}
                   onEditTask={setTaskDialog}
                   onToggleTask={toggleTask}
@@ -761,9 +771,12 @@ export default function App({ onLock }: { onLock: () => void }) {
         )}{' '}
         {eventDialog && (
           <CalendarEventDialog
-            key={eventDialog.event?.id || `new-${eventDialog.day}`}
+            key={
+              eventDialog.event?.id || `new-${eventDialog.day}-${eventDialog.range?.startAt || ''}`
+            }
             event={eventDialog.event}
             defaultDate={eventDialog.day}
+            defaultRange={eventDialog.range}
             onSave={saveEvent}
             onClose={() => setEventDialog(null)}
             onDelete={

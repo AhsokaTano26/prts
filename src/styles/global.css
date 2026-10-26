@@ -1610,11 +1610,25 @@ p {
   padding: 4px 8px;
   white-space: nowrap;
 }
-.assistant-page {
-  height: 100%;
+.main-content-chat,
+.motion-page-chat {
   display: flex;
   flex-direction: column;
-  min-height: 580px;
+}
+.motion-page-chat {
+  flex: 1;
+  min-height: 0;
+}
+.main-content-chat > :not(.motion-page-chat) {
+  flex-shrink: 0;
+}
+.assistant-page {
+  flex: 1;
+  width: 100%;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .chat-shell {
   display: flex;
@@ -1622,12 +1636,15 @@ p {
   min-height: 0;
   flex: 1;
 }
+.chat-shell > :not(.chat-messages):not(.knowledge-panel) {
+  flex-shrink: 0;
+}
 .chat-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 10px;
-  padding: 13px 18px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--border);
 }
 .chat-toolbar .segmented {
@@ -1646,7 +1663,7 @@ p {
   overflow: auto;
   flex: 1;
   padding: 24px 32px;
-  min-height: 220px;
+  min-height: 140px;
   scroll-behavior: smooth;
 }
 .chat-welcome {
@@ -1713,7 +1730,7 @@ p {
 .chat-message {
   display: flex;
   gap: 14px;
-  max-width: 840px;
+  max-width: 1120px;
   margin: 0 auto 28px;
 }
 .message-avatar {
@@ -1820,7 +1837,10 @@ p {
   background: none;
   font-size: 13px;
   line-height: 1.7;
-  max-height: 180px;
+  min-height: 66px;
+  max-height: min(180px, 25dvh);
+  padding: 0;
+  overflow-y: auto;
 }
 .chat-composer textarea::placeholder {
   color: #717a81;
@@ -3308,12 +3328,11 @@ p {
     margin-left: 26px;
   }
   .assistant-page {
-    min-height: calc(100dvh - 90px);
-    height: auto;
+    min-height: 0;
     padding-bottom: 15px;
   }
   .chat-shell {
-    min-height: calc(100dvh - 220px);
+    min-height: 0;
   }
   .assistant-page > .view-heading > .button {
     font-size: 12px;
@@ -3351,8 +3370,7 @@ p {
     overflow: hidden;
   }
   .chat-messages {
-    max-height: 56dvh;
-    min-height: 240px;
+    min-height: 140px;
     padding: 15px;
   }
   .chat-welcome {
@@ -3414,6 +3432,8 @@ p {
   .chat-composer textarea {
     font-size: 13px;
     line-height: 1.8;
+    min-height: 52px;
+    max-height: min(128px, 22dvh);
   }
   .composer-bottom > span {
     font-size: 12px;

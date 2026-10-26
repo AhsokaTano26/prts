@@ -3,22 +3,40 @@ import { CalendarDays, LoaderCircle, Trash2 } from 'lucide-react'
 import { makeId, type CalendarEvent } from '../lib/workspace'
 import { calendarDraft, eventFromDraft, type CalendarDraft } from '../lib/calendar'
 import { Modal } from './UI'
+import type { TimeRange } from '../lib/calendarTimeline'
 
 export default function CalendarEventDialog({
   event,
   defaultDate,
+  defaultRange,
   onSave,
   onDelete,
   onClose,
 }: {
   event: CalendarEvent | null
   defaultDate: string
+  defaultRange?: TimeRange
   onSave: (event: CalendarEvent) => Promise<boolean>
   onDelete?: () => Promise<boolean>
   onClose: () => void
 }) {
-  const [draft, setDraft] = useState(() => calendarDraft(event, defaultDate))
   const [identity] = useState(() => ({ id: makeId(), createdAt: new Date().toISOString() }))
+  const [reference] = useState<CalendarEvent | null>(
+    () =>
+      event ||
+      (defaultRange
+        ? {
+            ...identity,
+            title: '',
+            description: '',
+            location: '',
+            updatedAt: identity.createdAt,
+            allDay: false,
+            ...defaultRange,
+          }
+        : null),
+  )
+  const [draft, setDraft] = useState(() => calendarDraft(reference, defaultDate))
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -32,7 +50,7 @@ export default function CalendarEventDialog({
     if (busy) return
     setError('')
     try {
-      const value = eventFromDraft(draft, event)
+      const value = eventFromDraft(draft, reference)
       setBusy(true)
       if (!(await onSave(event ? value : { ...value, ...identity })))
         setError('保存未完成，输入已保留。可关闭弹窗后，在页面上重试保存或保留冲突草稿。')

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import {
   ArrowUp,
   Command,
@@ -104,6 +104,17 @@ export default function AssistantView({
   const controller = useRef<AbortController | null>(null),
     bottom = useRef<HTMLDivElement>(null),
     inputRef = useRef<HTMLTextAreaElement>(null)
+  useLayoutEffect(() => {
+    const textarea = inputRef.current
+    if (!textarea) return
+    const resize = () => {
+      textarea.style.height = 'auto'
+      textarea.style.height = `${textarea.scrollHeight}px`
+    }
+    resize()
+    window.addEventListener('resize', resize)
+    return () => window.removeEventListener('resize', resize)
+  }, [input, mode])
   async function loadMessages(before?: string) {
     const version = ++historyRequest.current
     setHistoryError('')
@@ -408,6 +419,12 @@ export default function AssistantView({
           </div>
           <span
             className={`connection-status ${mode !== 'ai' || health.configured ? 'success' : ''}`}
+            title={
+              mode !== 'ai' ? '工作台服务' : health.configured ? health.model : '尚未连接 AI 服务'
+            }
+            aria-label={
+              mode !== 'ai' ? '工作台服务' : health.configured ? health.model : '尚未连接 AI 服务'
+            }
           >
             {mode !== 'ai' ? (
               <Command size={13} />
@@ -473,10 +490,6 @@ export default function AssistantView({
                     ]}
                   />
                 </div>
-                <p className="persona-description">
-                  {persona.description}
-                  <span>当前人格已启用 · 每个人格独立保留对话</span>
-                </p>
               </div>
             )}
             {mode === 'ai' && (
@@ -496,21 +509,34 @@ export default function AssistantView({
                     }}
                   />
                   <span>自动确认工作台操作</span>
-                  <small>{store.saving ? '正在保存…' : autoConfirm ? '已开启' : '默认关闭'}</small>
+                  <small>
+                    {store.saving
+                      ? '正在保存…'
+                      : autoConfirm
+                        ? '已开启 · 含删除'
+                        : '默认关闭 · 含删除'}
+                  </small>
                 </label>
-                <p>
-                  开启后，后续回复中的任务、笔记、分类、普通设置和计时修改会自动执行，包括删除。结果仍保留在对话中；已有待确认操作需手动处理。
-                </p>
                 {policyError && <p role="alert">{policyError}</p>}
               </div>
             )}
             {mode === 'ai' && (
-              <p className="assistant-access-note">
-                已连接工作台：可按需读取任务、笔记与文本附件，相关内容会发送给你配置的 AI 服务。
-                {autoConfirm
-                  ? '本轮修改将统一自动执行。'
-                  : '本轮修改合并到一张操作卡片，统一确认。'}
-              </p>
+              <details className="assistant-guidance">
+                <summary>对话与操作说明</summary>
+                <p className="persona-description">
+                  {persona.description}
+                  <span>当前人格已启用 · 每个人格独立保留对话</span>
+                </p>
+                <p>
+                  开启自动确认后，后续回复中的任务、笔记、分类、普通设置和计时修改会自动执行，包括删除。结果仍保留在对话中；已有待确认操作需手动处理。
+                </p>
+                <p className="assistant-access-note">
+                  已连接工作台：可按需读取任务、笔记与文本附件，相关内容会发送给你配置的 AI 服务。
+                  {autoConfirm
+                    ? '本轮修改将统一自动执行。'
+                    : '本轮修改合并到一张操作卡片，统一确认。'}
+                </p>
+              </details>
             )}
             <div className="chat-messages" aria-live="polite" aria-relevant="additions">
               {!loaded && !historyError && <p role="status">正在读取对话记录…</p>}

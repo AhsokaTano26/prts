@@ -1,0 +1,408 @@
+.calendar-view-switch {
+  display: flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.calendar-view-switch button {
+  padding: 7px 15px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+}
+.calendar-view-switch button[aria-pressed='true'] {
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: inset 0 -2px var(--accent);
+}
+.calendar-view-switch button:active {
+  background: var(--surface-raised);
+}
+.calendar-month-layout-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.calendar-month-layout-switch {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.calendar-month-layout-switch button {
+  min-height: 32px;
+  padding: 6px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+}
+.calendar-month-layout-switch button[aria-pressed='true'] {
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: inset 0 -2px var(--accent);
+}
+.calendar-month-layout-switch button:active {
+  background: var(--surface-raised);
+}
+.calendar-month-layout-toolbar p {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.calendar-layout:is(.is-week, .is-month-timeline) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.calendar-layout:is(.is-week, .is-month-timeline) > .calendar-agenda {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.calendar-layout:is(.is-week, .is-month-timeline) .calendar-agenda-heading {
+  grid-column: 1 / -1;
+}
+.calendar-layout:is(.is-week, .is-month-timeline) .calendar-task-list {
+  border-top: 0;
+  border-left: 1px solid var(--border);
+}
+.calendar-toolbar {
+  flex-wrap: wrap;
+}
+.calendar-toolbar > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.calendar-layout:is(.is-week, .is-month-timeline) .calendar-month-title,
+.calendar-layout.is-day .calendar-month-title {
+  font-size: 20px;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+.timeline-scroll {
+  overflow: auto;
+  height: clamp(300px, calc(100dvh - 360px), 720px);
+  min-width: 0;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+.timeline-grid {
+  display: grid;
+  position: relative;
+  isolation: isolate;
+}
+.timeline-grid.is-week {
+  min-width: 808px;
+}
+.timeline-corner,
+.timeline-day-heading {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.timeline-corner {
+  left: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--subtle);
+  font-size: 10px;
+}
+.timeline-day-heading {
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+  align-items: center;
+  padding: 6px;
+}
+.timeline-day-heading > span {
+  color: var(--muted);
+  font-size: 11px;
+}
+.timeline-day-heading strong {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font: 18px var(--mono);
+}
+.timeline-day-heading.is-selected {
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+}
+.timeline-day-heading.is-today strong {
+  background: var(--accent);
+  color: var(--bg);
+}
+.timeline-all-day-label,
+.timeline-all-day {
+  position: sticky;
+  top: 56px;
+  z-index: 15;
+  min-width: 0;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.timeline-all-day-label {
+  left: 0;
+  z-index: 35;
+  padding-top: 12px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+}
+.timeline-all-day {
+  overflow-y: auto;
+  padding: 5px 4px;
+}
+.timeline-all-day button {
+  display: block;
+  width: 100%;
+  height: 23px;
+  margin-bottom: 3px;
+  padding: 3px 6px;
+  border: 0;
+  border-left: 2px solid var(--accent);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  color: var(--text);
+  font-size: 11px;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.timeline-all-day button.timeline-floating-task {
+  border-left-color: var(--success);
+  background: color-mix(in srgb, var(--success) 13%, var(--surface));
+}
+.timeline-floating-empty {
+  color: var(--subtle);
+  font: 11px var(--mono);
+  display: block;
+  text-align: center;
+  padding: 6px;
+}
+.timeline-axis {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+.timeline-hour {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  text-align: right;
+  padding-right: 8px;
+  font-size: 10px;
+  color: var(--subtle);
+  transform: translateY(-50%);
+}
+.timeline-hour:first-child {
+  transform: translateY(3px);
+}
+.timeline-day-column {
+  position: relative;
+  min-width: 0;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+.timeline-slot {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px dotted color-mix(in srgb, var(--border) 65%, transparent);
+  background: transparent;
+}
+.timeline-slot.is-hour {
+  border-top: 1px solid var(--border);
+}
+.timeline-slot:hover,
+.timeline-slot:focus-visible {
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+.timeline-slot:focus-visible {
+  outline-offset: -3px;
+}
+.timeline-slot:focus-visible::after {
+  content: '';
+  position: absolute;
+  z-index: 5;
+  inset: 1px;
+  border: 2px solid var(--accent);
+  pointer-events: none;
+}
+.timeline-slot:disabled {
+  background: repeating-linear-gradient(
+    135deg,
+    transparent,
+    transparent 5px,
+    color-mix(in srgb, var(--border) 40%, transparent) 5px,
+    color-mix(in srgb, var(--border) 40%, transparent) 6px
+  );
+}
+.timeline-block {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 5px 6px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  color: var(--text);
+  text-align: left;
+}
+.timeline-block:hover {
+  background: color-mix(in srgb, var(--accent) 28%, var(--surface));
+}
+.timeline-block strong {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.timeline-block-time,
+.timeline-block-offset {
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.timeline-block-offset {
+  color: var(--muted);
+}
+.timeline-block.is-short {
+  padding: 2px 5px;
+}
+.timeline-block.is-short .timeline-block-time,
+.timeline-block.is-short .timeline-block-offset {
+  display: none;
+}
+.timeline-task {
+  border-color: var(--success);
+  border-style: dashed;
+  background: color-mix(in srgb, var(--success) 15%, var(--surface));
+}
+.timeline-task:hover {
+  background: color-mix(in srgb, var(--success) 25%, var(--surface));
+}
+.timeline-task::before {
+  content: '◇';
+  position: absolute;
+  left: 5px;
+  top: 4px;
+  font-size: 10px;
+  color: var(--success);
+}
+.timeline-task strong {
+  display: inline;
+  padding-left: 12px;
+}
+.timeline-block.is-done,
+.timeline-all-day .is-done {
+  color: var(--subtle);
+  text-decoration: line-through;
+}
+.timeline-now {
+  position: absolute;
+  z-index: 4;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--danger);
+  pointer-events: none;
+}
+.timeline-now::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  background: var(--danger);
+  border-radius: 50%;
+}
+.timeline-now > span {
+  position: absolute;
+  left: 7px;
+  top: -16px;
+  color: var(--danger);
+  font-size: 10px;
+  line-height: 1.5;
+  padding: 0 3px;
+  background: var(--surface);
+}
+@media (max-width: 600px) {
+  .calendar-month-layout-toolbar {
+    padding: 10px 12px;
+    gap: 7px 12px;
+  }
+  .calendar-view-switch {
+    order: 3;
+    width: 100%;
+  }
+  .calendar-view-switch button {
+    flex: 1;
+  }
+  .calendar-layout:is(.is-week, .is-month-timeline) .calendar-toolbar,
+  .calendar-layout.is-day .calendar-toolbar {
+    padding: 14px 12px;
+  }
+  .calendar-layout:is(.is-week, .is-month-timeline) .calendar-toolbar > div:first-child,
+  .calendar-layout.is-day .calendar-toolbar > div:first-child {
+    flex-basis: 100%;
+  }
+  .calendar-layout:is(.is-week, .is-month-timeline) .calendar-view-switch,
+  .calendar-layout.is-day .calendar-view-switch {
+    order: 2;
+    flex: 1;
+    width: auto;
+  }
+  .calendar-layout:is(.is-week, .is-month-timeline) .calendar-month-controls,
+  .calendar-layout.is-day .calendar-month-controls {
+    order: 3;
+    margin-left: auto;
+  }
+  .calendar-layout:is(.is-week, .is-month-timeline) .calendar-kicker,
+  .calendar-layout.is-day .calendar-kicker {
+    display: none;
+  }
+  .calendar-layout:is(.is-week, .is-month-timeline) .calendar-month-title,
+  .calendar-layout.is-day .calendar-month-title {
+    font-size: 15px;
+  }
+  .calendar-layout:is(.is-week, .is-month-timeline) > .calendar-agenda {
+    display: block;
+  }
+  .calendar-layout:is(.is-week, .is-month-timeline) .calendar-task-list {
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+  .timeline-scroll {
+    height: clamp(300px, calc(100dvh - 350px), 540px);
+  }
+}
