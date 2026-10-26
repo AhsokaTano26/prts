@@ -16,6 +16,21 @@ export interface Task {
   createdAt: string
 }
 
+interface CalendarEventBase {
+  id: string
+  title: string
+  description: string
+  location: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type CalendarEvent = CalendarEventBase &
+  (
+    | { allDay: true; startDate: string; endDate: string }
+    | { allDay: false; startAt: string; endAt: string }
+  )
+
 export interface Note {
   id: string
   title: string
@@ -42,6 +57,7 @@ export interface Workspace {
   schemaVersion: 2
   taskCategories: TaskCategory[]
   tasks: Task[]
+  calendarEvents: CalendarEvent[]
   notes: Note[]
   activities: Activity[]
   settings: Settings
@@ -84,6 +100,7 @@ export function createInitialWorkspace(): Workspace {
   return {
     schemaVersion: 2,
     taskCategories,
+    calendarEvents: [],
     tasks: [
       {
         id: makeId(),
@@ -257,6 +274,43 @@ function collection<T extends { id: string }>(
   return result
 }
 
+function calendarDate(value: unknown, label: string): string {
+  const result = text(value, label, 10)
+  const parsed = new Date(`${result}T00:00:00Z`)
+  if (
+    !/^\d{4}-\d{2}-\d{2}$/.test(result) ||
+    !Number.isFinite(parsed.getTime()) ||
+    parsed.toISOString().slice(0, 10) !== result
+  )
+    invalid(`${label}不是有效日期`)
+  return result
+}
+
+export function validateCalendarEvent(value: unknown): CalendarEvent {
+  const item = record(value, '日程')
+  const base = {
+    id: text(item.id, '日程 ID', 200),
+    title: text(item.title, '日程标题', 200).trim(),
+    description: text(item.description, '日程备注', 5000, true),
+    location: text(item.location, '日程地点', 200, true),
+    createdAt: timestamp(item.createdAt, '日程创建时间'),
+    updatedAt: timestamp(item.updatedAt, '日程更新时间'),
+  }
+  if (typeof item.allDay !== 'boolean') invalid('日程全天选项无效')
+  if (item.allDay) {
+    if (item.startAt !== undefined || item.endAt !== undefined) invalid('全天日程不能包含具体时刻')
+    const startDate = calendarDate(item.startDate, '日程开始日期')
+    const endDate = calendarDate(item.endDate, '日程结束日期')
+    if (endDate < startDate) invalid('日程结束日期不能早于开始日期')
+    return { ...base, allDay: true, startDate, endDate }
+  }
+  if (item.startDate !== undefined || item.endDate !== undefined) invalid('定时日程应使用具体时刻')
+  const startAt = timestamp(item.startAt, '日程开始时间')
+  const endAt = timestamp(item.endAt, '日程结束时间')
+  if (Date.parse(endAt) <= Date.parse(startAt)) invalid('日程结束时间必须晚于开始时间')
+  return { ...base, allDay: false, startAt, endAt }
+}
+
 /** Unversioned/v1 backups migrate to v2 in memory; existing tasks remain uncategorized. */
 export function validateWorkspace(data: unknown): Workspace {
   const root = record(data, '工作台')
@@ -292,6 +346,10 @@ export function validateWorkspace(data: unknown): Workspace {
   return {
     schemaVersion: 2,
     taskCategories,
+    calendarEvents:
+      root.calendarEvents === undefined
+        ? []
+        : collection(root.calendarEvents, '日程', validateCalendarEvent),
     tasks: collection(root.tasks, '任务', (value): Task => {
       const item = record(value, '任务')
       if (!['high', 'medium', 'low'].includes(item.priority as string)) invalid('任务优先级错误')

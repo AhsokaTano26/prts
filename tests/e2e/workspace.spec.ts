@@ -194,7 +194,7 @@ for (const width of [1440, 1280, 1024, 768, 390, 320]) {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)
     expect(overflow).toBe(false)
     await expect(
-      page.getByRole('button', { name: '搜索任务、笔记或文件', exact: true }),
+      page.getByRole('button', { name: '搜索任务、日程、笔记或文件', exact: true }),
     ).toBeVisible()
     if (width >= 768) {
       await expect(

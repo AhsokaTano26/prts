@@ -370,11 +370,12 @@ export default function SettingsView({
                   <div>
                     <h3>你的工作，留在你手中。</h3>
                     <p>
-                      任务、分类、笔记和设置保存在服务器
+                      任务、分类、日程、笔记和设置保存在服务器
                       SQLite。登录同一终端即可在其他设备访问，也可导出工作台 JSON 备份。
                     </p>
                     <span className="data-count mono">
-                      {workspace.tasks.length} TASKS · {workspace.notes.length} NOTES · SQLITE
+                      {workspace.tasks.length} TASKS · {workspace.calendarEvents.length} EVENTS ·{' '}
+                      {workspace.notes.length} NOTES · SQLITE
                     </span>
                   </div>
                   <div className="backup-actions">
@@ -401,7 +402,7 @@ export default function SettingsView({
                 </div>
                 <p className="backup-note">
                   <Check size={13} />此 JSON
-                  包含任务、分类、笔记、工作台设置与活动记录，不含文件、聊天和助手偏好。完整数据库由服务器备份。
+                  包含任务、分类、日程、笔记、工作台设置与活动记录，不含文件、聊天和助手偏好。完整数据库由服务器备份。
                 </p>
               </section>
             )}
@@ -416,8 +417,9 @@ export default function SettingsView({
       {pendingImport && (
         <Modal title="确认导入工作台备份" onClose={() => setPendingImport(null)}>
           <p className="modal-copy">
-            备份包含 {pendingImport.tasks.length} 项任务、{pendingImport.notes.length}{' '}
-            篇笔记。导入后将替换当前工作台数据。建议先导出当前备份。
+            备份包含 {pendingImport.tasks.length} 项任务、{pendingImport.notes.length} 篇笔记、
+            {pendingImport.calendarEvents.length}{' '}
+            项日程。导入后将替换当前工作台数据。建议先导出当前备份。
           </p>
           <p className="field-hint">文件库和数据库中的对话记录不受影响。</p>
           <div className="modal-actions">
