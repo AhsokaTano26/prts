@@ -15,6 +15,7 @@ import { createWorkspaceTools } from './assistant-tools.mjs'
 import { createNotifications } from './notifications.mjs'
 import { createPasskeys } from './passkeys.mjs'
 import { createCalendarSubscription } from './calendar-subscription.mjs'
+import { calendarTimeZone } from './assistant-calendar.mjs'
 import { createLogger, errorDetails, observeRequest } from './logging.mjs'
 
 const DEFAULT_DIST = fileURLToPath(new URL('../dist/', import.meta.url))
@@ -564,14 +565,15 @@ async function route(
       storage.getDocument('preferences')?.value.assistant,
     )
     const messages = validateMessages(payload, persona)
+    const timeZone = calendarTimeZone(payload.timeZone)
     if (!config.configured) return completeChat(response, messages, config, upstreamTimeoutMs)
     const sources = await corpus.context(messages, knowledge)
     auth.requireSession(request)
-    const agent = workspaceTools.session()
+    const agent = workspaceTools.session({ timeZone })
     const result = await completeChat(
       response,
       [
-        systemMessage(persona, sources, workspaceTools.overview(), {
+        systemMessage(persona, sources, workspaceTools.overview(timeZone), {
           autoConfirm: agent.autoConfirm,
         }),
         ...messages,

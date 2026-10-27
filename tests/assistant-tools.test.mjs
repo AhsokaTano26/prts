@@ -118,6 +118,113 @@ function autoConfirm(client, enabled) {
   })
 }
 
+test('chat advertises calendar tools, uses client dates and confirms a real calendar mutation', async (t) => {
+  const client = await fixture(t, (body, round) => {
+    if (round === 0)
+      return {
+        content: null,
+        tool_calls: [
+          toolCall('get_workspace', {}),
+          toolCall('search_workspace', {
+            kind: 'events',
+            fromDate: '2026-10-27',
+            toDate: '2026-10-27',
+          }),
+        ],
+      }
+    if (round === 1) {
+      const found = JSON.parse(body.messages.at(-1).content)
+      if (found.error) return { content: `日程查询失败：${found.error}` }
+      return {
+        content: null,
+        tool_calls: [
+          toolCall('propose_workspace_change', {
+            operation: 'create_calendar_event',
+            fields: {
+              title: 'AI 日程集成',
+              allDay: false,
+              location: '评审室',
+              startAt: '2026-10-27T15:00:00+08:00',
+              endAt: '2026-10-27T16:00:00+08:00',
+            },
+          }),
+        ],
+      }
+    }
+    return { content: '博士，日程已准备，等待确认。' }
+  })
+  const current = client.storage.getDocument('workspace')
+  current.value.calendarEvents = [
+    {
+      id: 'calendar-seed',
+      title: '本地今天的安排',
+      description: '',
+      location: '',
+      allDay: false,
+      startAt: '2026-10-26T16:00:00Z',
+      endAt: '2026-10-26T17:00:00Z',
+      createdAt: '2026-10-26T00:00:00Z',
+      updatedAt: '2026-10-26T00:00:00Z',
+    },
+  ]
+  client.storage.putDocument('workspace', {
+    value: current.value,
+    expectedRevision: current.revision,
+    mutationId: randomUUID(),
+  })
+  const response = await client.call('/api/chat', {
+    messages: [
+      { role: 'user', content: '查看我10月27日的安排，再新建15:00到16:00的日程：AI 日程集成' },
+    ],
+    knowledge: 'none',
+    timeZone: 'Asia/Shanghai',
+  })
+  assert.equal(response.status, 200)
+  const result = await response.json()
+  const advertised = client.requests[0].tools
+  const mutationSchema = advertised.find(
+    (item) => item.function.name === 'propose_workspace_change',
+  ).function.parameters.properties
+  assert.ok(mutationSchema.operation.enum.includes('create_calendar_event'))
+  assert.ok(mutationSchema.fields.properties.startAt)
+  const reads = client.requests[1].messages
+    .filter((item) => item.role === 'tool')
+    .map((item) => JSON.parse(item.content))
+  assert.equal(reads[0].timeZone, 'Asia/Shanghai')
+  assert.equal(reads[1].error, undefined)
+  assert.deepEqual(
+    reads[1].results.map((item) => item.id),
+    ['calendar-seed'],
+  )
+  assert.equal(result.actions?.length, 1)
+  assert.equal(result.actions[0].status, 'pending')
+  assert.equal(client.storage.getDocument('workspace').value.calendarEvents.length, 1)
+  assert.equal(
+    (await client.call(`/api/assistant/actions/${result.actions[0].id}`, { decision: 'apply' }))
+      .status,
+    200,
+  )
+  const created = client.storage
+    .getDocument('workspace')
+    .value.calendarEvents.find((item) => item.title === 'AI 日程集成')
+  assert.equal(created.startAt, '2026-10-27T15:00:00+08:00')
+  assert.equal(created.location, '评审室')
+})
+
+test('invalid client timezones are rejected before contacting the provider while old clients remain compatible', async (t) => {
+  const client = await fixture(t, () => ({ content: '已读取。' }))
+  for (const timeZone of [null, 42, '../private', 'x'.repeat(101)]) {
+    const response = await client.call('/api/chat', {
+      messages: [{ role: 'user', content: '查看日程' }],
+      knowledge: 'none',
+      timeZone,
+    })
+    assert.equal(response.status, 400)
+  }
+  assert.equal(client.requests.length, 0)
+  assert.equal((await client.chat()).status, 200)
+})
+
 test('one authenticated batch confirms multiple changes atomically and repeat requests are idempotent', async (t) => {
   const client = await fixture(t, () => ({ content: 'ok' }))
   const tools = createWorkspaceTools(client.server.database, client.storage)

@@ -7,8 +7,11 @@ import {
   deleteTaskCategory,
 } from '../src/lib/taskCategories.ts'
 import { ASSISTANT_OPERATIONS } from '../src/lib/assistantTools.ts'
+import { changeCalendar, searchCalendar } from './assistant-calendar.mjs'
 
 const actionLifetime = 30 * 60_000
+const changeFieldsDescription =
+  '创建任务或日程须title；修改/删除须id。日程用create_calendar_event/update_calendar_event/delete_calendar_event；定时须startAt/endAt（带时区），全天须allDay=true及startDate/endDate；切换类型须完整新范围。分类须name；笔记正文用content；普通设置只支持name/focusMinutes/sound。'
 const fieldsSchema = {
   type: 'object',
   additionalProperties: false,
@@ -28,6 +31,22 @@ const fieldsSchema = {
     name: { type: 'string' },
     focusMinutes: { type: 'integer', minimum: 1, maximum: 180 },
     sound: { type: 'boolean' },
+    description: { type: 'string', maxLength: 5000, description: '日程备注' },
+    location: { type: 'string', maxLength: 200, description: '日程地点' },
+    allDay: {
+      type: 'boolean',
+      description: '日程是否全天；新建默认 false。切换类型时须给出新类型的完整起止范围。',
+    },
+    startDate: { type: 'string', description: '全天日程开始日期 YYYY-MM-DD' },
+    endDate: { type: 'string', description: '全天日程结束日期 YYYY-MM-DD，包含当天' },
+    startAt: {
+      type: 'string',
+      description: '定时日程开始时间，须带时区的 ISO 日期时间；例如 2026-10-27T15:00:00+08:00',
+    },
+    endAt: {
+      type: 'string',
+      description: '定时日程结束时间，须带时区的 ISO 日期时间，并晚于 startAt',
+    },
   },
 }
 const tool = (name, description, properties, required = []) => ({
@@ -41,24 +60,31 @@ const tool = (name, description, properties, required = []) => ({
 export const WORKSPACE_TOOLS = [
   tool(
     'get_workspace',
-    '读取当前任务、分类、笔记目录、文件目录、普通设置及专注状态的有界摘要。详细内容通过其他工具读取。',
+    '读取当前任务、日程、分类、笔记目录、文件目录、普通设置、客户端时区及专注状态的有界摘要。详细内容或日期范围通过其他工具读取。',
     {},
   ),
   tool(
     'search_workspace',
-    '检索或分页列出工作台任务、笔记和文件。query为空列出所有；返回记录ID，笔记仅返回摘要。',
+    '检索或分页列出任务、日程、笔记和文件。query为空列出所有；返回ID与摘要。按日期查询日程用kind=events和fromDate/toDate，可指定IANA timeZone，默认使用当前客户端时区；日期范围包含两端。',
     {
       query: { type: 'string' },
-      kind: { type: 'string', enum: ['all', 'tasks', 'notes', 'files'] },
+      kind: { type: 'string', enum: ['all', 'tasks', 'events', 'notes', 'files'] },
       offset: { type: 'integer', minimum: 0 },
       limit: { type: 'integer', minimum: 1, maximum: 20 },
+      fromDate: { type: 'string', description: '仅kind=events，查询起始日期 YYYY-MM-DD' },
+      toDate: { type: 'string', description: '仅kind=events，查询结束日期 YYYY-MM-DD（含当天）' },
+      timeZone: {
+        type: 'string',
+        description:
+          '仅kind=events，可选IANA时区，如Asia/Shanghai；日期查询在未知客户端时区时必须指定',
+      },
     },
   ),
   tool(
     'read_workspace_item',
-    '按已知ID读取任务、笔记正文或UTF-8文本附件；支持offset/limit分页。不能读取服务器路径、密码或密钥；不支持PDF/二进制解析。',
+    '按已知ID读取任务、完整日程、笔记正文或UTF-8文本附件；笔记与附件支持offset/limit分页。不能读取服务器路径、密码或密钥；不支持PDF/二进制解析。',
     {
-      kind: { type: 'string', enum: ['task', 'note', 'file'] },
+      kind: { type: 'string', enum: ['task', 'event', 'note', 'file'] },
       id: { type: 'string' },
       offset: { type: 'integer', minimum: 0 },
       limit: { type: 'integer', minimum: 1, maximum: 8000 },
@@ -67,7 +93,7 @@ export const WORKSPACE_TOOLS = [
   ),
   tool(
     'propose_workspace_change',
-    '仅在用户明确要求修改时准备一项操作。返回待确认卡片；只有用户在界面确认后才执行，不可声称已完成。创建任务须title；修改/删除须id；分类须name；笔记正文用content；普通设置只支持name/focusMinutes/sound。',
+    `仅在用户明确要求修改时准备一项操作。返回待确认卡片；只有用户在界面确认后才执行，不可声称已完成。${changeFieldsDescription}`,
     {
       operation: { type: 'string', enum: [...ASSISTANT_OPERATIONS] },
       id: { type: 'string' },
@@ -117,7 +143,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
     if (!document) throw new HttpError(409, '工作台尚未初始化，请先创建工作台。')
     return document
   }
-  function overview() {
+  function overview(timeZone = null) {
     const document = storage.getDocument('workspace')
     const files = storage.listFiles().files
     const focus = storage.getDocument('focus')?.value ?? null
@@ -125,6 +151,8 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       return {
         initialized: false,
         currentTime: new Date(now()).toISOString(),
+        timeZone,
+        calendarEvents: [],
         tasks: [],
         notes: [],
         files: files.slice(0, 10),
@@ -133,6 +161,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
     const { value, revision } = document
     return {
       currentTime: new Date(now()).toISOString(),
+      timeZone,
       revision,
       settings: value.settings,
       focus,
@@ -140,36 +169,53 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       counts: {
         tasks: value.tasks.length,
         incompleteTasks: value.tasks.filter((task) => !task.done).length,
+        calendarEvents: (value.calendarEvents || []).length,
         notes: value.notes.length,
         files: files.length,
       },
       categories: value.taskCategories,
       tasks: value.tasks.slice(0, 20),
+      calendarEvents: (value.calendarEvents || [])
+        .slice(0, 10)
+        .map(({ description, ...event }) => event),
       notes: value.notes
         .slice(0, 10)
         .map(({ id, title, tag, updatedAt, pinned }) => ({ id, title, tag, updatedAt, pinned })),
       files: files.slice(0, 10),
       truncated: {
         tasks: value.tasks.length > 20,
+        calendarEvents: (value.calendarEvents || []).length > 10,
         notes: value.notes.length > 10,
         files: files.length > 10,
       },
     }
   }
-  function search(args) {
-    onlyKeys(args, ['query', 'kind', 'offset', 'limit'])
+  function search(args, timeZone) {
+    onlyKeys(args, ['query', 'kind', 'offset', 'limit', 'fromDate', 'toDate', 'timeZone'])
     const { offset, limit } = page({ ...args, limit: args.limit ?? 10 }, 20)
     const query = args.query ?? '',
       kind = args.kind ?? 'all'
     if (
       typeof query !== 'string' ||
       query.length > 200 ||
-      !['all', 'tasks', 'notes', 'files'].includes(kind)
+      !['all', 'tasks', 'events', 'notes', 'files'].includes(kind)
     )
       throw new HttpError(400, '检索条件无效。')
+    if (
+      kind !== 'events' &&
+      ['fromDate', 'toDate', 'timeZone'].some((key) => Object.hasOwn(args, key))
+    )
+      throw new HttpError(400, '日期范围与时区参数仅支持kind=events的日程查询。')
     const needle = query.toLocaleLowerCase().trim()
     const value = workspace().value
     const items = []
+    if (kind === 'all' || kind === 'events')
+      for (const { description, ...item } of searchCalendar(
+        value.calendarEvents || [],
+        args,
+        timeZone,
+      ))
+        items.push({ kind: 'event', ...item, excerpt: clip(description, 600) })
     if (kind === 'all' || kind === 'tasks')
       for (const item of value.tasks) {
         if (!needle || item.title.toLocaleLowerCase().includes(needle))
@@ -208,6 +254,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
     if (typeof args.id !== 'string' || args.id.length > 200)
       throw new HttpError(400, '记录ID无效。')
     if (args.kind === 'task') return target(workspace().value.tasks, args.id)
+    if (args.kind === 'event') return target(workspace().value.calendarEvents || [], args.id)
     let text, metadata
     if (args.kind === 'note') {
       const note = target(workspace().value.notes, args.id)
@@ -232,7 +279,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       }
       if (text.includes('\0')) throw new HttpError(400, '附件包含二进制内容。')
       metadata = file
-    } else throw new HttpError(400, '只支持读取任务、笔记和文本附件。')
+    } else throw new HttpError(400, '只支持读取任务、日程、笔记和文本附件。')
     return {
       ...metadata,
       content: text.slice(offset, offset + limit),
@@ -284,6 +331,10 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       }
       before = document?.value
       after = value
+    } else if (operation.endsWith('_calendar_event')) {
+      const result = changeCalendar(value.calendarEvents || [], change, now())
+      value.calendarEvents = result.events
+      ;({ before, after, summary } = result)
     } else if (operation.endsWith('_task')) {
       onlyKeys(
         fields,
@@ -406,8 +457,14 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
         focusMinutes: '专注时长（分钟）',
         sound: '完成提示音',
         remaining: '剩余时间',
-        endAt: '计时结束于',
+        endAt: focusOperation ? '计时结束于' : '结束时间',
         explanation: '说明',
+        description: '备注',
+        location: '地点',
+        allDay: '全天',
+        startDate: '开始日期',
+        endDate: '结束日期（含当天）',
+        startAt: '开始时间',
       }
       return Object.entries(item)
         .filter(([key]) => Object.hasOwn(labels, key))
@@ -416,7 +473,8 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
             val = current.taskCategories.find((category) => category.id === val)?.name || '未分类'
           if (key === 'priority') val = { high: '高', medium: '中', low: '低' }[val]
           if (key === 'remaining') val = `${Math.floor(val / 60)} 分 ${val % 60} 秒`
-          if (key === 'endAt') val = val === null ? '未运行' : new Date(val).toISOString()
+          if (key === 'endAt' && focusOperation)
+            val = val === null ? '未运行' : new Date(val).toISOString()
           if (typeof val === 'boolean') val = val ? '是' : '否'
           return `${labels[key]}：${clip(String(val ?? ''), isBefore ? 1000 : 6000) || '空'}`
         })
@@ -451,7 +509,9 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
   function guard(change) {
     const value = workspace().value
     let relevant
-    if (change.operation.endsWith('_task'))
+    if (change.operation.endsWith('_calendar_event'))
+      relevant = value.calendarEvents?.find((item) => item.id === change.id) ?? null
+    else if (change.operation.endsWith('_task'))
       relevant = value.tasks.find((item) => item.id === change.id) ?? null
     else if (change.operation.endsWith('_note'))
       relevant = value.notes.find((item) => item.id === change.id) ?? null
@@ -558,7 +618,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
   function decide(id, decision) {
     return { action: decideBatch([id], decision).actions[0] }
   }
-  function session() {
+  function session({ timeZone = null } = {}) {
     const actions = [],
       toolsUsed = []
     const autoConfirm = storage.getDocument('preferences')?.value.assistantAutoConfirm === true
@@ -570,8 +630,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
               ...tool,
               function: {
                 ...tool.function,
-                description:
-                  '仅在用户明确要求修改时准备操作。用户已开启自动确认；所有准备成功的操作将在最终回复生成后作为一个事务自动执行。当前工具尚未写入，不要提前声称完成；最终状态由系统卡片展示。',
+                description: `仅在用户明确要求修改时准备操作。用户已开启自动确认：所有准备成功的操作将在最终回复生成后作为一个事务自动执行。无需要求手动确认；当前工具尚未写入，不要提前声称完成，最终状态由系统卡片展示。${changeFieldsDescription}`,
               },
             }
           : tool,
@@ -614,8 +673,8 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
           }
           if (name === 'get_workspace') {
             onlyKeys(args, [])
-            result = overview()
-          } else if (name === 'search_workspace') result = search(args)
+            result = overview(timeZone)
+          } else if (name === 'search_workspace') result = search(args, timeZone)
           else if (name === 'read_workspace_item') result = read(args)
           else if (name === 'propose_workspace_change') {
             const proposed = prepare(args)

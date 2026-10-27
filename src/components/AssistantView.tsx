@@ -296,6 +296,7 @@ export default function AssistantView({
             messages: history,
             persona: preferences.persona,
             knowledge: preferences.knowledge,
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           }),
           signal: requestController.signal,
         })
@@ -528,10 +529,11 @@ export default function AssistantView({
                   <span>当前人格已启用 · 每个人格独立保留对话</span>
                 </p>
                 <p>
-                  开启自动确认后，后续回复中的任务、笔记、分类、普通设置和计时修改会自动执行，包括删除。结果仍保留在对话中；已有待确认操作需手动处理。
+                  开启自动确认后，后续回复中的任务、日程、笔记、分类、普通设置和计时修改会自动执行，包括删除。结果仍保留在对话中；已有待确认操作需手动处理。
                 </p>
                 <p className="assistant-access-note">
-                  已连接工作台：可按需读取任务、笔记与文本附件，相关内容会发送给你配置的 AI 服务。
+                  已连接工作台：可按需读取任务、日程、笔记与文本附件，相关内容会发送给你配置的 AI
+                  服务。
                   {autoConfirm
                     ? '本轮修改将统一自动执行。'
                     : '本轮修改合并到一张操作卡片，统一确认。'}
@@ -570,8 +572,8 @@ export default function AssistantView({
                       ? '查看今天的任务，找回一个想法，或记录新的目标。'
                       : health.configured
                         ? autoConfirm
-                          ? '查看工作台、整理任务与笔记，按你的要求自动执行修改。'
-                          : '查看工作台、整理任务与笔记，或为你准备待确认的操作。'
+                          ? '查看工作台、安排日程、整理任务与笔记，按你的要求自动执行修改。'
+                          : '查看工作台、安排日程、整理任务与笔记，或为你准备待确认的操作。'
                         : '连接你自己的 AI 服务，开启与 PRTS 的对话。'}
                   </p>
                   {mode === 'ai' && !health.configured ? (
@@ -584,7 +586,7 @@ export default function AssistantView({
                       {(mode === 'local'
                         ? ['查看今日任务', '查看笔记', '专注状态']
                         : [
-                            '根据我的未完成任务安排今天的计划',
+                            '根据我的任务和日程安排今天的计划',
                             '阿米娅与罗德岛有什么关系？',
                             '帮我新建一个高优先级任务：整理本周计划',
                           ]
