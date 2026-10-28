@@ -324,24 +324,6 @@
 .calendar-editor-dialog textarea {
   resize: vertical;
 }
-.calendar-all-day {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  min-height: 48px;
-  padding: 12px 0 0;
-  font-size: 13px;
-}
-.calendar-all-day input {
-  width: 17px;
-  height: 17px;
-  accent-color: var(--accent);
-}
-.calendar-all-day small {
-  color: var(--muted);
-  font-size: 11px;
-}
 .sidebar > nav {
   min-height: 0;
   overflow-y: auto;

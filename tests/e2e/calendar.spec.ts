@@ -11,7 +11,7 @@ async function selectDay(page: Page, day: string) {
 async function createEvent(page: Page, title: string, allDay = false) {
   await page.getByRole('button', { name: '新建日程', exact: true }).click()
   await page.getByLabel('日程标题', { exact: true }).fill(title)
-  if (allDay) await page.getByLabel('全天日程', { exact: true }).check()
+  if (allDay) await page.getByRole('switch', { name: '全天日程', exact: true }).click()
   await page.getByRole('button', { name: '创建日程', exact: true }).click()
   await expect(page.getByRole('dialog', { name: '新建日程', exact: true })).toHaveCount(0)
   await waitSaved(page)
@@ -87,7 +87,7 @@ test('all-day events cover their inclusive date range and appear in global searc
 }) => {
   await page.getByRole('button', { name: '新建日程', exact: true }).click()
   await page.getByLabel('日程标题', { exact: true }).fill('项目出行安排')
-  await page.getByLabel('全天日程', { exact: true }).check()
+  await page.getByRole('switch', { name: '全天日程', exact: true }).click()
   await page.getByLabel('结束日期', { exact: true }).fill(tomorrow)
   await page.getByRole('button', { name: '创建日程', exact: true }).click()
   await selectDay(page, tomorrow)
@@ -100,7 +100,10 @@ test('all-day events cover their inclusive date range and appear in global searc
   await page.getByRole('combobox').fill('项目出行安排')
   await page.getByRole('option', { name: /项目出行安排/ }).click()
   await expect(page.getByRole('dialog', { name: '编辑日程', exact: true })).toBeVisible()
-  await expect(page.getByLabel('全天日程', { exact: true })).toBeChecked()
+  await expect(page.getByRole('switch', { name: '全天日程', exact: true })).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
 })
 
 test('calendar task actions share existing task state and deadline editing', async ({ page }) => {

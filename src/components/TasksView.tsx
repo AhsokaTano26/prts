@@ -12,6 +12,7 @@ import {
 import type { Task, TaskCategory } from '../lib/workspace'
 import { Modal } from './UI'
 import PrtsSelect from './PrtsSelect'
+import { PrtsDatePicker, PrtsTimePicker } from './PrtsDateTimePicker'
 import TaskCategoriesDialog from './TaskCategoriesDialog'
 import { taskLocalDate, taskLocalTime, editedTaskDeadline } from '../lib/reminders'
 import { transitionView } from '../lib/motion'
@@ -159,25 +160,26 @@ export function TaskDialog({
             <label className="form-label" htmlFor="task-date">
               截止日期
             </label>
-            <input
+            <PrtsDatePicker
               id="task-date"
-              type="date"
-              className="field"
+              label="截止日期"
               value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              onValueChange={(value) => {
+                setDueDate(value)
+                setTimeError('')
+              }}
             />
           </div>
         </div>
         <label className="form-label" htmlFor="task-time">
           截止时间（可选）
         </label>
-        <input
+        <PrtsTimePicker
           id="task-time"
-          type="time"
-          className="field"
+          label="截止时间"
           value={dueTime}
-          onChange={(event) => {
-            setDueTime(event.target.value)
+          onValueChange={(value) => {
+            setDueTime(value)
             setTimeError('')
           }}
         />

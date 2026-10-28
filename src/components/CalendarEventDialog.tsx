@@ -4,6 +4,8 @@ import { makeId, type CalendarEvent } from '../lib/workspace'
 import { calendarDraft, eventFromDraft, type CalendarDraft } from '../lib/calendar'
 import { Modal } from './UI'
 import type { TimeRange } from '../lib/calendarTimeline'
+import { PrtsDatePicker, PrtsTimePicker } from './PrtsDateTimePicker'
+import PrtsSwitch from './PrtsSwitch'
 
 export default function CalendarEventDialog({
   event,
@@ -105,45 +107,39 @@ export default function CalendarEventDialog({
           placeholder="为接下来的时间，留一个安排"
           onChange={(e) => change('title', e.target.value)}
         />
-        <label className="calendar-all-day">
-          <input
-            type="checkbox"
-            aria-label="全天日程"
-            checked={draft.allDay}
-            onChange={(e) => change('allDay', e.target.checked)}
-          />
-          <span>全天日程</span>
-          <small>不指定具体时刻</small>
-        </label>
+        <PrtsSwitch
+          label="全天日程"
+          description="不指定具体时刻"
+          checked={draft.allDay}
+          disabled={busy}
+          onCheckedChange={(value) => change('allDay', value)}
+        />
         <div className="form-row calendar-date-row">
           <div>
             <label className="form-label" htmlFor="event-start-date">
               开始日期
             </label>
-            <input
+            <PrtsDatePicker
               id="event-start-date"
-              type="date"
-              className="field"
+              label="开始日期"
               required
-              min="0001-01-01"
-              max="9999-12-31"
+              disabled={busy}
               value={draft.startDate}
-              onChange={(e) => change('startDate', e.target.value)}
+              onValueChange={(value) => change('startDate', value)}
             />
           </div>
           <div>
             <label className="form-label" htmlFor="event-end-date">
               结束日期
             </label>
-            <input
+            <PrtsDatePicker
               id="event-end-date"
-              type="date"
-              className="field"
+              label="结束日期"
               required
+              disabled={busy}
               min={draft.startDate || '0001-01-01'}
-              max="9999-12-31"
               value={draft.endDate}
-              onChange={(e) => change('endDate', e.target.value)}
+              onValueChange={(value) => change('endDate', value)}
             />
           </div>
         </div>
@@ -153,26 +149,26 @@ export default function CalendarEventDialog({
               <label className="form-label" htmlFor="event-start-time">
                 开始时间
               </label>
-              <input
+              <PrtsTimePicker
                 id="event-start-time"
-                type="time"
-                className="field"
+                label="开始时间"
+                disabled={busy}
                 value={draft.startTime}
                 required
-                onChange={(e) => change('startTime', e.target.value)}
+                onValueChange={(value) => change('startTime', value)}
               />
             </div>
             <div>
               <label className="form-label" htmlFor="event-end-time">
                 结束时间
               </label>
-              <input
+              <PrtsTimePicker
                 id="event-end-time"
-                type="time"
-                className="field"
+                label="结束时间"
+                disabled={busy}
                 value={draft.endTime}
                 required
-                onChange={(e) => change('endTime', e.target.value)}
+                onValueChange={(value) => change('endTime', value)}
               />
             </div>
           </div>
