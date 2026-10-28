@@ -70,6 +70,7 @@ test('custom category columns support task moves, rename, safe deletion and relo
   await study.getByRole('checkbox', { name: '完成任务：验证分类迁移', exact: true }).click()
   await waitSaved(page)
   await page.reload()
+  await page.getByRole('button', { name: /^全部任务/ }).click()
   await expect(
     study.getByRole('checkbox', { name: '恢复任务：验证分类迁移', exact: true }),
   ).toHaveAttribute('aria-checked', 'true')
@@ -98,6 +99,7 @@ test('custom category columns support task moves, rename, safe deletion and relo
   ).toHaveAttribute('aria-checked', 'true')
   await waitSaved(page)
   await page.reload()
+  await page.getByRole('button', { name: /^全部任务/ }).click()
   await expect(
     page
       .getByRole('region', { name: /未分类/ })

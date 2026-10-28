@@ -5,7 +5,6 @@ import {
   ChevronRight,
   CalendarDays,
   MapPin,
-  Check,
   ArrowUpRight,
   ListTodo,
   Rss,
@@ -24,6 +23,8 @@ import { taskLocalDate } from '../lib/reminders'
 import { actualMonthDays, weekDays } from '../lib/calendarTimeline'
 import CalendarTimeGrid from './CalendarTimeGrid'
 import CalendarSubscriptionDialog from './CalendarSubscriptionDialog'
+import TaskCompletionCheck from './TaskCompletionCheck'
+import { useTaskCompletion } from '../lib/useTaskCompletion'
 import '../styles/calendar.css'
 
 function fullDate(day: string) {
@@ -54,6 +55,7 @@ export default function CalendarView({
   const [view, setView] = useState<'month' | 'week' | 'day'>('month')
   const [monthLayout, setMonthLayout] = useState<'calendar' | 'timeline'>('calendar')
   const [subscriptionOpen, setSubscriptionOpen] = useState(false)
+  const { completingIds, toggleWithFeedback } = useTaskCompletion(workspace.tasks, onToggleTask)
   const isMonthCalendar = view === 'month' && monthLayout === 'calendar'
   const month = selected.slice(0, 7)
   const days = useMemo(() => monthDays(`${month}-01`), [month])
@@ -103,13 +105,15 @@ export default function CalendarView({
             events,
             tasks: (tasks.get(day) || []).sort(
               (a, b) =>
-                Number(a.done) - Number(b.done) || (a.dueAt || '').localeCompare(b.dueAt || ''),
+                Number(a.done && !completingIds.has(a.id)) -
+                  Number(b.done && !completingIds.has(b.id)) ||
+                (a.dueAt || '').localeCompare(b.dueAt || ''),
             ),
           },
         ] as const
       }),
     )
-  }, [displayedDays, workspace.calendarEvents, workspace.tasks])
+  }, [displayedDays, workspace.calendarEvents, workspace.tasks, completingIds])
   useEffect(() => {
     if (pendingFocus.current) {
       buttons.current.get(selected)?.focus({ preventScroll: true })
@@ -434,16 +438,17 @@ export default function CalendarView({
               <p className="calendar-no-tasks">当天没有截止任务。</p>
             ) : (
               current.tasks.map((task) => (
-                <div className={`calendar-task-row${task.done ? ' is-done' : ''}`} key={task.id}>
-                  <button
-                    className="task-check"
-                    role="checkbox"
-                    aria-checked={task.done}
-                    aria-label={`${task.done ? '恢复' : '完成'}任务：${task.title}`}
-                    onClick={() => onToggleTask(task.id)}
-                  >
-                    {task.done && <Check size={13} />}
-                  </button>
+                <div
+                  className={`calendar-task-row task-completion-target${task.done ? ' is-done' : ''}${task.done && completingIds.has(task.id) ? ' is-completing' : ''}`}
+                  key={task.id}
+                  data-task-id={task.id}
+                  data-completing={task.done && completingIds.has(task.id) ? 'true' : undefined}
+                >
+                  <TaskCompletionCheck
+                    task={task}
+                    completing={task.done && completingIds.has(task.id)}
+                    onToggle={toggleWithFeedback}
+                  />
                   <button
                     className="calendar-task-title"
                     onClick={() => onEditTask(task)}

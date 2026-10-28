@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useCallback, useRef, useState, type FormEvent } from 'react'
 import {
   Plus,
   Search,
@@ -16,6 +16,8 @@ import { PrtsDatePicker, PrtsTimePicker } from './PrtsDateTimePicker'
 import TaskCategoriesDialog from './TaskCategoriesDialog'
 import { taskLocalDate, taskLocalTime, editedTaskDeadline } from '../lib/reminders'
 import { transitionView } from '../lib/motion'
+import { useTaskCompletion } from '../lib/useTaskCompletion'
+import TaskCompletionCheck from './TaskCompletionCheck'
 import '../styles/task-board.css'
 
 const priorityNames = { high: '高优先级', medium: '中优先级', low: '低优先级' }
@@ -219,10 +221,14 @@ function TaskCard({
   task,
   onToggle,
   onEdit,
+  completing,
+  leaving,
 }: {
   task: Task
   onToggle: (id: string) => void
   onEdit: (task: Task) => void
+  completing: boolean
+  leaving: boolean
 }) {
   const localToday = new Date().toLocaleDateString('en-CA')
   const dueDate = taskLocalDate(task)
@@ -231,18 +237,13 @@ function TaskCard({
     (task.dueAt ? Date.parse(task.dueAt) < Date.now() : Boolean(dueDate && dueDate < localToday))
   const due = dueDate === localToday ? '今天' : dueDate || '未设日期'
   return (
-    <article className={`task-card${task.done ? ' is-done' : ''}`}>
+    <article
+      className={`task-card task-completion-target${task.done ? ' is-done' : ''}${completing ? ' is-completing' : ''}${leaving ? ' task-card--leaving' : ''}`}
+      data-task-id={task.id}
+      data-completing={completing ? 'true' : undefined}
+    >
       <div className="task-card-main">
-        <button
-          type="button"
-          className="task-check"
-          role="checkbox"
-          aria-checked={task.done}
-          aria-label={`${task.done ? '恢复' : '完成'}任务：${task.title}`}
-          onClick={() => onToggle(task.id)}
-        >
-          {task.done && <Check size={13} strokeWidth={2.5} />}
-        </button>
+        <TaskCompletionCheck task={task} completing={completing} onToggle={onToggle} />
         <button type="button" className="task-card-title" onClick={() => onEdit(task)}>
           {task.title}
         </button>
@@ -291,11 +292,49 @@ export default function TasksView({
   onRenameCategory: (id: string, name: string) => string | undefined
   onDeleteCategory: (id: string) => string | undefined
 }) {
-  const [filter, setFilter] = useState('all'),
+  const [filter, setFilter] = useState('pending'),
     [query, setQuery] = useState(''),
     [priority, setPriority] = useState('all')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const requestedView = useRef({ category: null as string | null, filter: 'all', priority: 'all' })
+  const requestedView = useRef({
+    category: null as string | null,
+    filter: 'pending',
+    priority: 'all',
+  })
+  const board = useRef<HTMLDivElement>(null)
+  const pendingFilter = useRef<HTMLButtonElement>(null)
+
+  const focusAfterRemoval = useCallback((ids: string[]) => {
+    const active = document.activeElement
+    if (active instanceof HTMLElement) {
+      const card = active.closest<HTMLElement>('.task-card')
+      if (card && board.current?.contains(card) && ids.includes(card.dataset.taskId || '')) {
+        const cards = Array.from(board.current?.querySelectorAll<HTMLElement>('.task-card') || [])
+        const index = cards.indexOf(card)
+        const next = [...cards.slice(index + 1), ...cards.slice(0, index).reverse()].find(
+          (item) =>
+            !item.hasAttribute('data-completing') && !ids.includes(item.dataset.taskId || ''),
+        )
+        const target =
+          next?.querySelector<HTMLButtonElement>('[role="checkbox"]') || pendingFilter.current
+        target?.focus({ preventScroll: true })
+        if (document.documentElement.dataset.input === 'keyboard')
+          target?.scrollIntoView({ block: 'nearest', behavior: 'instant' })
+      }
+    }
+  }, [])
+
+  const beforeCompletionFinish = useCallback(
+    (ids: string[]) => {
+      if (filter === 'pending') focusAfterRemoval(ids)
+    },
+    [filter, focusAfterRemoval],
+  )
+  const { completingIds, toggleWithFeedback } = useTaskCompletion(
+    tasks,
+    onToggle,
+    beforeCompletionFinish,
+  )
   function changeView(patch: Partial<typeof requestedView.current>, direction = 1) {
     const previous = requestedView.current
     const next = { ...previous, ...patch }
@@ -339,13 +378,13 @@ export default function TasksView({
   const visible = scopedTasks
     .filter(
       (t) =>
-        (filter === 'all' || (filter === 'done' ? t.done : !t.done)) &&
+        (filter === 'all' || (filter === 'done' ? t.done : !t.done || completingIds.has(t.id))) &&
         (priority === 'all' || t.priority === priority) &&
         t.title.toLowerCase().includes(query.trim().toLowerCase()),
     )
     .sort(
       (a, b) =>
-        Number(a.done) - Number(b.done) ||
+        Number(a.done && !completingIds.has(a.id)) - Number(b.done && !completingIds.has(b.id)) ||
         { high: 0, medium: 1, low: 2 }[a.priority] - { high: 0, medium: 1, low: 2 }[b.priority],
     )
   return (
@@ -429,6 +468,7 @@ export default function TasksView({
           ].map(([id, label]) => (
             <button
               key={id}
+              ref={id === 'pending' ? pendingFilter : undefined}
               aria-pressed={filter === id}
               className={filter === id ? 'active' : ''}
               onClick={() => changeView({ filter: id })}
@@ -478,6 +518,7 @@ export default function TasksView({
         </p>
       )}
       <div
+        ref={board}
         className={`task-board-grid motion-collection${currentCategory !== null ? ' task-board-grid--single' : ''}`}
       >
         {columns.map((category) => {
@@ -504,7 +545,14 @@ export default function TasksView({
               </header>
               <div className="task-category-cards">
                 {columnTasks.map((task) => (
-                  <TaskCard key={task.id} task={task} onToggle={onToggle} onEdit={onEdit} />
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onToggle={toggleWithFeedback}
+                    onEdit={onEdit}
+                    completing={completingIds.has(task.id) && task.done}
+                    leaving={filter === 'pending' && completingIds.has(task.id) && task.done}
+                  />
                 ))}
                 {!columnTasks.length && (
                   <div className="task-category-empty">

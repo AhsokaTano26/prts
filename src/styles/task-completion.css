@@ -1,0 +1,187 @@
+.task-completion-target {
+  isolation: isolate;
+  overflow: hidden;
+}
+/* Completion is a one-second acknowledgement; the task has already been saved. */
+.task-completion-target.is-completing {
+  border-color: var(--accent);
+}
+.task-completion-target.is-completing::before,
+.task-completion-target.is-completing::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.task-completion-target.is-completing::before {
+  background: linear-gradient(
+    110deg,
+    color-mix(in srgb, var(--accent) 18%, transparent),
+    transparent 80%
+  );
+  animation: task-completion-glow 1000ms ease-out both;
+}
+.task-completion-target.is-completing::after {
+  width: 45%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--accent) 26%, transparent),
+    transparent
+  );
+  animation: task-completion-scan 1000ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.task-card--leaving {
+  animation: task-completion-exit 1000ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.task-completion-target.is-completing .task-check {
+  position: relative;
+  overflow: visible;
+  border-color: var(--accent);
+  background: var(--accent);
+  animation: task-completion-check 1000ms ease-out both;
+}
+.task-completion-target.is-completing .task-check svg {
+  overflow: visible;
+}
+.task-completion-target.is-completing .task-check polyline,
+.task-completion-target.is-completing .task-check path {
+  stroke-dasharray: 24;
+  animation: task-completion-draw 300ms ease-out both;
+}
+.task-completion-target.is-completing .task-check::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 1px solid var(--accent);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: task-completion-ring 800ms ease-out both;
+}
+.task-check-burst {
+  position: absolute;
+  inset: -8px;
+  pointer-events: none;
+  animation: task-completion-sparks 700ms 80ms ease-out both;
+}
+.task-check-burst i {
+  position: absolute;
+  display: block;
+  width: 2px;
+  height: 5px;
+  background: var(--accent);
+}
+.task-check-burst i:nth-child(1) {
+  top: 0;
+  left: 50%;
+}
+.task-check-burst i:nth-child(2) {
+  top: 50%;
+  right: 0;
+  transform: rotate(90deg);
+}
+.task-check-burst i:nth-child(3) {
+  bottom: 0;
+  left: 50%;
+}
+.task-check-burst i:nth-child(4) {
+  top: 50%;
+  left: 0;
+  transform: rotate(90deg);
+}
+@keyframes task-completion-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes task-completion-check {
+  0% {
+    transform: scale(0.95);
+  }
+  18% {
+    transform: scale(1.18);
+  }
+  38%,
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes task-completion-ring {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.95) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6) rotate(45deg);
+  }
+}
+@keyframes task-completion-sparks {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) rotate(0deg);
+  }
+  24% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.25) rotate(35deg);
+  }
+}
+@keyframes task-completion-scan {
+  0% {
+    opacity: 0;
+    transform: translateX(-150%) skewX(-18deg);
+  }
+  20% {
+    opacity: 1;
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: translateX(350%) skewX(-18deg);
+  }
+}
+@keyframes task-completion-glow {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes task-completion-exit {
+  0%,
+  78% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(12px) scale(0.98);
+  }
+}
+html[data-motion='off'] .task-completion-target.is-completing,
+html[data-motion='off'] .task-completion-target.is-completing *,
+html[data-motion='off'] .task-completion-target.is-completing::before,
+html[data-motion='off'] .task-completion-target.is-completing::after,
+html[data-motion='off'] .task-completion-target.is-completing .task-check::after {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .task-completion-target.is-completing,
+  .task-completion-target.is-completing *,
+  .task-completion-target.is-completing::before,
+  .task-completion-target.is-completing::after,
+  .task-completion-target.is-completing .task-check::after {
+    animation: none;
+  }
+}

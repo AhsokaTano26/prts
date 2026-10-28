@@ -136,6 +136,9 @@
 }
 
 .tasks-page .task-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-width: 0;
   padding: 12px;
   border: 1px solid var(--border);

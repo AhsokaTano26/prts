@@ -280,10 +280,12 @@
   padding: 8px 0;
 }
 .calendar-task-row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 13px 0;
+  padding: 13px 12px;
+  margin-inline: -12px;
   border-top: 1px solid var(--border);
 }
 .calendar-task-title {

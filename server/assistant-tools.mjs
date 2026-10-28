@@ -82,7 +82,7 @@ export const WORKSPACE_TOOLS = [
   ),
   tool(
     'read_workspace_item',
-    '按已知ID读取任务、完整日程、笔记正文或UTF-8文本附件；笔记与附件支持offset/limit分页。不能读取服务器路径、密码或密钥；不支持PDF/二进制解析。',
+    '按已知ID读取任务、完整日程、笔记正文或5 MB以内的UTF-8文本附件；笔记与附件支持offset/limit分页。不能读取服务器路径、密码或密钥；不支持PDF/二进制解析。',
     {
       kind: { type: 'string', enum: ['task', 'event', 'note', 'file'] },
       id: { type: 'string' },
@@ -108,13 +108,15 @@ function object(value) {
     throw new HttpError(400, '工具参数应为对象。')
   return value
 }
-function page(args, max = 8000) {
+const MAX_TEXT_FILE_BYTES = 5 * 1024 * 1024
+
+function page(args, max = 8000, maxOffset = 1_000_000) {
   const offset = args.offset ?? 0,
     limit = args.limit ?? Math.min(4000, max)
   if (
     !Number.isInteger(offset) ||
     offset < 0 ||
-    offset > 1_000_000 ||
+    offset > maxOffset ||
     !Number.isInteger(limit) ||
     limit < 1 ||
     limit > max
@@ -250,7 +252,11 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
   }
   function read(args) {
     onlyKeys(args, ['kind', 'id', 'offset', 'limit'])
-    const { offset, limit } = page(args)
+    const { offset, limit } = page(
+      args,
+      8000,
+      args.kind === 'file' ? MAX_TEXT_FILE_BYTES : 1_000_000,
+    )
     if (typeof args.id !== 'string' || args.id.length > 200)
       throw new HttpError(400, '记录ID无效。')
     if (args.kind === 'task') return target(workspace().value.tasks, args.id)
@@ -263,8 +269,8 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       metadata = rest
     } else if (args.kind === 'file') {
       const file = target(storage.listFiles().files, args.id)
-      if (file.size > 2 * 1024 * 1024)
-        throw new HttpError(400, '文本附件超过 2 MB，暂不支持自动读取。')
+      if (file.size > MAX_TEXT_FILE_BYTES)
+        throw new HttpError(400, '文本附件超过 5 MB，暂不支持自动读取。')
       if (
         !file.type.startsWith('text/') &&
         !/\.(txt|md|json|csv|tsv|log|js|ts|jsx|tsx|py|yaml|yml|css|html|xml|sql|ini|toml|sh)$/i.test(

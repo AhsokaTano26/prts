@@ -124,6 +124,7 @@ test('denied system permission keeps page reminders usable and completing a task
   )
   await page.getByRole('checkbox', { name: '完成任务：完成后取消提醒', exact: true }).check()
   await expect(page.getByRole('region', { name: '任务截止提醒', exact: true })).toHaveCount(0)
+  await page.getByRole('button', { name: /^全部任务/ }).click()
   await page.getByRole('button', { name: '编辑任务：完成后取消提醒', exact: true }).click()
   await page.getByLabel('截止时间（可选）', { exact: true }).fill('')
   await page.getByRole('button', { name: '保存修改', exact: true }).click()
