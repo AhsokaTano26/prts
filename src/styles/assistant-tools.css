@@ -77,6 +77,19 @@
   font-size: 13px;
   line-height: 1.7;
 }
+.assistant-action-warnings {
+  margin: 12px 0;
+  padding: 12px 12px 12px 30px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: var(--bg-secondary, var(--bg));
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.assistant-action-warnings li + li {
+  margin-top: 8px;
+}
 .assistant-action-list {
   margin: 12px 0 0;
   padding: 0;

@@ -37,7 +37,7 @@ async function fixture(t, reply) {
       const body = JSON.parse(text)
       requests.push(body)
       res.setHeader('content-type', 'application/json')
-      res.end(JSON.stringify(completion(await reply(body, requests.length - 1))))
+      res.end(JSON.stringify(completion(await reply(body, requests.length - 1, res))))
     }),
   )
   const uploadsDir = await mkdtemp(path.join(os.tmpdir(), 'prts-tool-uploads-'))
@@ -583,6 +583,101 @@ test('real tool loop reads SQLite and attachments, prepares changes and confirms
   assert.equal(stored.status, 200)
   const history = await (await client.call('/api/messages')).json()
   assert.equal(history.messages[0].actions[0].id, action.id)
+})
+
+const imagePng =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j2ioAAAAASUVORK5CYII='
+function uploadImage(client, id = 'image-tools') {
+  client.storage.putFiles([
+    {
+      id,
+      name: 'e926aa552b2ff626acc6820d91d1b6c2.png',
+      type: 'image/png',
+      size: Buffer.from(imagePng, 'base64').length,
+      createdAt: new Date().toISOString(),
+      data: imagePng,
+    },
+  ])
+}
+
+test('reading a workspace image sends its bytes as vision input after every tool reply', async (t) => {
+  const client = await fixture(t, (_body, round) => {
+    if (round === 0)
+      return {
+        content: null,
+        tool_calls: [
+          toolCall('read_workspace_item', { kind: 'file', id: 'image-tools' }, 'read-image'),
+          toolCall('read_workspace_item', { kind: 'file', id: 'file-tools' }, 'read-text'),
+        ],
+      }
+    if (round === 1)
+      return {
+        content: null,
+        tool_calls: [
+          toolCall('read_workspace_item', { kind: 'file', id: 'image-tools' }, 'read-again'),
+        ],
+      }
+    return { content: '博士，图片已载入，可以分析画面。' }
+  })
+  uploadImage(client)
+  const response = await client.call('/api/chat', {
+    messages: [
+      { role: 'user', content: '你能看到这张图片「e926aa552b2ff626acc6820d91d1b6c2.png」嘛？' },
+    ],
+    persona: 'amiya',
+    knowledge: 'none',
+  })
+  assert.equal(response.status, 200)
+  const answer = await response.json()
+  assert.equal(answer.toolsUsed[0].status, 'ok')
+  const forwarded = client.requests[1].messages
+  const toolReplies = forwarded.filter((message) => message.role === 'tool')
+  assert.deepEqual(
+    toolReplies.map((message) => message.tool_call_id),
+    ['read-image', 'read-text'],
+  )
+  assert.equal(JSON.parse(toolReplies[0].content).imageAttached, true)
+  assert.ok(toolReplies[1].content.includes('会议定于周三'))
+  assert.ok(toolReplies.every((message) => !message.content.includes('base64')))
+  const attachment = forwarded.at(-1)
+  assert.equal(attachment.role, 'user')
+  assert.ok(Array.isArray(attachment.content))
+  assert.ok(
+    attachment.content.some(
+      (part) => part.type === 'text' && part.text.includes('e926aa552b2ff626acc6820d91d1b6c2.png'),
+    ),
+  )
+  assert.deepEqual(
+    attachment.content.filter((part) => part.type === 'image_url'),
+    [{ type: 'image_url', image_url: { url: `data:image/png;base64,${imagePng}` } }],
+  )
+  const finalMessages = client.requests[2].messages
+  const images = finalMessages.flatMap((message) =>
+    Array.isArray(message.content)
+      ? message.content.filter((part) => part.type === 'image_url')
+      : [],
+  )
+  assert.equal(images.length, 1, 'repeated reads must not attach duplicate image payloads')
+  assert.equal(finalMessages.at(-1).tool_call_id, 'read-again')
+  assert.ok(!JSON.stringify(answer).includes(imagePng), 'image bytes stay out of client metadata')
+})
+
+test('a provider that rejects image input gets a vision-specific error without leaking payloads', async (t) => {
+  const client = await fixture(t, (_body, round, response) => {
+    if (round === 0)
+      return {
+        content: null,
+        tool_calls: [toolCall('read_workspace_item', { kind: 'file', id: 'image-tools' })],
+      }
+    response.statusCode = 400
+    return { content: `unsupported image: ${imagePng}` }
+  })
+  uploadImage(client)
+  const response = await client.chat()
+  assert.equal(response.status, 502)
+  const { error } = await response.json()
+  assert.match(error, /图片/)
+  assert.doesNotMatch(error, /iVBOR|private-provider-test-key/)
 })
 
 test('stale and dismissed operations never overwrite current workspace data', async (t) => {

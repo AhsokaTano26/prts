@@ -144,8 +144,8 @@ test('reduced motion bypasses capture and an unsupported browser still navigates
       configurable: true,
     }),
   )
-  await page.getByRole('button', { name: '个人档案', exact: true }).click()
-  await expect(page.getByRole('heading', { name: '个人档案', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '个人思考', exact: true }).click()
+  await expect(page.getByRole('heading', { name: '个人思考', exact: true })).toBeVisible()
   await page.getByRole('button', { name: /^任务中枢/ }).click()
   await expect(page.getByRole('heading', { name: /^任务中枢/ })).toBeVisible()
 })

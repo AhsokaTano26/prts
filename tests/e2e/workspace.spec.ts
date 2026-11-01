@@ -28,7 +28,7 @@ test('overview and all modules render without page errors', async ({ page }) => 
   await page.screenshot({ path: '/tmp/prts-desktop.png', fullPage: true })
   for (const [nav, heading] of [
     ['任务中枢', '任务中枢.'],
-    ['个人档案', '个人档案'],
+    ['个人思考', '个人思考'],
     ['文件资料库', '文件资料库'],
     ['PRTS 助手', 'PRTS 助手.'],
     ['系统设置', '系统设置.'],
@@ -72,7 +72,7 @@ test('task creation, completion, edit, deletion, and persistence', async ({ page
 test('notes save empty title and Markdown across reloads', async ({ page }) => {
   await page
     .locator('.sidebar')
-    .getByRole('button', { name: /个人档案/ })
+    .getByRole('button', { name: /个人思考/ })
     .click()
   await page.getByRole('button', { name: '新建笔记', exact: true }).click()
   await page.getByLabel('笔记标题', { exact: true }).fill('')
@@ -212,7 +212,7 @@ for (const width of [1440, 1280, 1024, 768, 390, 320]) {
       await page.getByRole('button', { name: '打开导航', exact: true }).click()
       await page
         .locator('.sidebar')
-        .getByRole('button', { name: /个人档案/ })
+        .getByRole('button', { name: /个人思考/ })
         .click()
       await page.getByRole('button', { name: '新建笔记', exact: true }).click()
       await expect(page.getByLabel('笔记正文', { exact: true })).toBeVisible()

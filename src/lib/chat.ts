@@ -41,7 +41,7 @@ export function runLocalCommand(
       ? `找到了 ${notes.length} 篇笔记：\n\n${notes
           .slice(0, 8)
           .map((note) => `- **${note.title}** · ${note.tag || '未分类'}`)
-          .join('\n')}\n\n可在「个人档案」中阅读和编辑。`
+          .join('\n')}\n\n可在「个人思考」中阅读和编辑。`
       : '没有找到匹配的笔记。试试「查看笔记」或换一个关键词。'
   }
   if (/任务|待办|计划|概况|今日|今天/.test(text)) {
@@ -59,7 +59,7 @@ export function runLocalCommand(
   if (/专注/.test(text)) {
     return `专注协议已设置为 **${workspace.settings.focusMinutes} 分钟**。你已完成 **${workspace.focusSessions} 轮**。\n\n回到「总览」点击「开始专注」即可启动计时。每次只做一件事。`
   }
-  return '本地指令终端已就绪。你可以输入：\n\n- **今日任务** — 查看待办与工作概况\n- **查看笔记** / **搜索笔记 关键词** — 检索个人档案\n- **新建任务：任务内容** — 快速记录待办\n- **专注状态** — 查看专注协议\n\n当前为规则驱动的本地指令模式。连接 AI 服务后，可切换到「AI 对话」进行开放式交流。'
+  return '本地指令终端已就绪。你可以输入：\n\n- **今日任务** — 查看待办与工作概况\n- **查看笔记** / **搜索笔记 关键词** — 检索个人思考\n- **新建任务：任务内容** — 快速记录待办\n- **专注状态** — 查看专注协议\n\n当前为规则驱动的本地指令模式。连接 AI 服务后，可切换到「AI 对话」进行开放式交流。'
 }
 
 export function buildChatHistory(

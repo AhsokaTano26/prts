@@ -22,6 +22,7 @@ export const TOOL_LABELS: Record<string, string> = {
   search_workspace: '检索工作台',
   read_workspace_item: '读取资料',
   propose_workspace_change: '准备工作台操作',
+  propose_workspace_changes: '批量整理任务与日程',
 }
 export type AssistantAction = {
   id: string
@@ -30,6 +31,7 @@ export type AssistantAction = {
   preview: string
   status: 'pending' | 'applied' | 'dismissed' | 'expired'
   expiresAt: number
+  warnings?: string[]
 }
 export type ToolUsage = { name: string; status: 'ok' | 'error' }
 export function parseAssistantActions(value: unknown): AssistantAction[] {
@@ -46,6 +48,12 @@ export function parseAssistantActions(value: unknown): AssistantAction[] {
       item.summary.length > 500 ||
       typeof item.preview !== 'string' ||
       item.preview.length > 8000 ||
+      (item.warnings !== undefined &&
+        (!Array.isArray(item.warnings) ||
+          item.warnings.length > 5 ||
+          item.warnings.some(
+            (warning: unknown) => typeof warning !== 'string' || warning.length > 500,
+          ))) ||
       !['pending', 'applied', 'dismissed', 'expired'].includes(item.status) ||
       !Number.isSafeInteger(item.expiresAt)
     )
@@ -57,6 +65,7 @@ export function parseAssistantActions(value: unknown): AssistantAction[] {
       preview: item.preview,
       status: item.status,
       expiresAt: item.expiresAt,
+      ...(item.warnings?.length ? { warnings: [...item.warnings] } : {}),
     }
   })
 }

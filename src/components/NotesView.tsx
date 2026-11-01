@@ -151,8 +151,8 @@ export default function NotesView({
     <section className="workspace-notes" aria-labelledby="notes-heading">
       <div className="view-heading">
         <div>
-          <p className="workspace-eyebrow">PERSONAL ARCHIVE / 02</p>
-          <h1 id="notes-heading">个人档案</h1>
+          <p className="workspace-eyebrow">PERSONAL THOUGHTS / 02</p>
+          <h1 id="notes-heading">个人思考</h1>
           <p className="muted">收集灵感，让每一个想法都有迹可循。</p>
         </div>
         <button className="button button-primary" onClick={createNote}>

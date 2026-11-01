@@ -8,6 +8,7 @@ import {
 } from '../src/lib/taskCategories.ts'
 import { ASSISTANT_OPERATIONS } from '../src/lib/assistantTools.ts'
 import { changeCalendar, searchCalendar } from './assistant-calendar.mjs'
+import { captureWarnings, sameCapture } from './assistant-capture.mjs'
 
 const actionLifetime = 30 * 60_000
 const changeFieldsDescription =
@@ -57,6 +58,15 @@ const tool = (name, description, properties, required = []) => ({
     parameters: { type: 'object', properties, required, additionalProperties: false },
   },
 })
+const changeProperties = {
+  operation: { type: 'string', enum: [...ASSISTANT_OPERATIONS] },
+  id: { type: 'string' },
+  fields: fieldsSchema,
+  allowDuplicate: {
+    type: 'boolean',
+    description: '默认false。仅用户明确要求另建完全重复的任务或日程时设为true。',
+  },
+}
 export const WORKSPACE_TOOLS = [
   tool(
     'get_workspace',
@@ -82,7 +92,7 @@ export const WORKSPACE_TOOLS = [
   ),
   tool(
     'read_workspace_item',
-    '按已知ID读取任务、完整日程、笔记正文或5 MB以内的UTF-8文本附件；笔记与附件支持offset/limit分页。不能读取服务器路径、密码或密钥；不支持PDF/二进制解析。',
+    '按已知ID读取任务、完整日程、笔记正文、5 MB以内的UTF-8文本附件或图片。图片支持PNG/JPEG/WebP/GIF，每轮最多4张，原图会作为视觉输入发送给模型；图片不分页。笔记与文本支持offset/limit分页。不能读取服务器路径、密码或密钥；不支持PDF及其他二进制解析。',
     {
       kind: { type: 'string', enum: ['task', 'event', 'note', 'file'] },
       id: { type: 'string' },
@@ -94,12 +104,26 @@ export const WORKSPACE_TOOLS = [
   tool(
     'propose_workspace_change',
     `仅在用户明确要求修改时准备一项操作。返回待确认卡片；只有用户在界面确认后才执行，不可声称已完成。${changeFieldsDescription}`,
-    {
-      operation: { type: 'string', enum: [...ASSISTANT_OPERATIONS] },
-      id: { type: 'string' },
-      fields: fieldsSchema,
-    },
+    changeProperties,
     ['operation'],
+  ),
+  tool(
+    'propose_workspace_changes',
+    `用户要求从文字、笔记或图片记录多项安排时，优先一次准备完整批次，最多12项；可混合任务与日程。任何一项无效时整批不产生操作卡片，按错误序号修正，缺少时间则先询问用户。重复记录会跳过或复用，时间重叠会提示，不能自行猜测日期、时长、地点。${changeFieldsDescription}`,
+    {
+      changes: {
+        type: 'array',
+        minItems: 1,
+        maxItems: 12,
+        items: {
+          type: 'object',
+          properties: changeProperties,
+          required: ['operation'],
+          additionalProperties: false,
+        },
+      },
+    },
+    ['changes'],
   ),
 ]
 
@@ -109,6 +133,20 @@ function object(value) {
   return value
 }
 const MAX_TEXT_FILE_BYTES = 5 * 1024 * 1024
+const MAX_IMAGE_FILE_BYTES = 5 * 1024 * 1024
+const MAX_IMAGE_FILES = 4
+
+function imageType(bytes) {
+  if (bytes.subarray(0, 8).equals(Buffer.from('89504e470d0a1a0a', 'hex'))) return 'image/png'
+  if (bytes.subarray(0, 3).equals(Buffer.from('ffd8ff', 'hex'))) return 'image/jpeg'
+  if (
+    bytes.subarray(0, 4).toString('ascii') === 'RIFF' &&
+    bytes.subarray(8, 12).toString('ascii') === 'WEBP'
+  )
+    return 'image/webp'
+  if (['GIF87a', 'GIF89a'].includes(bytes.subarray(0, 6).toString('ascii'))) return 'image/gif'
+  throw new HttpError(400, '图片格式无效或暂不支持，请使用 PNG、JPEG、WebP 或 GIF 图片。')
+}
 
 function page(args, max = 8000, maxOffset = 1_000_000) {
   const offset = args.offset ?? 0,
@@ -250,7 +288,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       hasMore: offset + limit < items.length,
     }
   }
-  function read(args) {
+  function read(args, imageFiles) {
     onlyKeys(args, ['kind', 'id', 'offset', 'limit'])
     const { offset, limit } = page(
       args,
@@ -269,6 +307,27 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       metadata = rest
     } else if (args.kind === 'file') {
       const file = target(storage.listFiles().files, args.id)
+      if (
+        file.type.startsWith('image/') ||
+        /\.(png|jpe?g|webp|gif|avif|bmp|svg|ico)$/i.test(file.name)
+      ) {
+        if (offset !== 0) throw new HttpError(400, '图片不支持分页，请从头读取整张图片。')
+        if (file.size > MAX_IMAGE_FILE_BYTES)
+          throw new HttpError(400, '图片超过 5 MB，请压缩后重新上传。')
+        if (!imageFiles.has(file.id)) {
+          if (imageFiles.size >= MAX_IMAGE_FILES)
+            throw new HttpError(400, '每轮最多读取 4 张图片，请分次提问。')
+          const { bytes } = storage.getFile(file.id)
+          const type = imageType(bytes)
+          imageFiles.set(file.id, {
+            ...file,
+            type,
+            imageAttached: true,
+            imageUrl: `data:${type};base64,${bytes.toString('base64')}`,
+          })
+        }
+        return imageFiles.get(file.id)
+      }
       if (file.size > MAX_TEXT_FILE_BYTES)
         throw new HttpError(400, '文本附件超过 5 MB，暂不支持自动读取。')
       if (
@@ -285,7 +344,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       }
       if (text.includes('\0')) throw new HttpError(400, '附件包含二进制内容。')
       metadata = file
-    } else throw new HttpError(400, '只支持读取任务、日程、笔记和文本附件。')
+    } else throw new HttpError(400, '只支持读取任务、日程、笔记、文本附件和图片。')
     return {
       ...metadata,
       content: text.slice(offset, offset + limit),
@@ -294,7 +353,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       hasMore: offset + limit < text.length,
     }
   }
-  function mutation(change) {
+  function mutation(change, plannedWorkspace) {
     const fields = object(change.fields ?? {})
     if (typeof fields.content === 'string' && fields.content.length > 6000)
       throw new HttpError(400, '单次笔记修改最多 6000 个字符，请拆分操作。')
@@ -302,9 +361,9 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
     const focusOperation = ['start_focus', 'pause_focus', 'reset_focus'].includes(operation)
     const key = focusOperation ? 'focus' : 'workspace'
     const document = storage.getDocument(key)
-    const current = workspace().value
+    const current = plannedWorkspace ?? workspace().value
     const value = structuredClone(
-      document?.value ?? {
+      (focusOperation ? document?.value : current) ?? {
         remaining: current.settings.focusMinutes * 60,
         endAt: null,
         sessionId: null,
@@ -500,9 +559,11 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
           .join('\n\n'),
         8000,
       ),
+      record: ['create_task', 'create_calendar_event'].includes(operation) ? after : null,
     }
   }
   function publicAction(row) {
+    const warnings = JSON.parse(row.data).warnings
     return {
       id: row.id,
       operation: row.operation,
@@ -510,6 +571,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       preview: row.preview,
       status: row.status === 'pending' && row.expires_at <= now() ? 'expired' : row.status,
       expiresAt: row.expires_at,
+      ...(warnings?.length ? { warnings } : {}),
     }
   }
   function guard(change) {
@@ -543,16 +605,48 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
     if (!row) throw new HttpError(404, '该操作不存在或已过期，请重新发起请求。')
     return row
   }
-  function prepare(args) {
-    onlyKeys(args, ['operation', 'id', 'fields'])
+  function prepare(args, { records = [], timeZone = null, plannedWorkspace } = {}) {
+    object(args)
+    onlyKeys(args, ['operation', 'id', 'fields', 'allowDuplicate'])
     if (!ASSISTANT_OPERATIONS.includes(args.operation)) throw new HttpError(400, '不支持此操作。')
+    if (args.allowDuplicate !== undefined && typeof args.allowDuplicate !== 'boolean')
+      throw new HttpError(400, '重复创建选项须为布尔值。')
     const change = {
       operation: args.operation,
       id: args.operation.startsWith('create_') ? randomUUID() : args.id,
       fields: args.fields ?? {},
+      ...(args.allowDuplicate ? { allowDuplicate: true } : {}),
     }
     return storage.atomic(() => {
-      const preview = mutation(change)
+      const preview = mutation(change, plannedWorkspace)
+      const planned = plannedWorkspace ?? workspace().value
+      if (preview.record && !args.allowDuplicate) {
+        const existing =
+          planned[args.operation === 'create_task' ? 'tasks' : 'calendarEvents'] || []
+        const duplicate = existing.find((item) => sameCapture(args.operation, preview.record, item))
+        if (duplicate) {
+          const pending = records.find(
+            (item) =>
+              item.record.id === duplicate.id &&
+              publicAction(action(item.actionId)).status === 'pending',
+          )
+          return {
+            ...(pending ? { action: publicAction(action(pending.actionId)) } : {}),
+            duplicateRecord: { operation: args.operation, record: duplicate },
+            skipped: {
+              reason: pending
+                ? '本轮已准备相同安排，已复用操作卡片。'
+                : '已有相同任务或日程，未重复创建；如需修改请使用对应更新操作。',
+              id: pending?.actionId ?? duplicate.id,
+              title: duplicate.title,
+            },
+          }
+        }
+      }
+      const warnings =
+        args.operation === 'create_calendar_event'
+          ? captureWarnings(preview.record, planned.calendarEvents || [], timeZone)
+          : []
       const id = randomUUID(),
         expiresAt = now() + actionLifetime
       database
@@ -572,11 +666,16 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
           key: preview.key,
           revision: preview.revision,
           guard: guard(change),
+          ...(warnings.length ? { warnings } : {}),
         }),
         'pending',
         expiresAt,
       )
-      return publicAction(action(id))
+      return {
+        action: publicAction(action(id)),
+        record: preview.record,
+        ...(preview.key === 'workspace' ? { plannedWorkspace: preview.value } : {}),
+      }
     })
   }
   function actionIds(ids) {
@@ -607,7 +706,15 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       }
       for (const row of pending) {
         if (decision === 'apply') {
-          const change = mutation(JSON.parse(row.data).change)
+          const saved = JSON.parse(row.data).change
+          const change = mutation(saved)
+          if (change.record && !saved.allowDuplicate) {
+            const existing =
+              workspace().value[saved.operation === 'create_task' ? 'tasks' : 'calendarEvents'] ||
+              []
+            if (existing.some((item) => sameCapture(saved.operation, change.record, item)))
+              throw new HttpError(409, '相同任务或日程已存在，本批次未写入，请重新核对。')
+          }
           storage.putDocument(change.key, {
             value: change.value,
             expectedRevision: change.revision,
@@ -626,17 +733,88 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
   }
   function session({ timeZone = null } = {}) {
     const actions = [],
-      toolsUsed = []
+      toolsUsed = [],
+      imageFiles = new Map(),
+      records = [],
+      skippedRecords = []
+    function prepareBatch(changes) {
+      if (!Array.isArray(changes) || !changes.length || changes.length > 12)
+        throw new HttpError(400, '每批应包含 1 至 12 项操作。')
+      const nextRecords = [...records]
+      const nextSkipped = [...skippedRecords]
+      const prepared = [],
+        skipped = []
+      storage.atomic(() => {
+        let plannedWorkspace = workspace().value
+        // Rebuild the preview from current data and this request's earlier
+        // proposals. Nothing is written until the user confirms the plan.
+        for (const item of actions) {
+          const row = action(item.id)
+          if (publicAction(row).status !== 'pending') continue
+          const previous = mutation(JSON.parse(row.data).change, plannedWorkspace)
+          if (previous.key === 'workspace') plannedWorkspace = previous.value
+        }
+        for (let index = 0; index < changes.length; index++) {
+          try {
+            const result = prepare(changes[index], {
+              records: nextRecords,
+              timeZone,
+              plannedWorkspace,
+            })
+            if (result.plannedWorkspace) plannedWorkspace = result.plannedWorkspace
+            if (result.duplicateRecord) nextSkipped.push(result.duplicateRecord)
+            if (result.skipped) skipped.push({ index: index + 1, ...result.skipped })
+            if (result.action && !prepared.some((item) => item.id === result.action.id)) {
+              prepared.push(result.action)
+              if (result.record)
+                nextRecords.push({
+                  operation: changes[index].operation,
+                  record: result.record,
+                  actionId: result.action.id,
+                })
+            }
+            if (new Set([...actions, ...prepared].map((item) => item.id)).size > 12)
+              throw new HttpError(400, '每轮最多准备 12 项操作，请分次录入。')
+          } catch (error) {
+            if (error instanceof HttpError)
+              throw new HttpError(error.status, `第 ${index + 1} 项：${error.message}`)
+            throw error
+          }
+        }
+        // A skipped create is safe only while its material is still represented
+        // in the final preview, including changes proposed by later tool calls.
+        for (const skipped of nextSkipped) {
+          const items =
+            plannedWorkspace[skipped.operation === 'create_task' ? 'tasks' : 'calendarEvents'] || []
+          if (!items.some((item) => sameCapture(skipped.operation, skipped.record, item)))
+            throw new HttpError(
+              400,
+              `本批修改会移除先前作为重复项跳过的「${skipped.record.title}」。请按先修改或删除、再新建的顺序重新整批准备，当前批次未产生操作卡片。`,
+            )
+        }
+      })
+      records.splice(0, records.length, ...nextRecords)
+      skippedRecords.splice(0, skippedRecords.length, ...nextSkipped)
+      for (const item of prepared)
+        if (!actions.some((action) => action.id === item.id)) actions.push(item)
+      return {
+        actions: prepared,
+        skipped,
+        requiresConfirmation: !autoConfirm && prepared.length > 0,
+        ...(autoConfirm ? { execution: 'after_reply' } : {}),
+      }
+    }
     const autoConfirm = storage.getDocument('preferences')?.value.assistantAutoConfirm === true
     return {
       autoConfirm,
       definitions: WORKSPACE_TOOLS.map((tool) =>
-        tool.function.name === 'propose_workspace_change' && autoConfirm
+        ['propose_workspace_change', 'propose_workspace_changes'].includes(tool.function.name) &&
+        autoConfirm
           ? {
               ...tool,
               function: {
                 ...tool.function,
-                description: `仅在用户明确要求修改时准备操作。用户已开启自动确认：所有准备成功的操作将在最终回复生成后作为一个事务自动执行。无需要求手动确认；当前工具尚未写入，不要提前声称完成，最终状态由系统卡片展示。${changeFieldsDescription}`,
+                description: `${tool.function.description} 用户已开启自动确认：所有准备成功的操作将在最终回复生成后作为一个事务自动执行，无需要求手动确认。当前尚未写入，不要提前声称完成。`,
               },
             }
           : tool,
@@ -681,15 +859,16 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
             onlyKeys(args, [])
             result = overview(timeZone)
           } else if (name === 'search_workspace') result = search(args, timeZone)
-          else if (name === 'read_workspace_item') result = read(args)
+          else if (name === 'read_workspace_item') result = read(args, imageFiles)
           else if (name === 'propose_workspace_change') {
-            const proposed = prepare(args)
-            actions.push(proposed)
+            const batch = prepareBatch([args])
             result = {
-              action: proposed,
-              requiresConfirmation: !autoConfirm,
-              ...(autoConfirm ? { execution: 'after_reply' } : {}),
+              ...batch,
+              ...(batch.actions[0] ? { action: batch.actions[0] } : {}),
             }
+          } else if (name === 'propose_workspace_changes') {
+            onlyKeys(args, ['changes'])
+            result = prepareBatch(args.changes)
           } else throw new HttpError(400, '该工具不可用。')
           toolsUsed.push({ name, status: 'ok' })
           return result

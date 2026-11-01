@@ -52,7 +52,7 @@ const navItems = [
   { id: 'overview', label: '总览', en: 'OVERVIEW', icon: LayoutDashboard },
   { id: 'tasks', label: '任务中枢', en: 'TASK CENTER', icon: ListTodo },
   { id: 'calendar', label: '日历日程', en: 'CALENDAR', icon: CalendarDays },
-  { id: 'notes', label: '个人档案', en: 'ARCHIVES', icon: FileText },
+  { id: 'notes', label: '个人思考', en: 'THOUGHTS', icon: FileText },
   { id: 'files', label: '文件资料库', en: 'FILE STORAGE', icon: FolderOpen },
   { id: 'assistant', label: 'PRTS 助手', en: 'INTELLIGENCE', icon: Sparkles },
 ]

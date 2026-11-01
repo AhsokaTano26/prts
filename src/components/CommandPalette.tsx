@@ -48,7 +48,7 @@ export default function CommandPalette({
       { id: 'overview', title: '总览', icon: LayoutDashboard },
       { id: 'tasks', title: '任务中枢', icon: ListTodo },
       { id: 'calendar', title: '日历日程', icon: CalendarDays },
-      { id: 'notes', title: '个人档案', icon: FileText },
+      { id: 'notes', title: '个人思考', icon: FileText },
       { id: 'files', title: '文件资料库', icon: FolderOpen },
       { id: 'assistant', title: 'PRTS 助手', icon: Sparkles },
       { id: 'settings', title: '系统设置', icon: Settings2 },

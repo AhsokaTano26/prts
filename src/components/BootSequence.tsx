@@ -143,7 +143,7 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
                   : '研究终端已就绪'}
             </div>
             <div className="rhine-boot-steps" aria-hidden="true">
-              {['WORKSPACE', 'ARCHIVES', 'READY'].map((label, i) => (
+              {['WORKSPACE', 'THOUGHTS', 'READY'].map((label, i) => (
                 <span
                   key={label}
                   className={
