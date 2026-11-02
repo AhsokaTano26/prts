@@ -12,6 +12,10 @@ import { captureWarnings, sameCapture } from './assistant-capture.mjs'
 import { focusRunning, resetFocus, toggleFocus, formatFocusTime } from '../src/lib/focusTimer.ts'
 
 const actionLifetime = 30 * 60_000
+const taskMetadata = ({ description, ...task }) => ({
+  ...task,
+  ...(description ? { hasDescription: true } : {}),
+})
 const changeFieldsDescription =
   '创建任务或日程须title；修改/删除须id。日程用create_calendar_event/update_calendar_event/delete_calendar_event；定时须startAt/endAt（带时区），全天须allDay=true及startDate/endDate；切换类型须完整新范围。分类须name；个人思考用简短贴题的title和用户口吻的content，编辑前先读原文；普通设置只支持name/focusMinutes/sound。'
 const fieldsSchema = {
@@ -220,7 +224,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
         files: files.length,
       },
       categories: value.taskCategories,
-      tasks: value.tasks.slice(0, 20),
+      tasks: value.tasks.slice(0, 20).map(taskMetadata),
       calendarEvents: (value.calendarEvents || [])
         .slice(0, 10)
         .map(({ description, ...event }) => event),
@@ -265,7 +269,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
     if (kind === 'all' || kind === 'tasks')
       for (const item of value.tasks) {
         if (!needle || item.title.toLocaleLowerCase().includes(needle))
-          items.push({ kind: 'task', ...item })
+          items.push({ kind: 'task', ...taskMetadata(item) })
       }
     if (kind === 'all' || kind === 'notes')
       for (const item of value.notes) {

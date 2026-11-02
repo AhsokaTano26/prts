@@ -398,6 +398,21 @@ export function createStorage(
       // Older tabs do not know this field; only an explicit array may replace it.
       if (key === 'workspace' && payload.value.calendarEvents === undefined)
         next = { ...next, calendarEvents: current?.value.calendarEvents || [] }
+      if (key === 'workspace' && current) {
+        const remarks = new Map(
+          current.value.tasks
+            .filter((task) => task.description !== undefined)
+            .map((task) => [task.id, task.description]),
+        )
+        next = {
+          ...next,
+          tasks: next.tasks.map((task) =>
+            task.description === undefined && remarks.has(task.id)
+              ? { ...task, description: remarks.get(task.id) }
+              : task,
+          ),
+        }
+      }
       if (Buffer.byteLength(JSON.stringify(next)) > MAX_DOCUMENT_BYTES)
         throw new HttpError(413, '单个存储项目不能超过 10 MB。')
       const result = writeDocument(key, next, revision)

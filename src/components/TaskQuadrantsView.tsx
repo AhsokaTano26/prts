@@ -106,7 +106,9 @@ export default function TaskQuadrantsView({
   const filtered = useMemo(
     () =>
       tasks.filter((task) =>
-        task.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
+        `${task.title}\n${task.description || ''}`
+          .toLocaleLowerCase()
+          .includes(query.trim().toLocaleLowerCase()),
       ),
     [tasks, query],
   )
@@ -473,6 +475,11 @@ export default function TaskQuadrantsView({
                     >
                       {deadline === null ? '未设截止时间' : `截止 ${format.format(deadline)}`}
                     </time>
+                    {task.description && (
+                      <p className="matrix-task-description" tabIndex={0}>
+                        {task.description}
+                      </p>
+                    )}
                   </div>
                 </li>
               )

@@ -9,7 +9,7 @@ import {
   ClipboardCheck,
   FolderOpen,
 } from 'lucide-react'
-import type { Task, TaskCategory } from '../lib/workspace'
+import { MAX_TASK_DESCRIPTION_LENGTH, type Task, type TaskCategory } from '../lib/workspace'
 import { Modal } from './UI'
 import PrtsSelect from './PrtsSelect'
 import { PrtsDatePicker, PrtsTimePicker } from './PrtsDateTimePicker'
@@ -84,11 +84,14 @@ export function TaskDialog({
   task: Task | null
   categories: TaskCategory[]
   defaultCategoryId?: string
-  onSave: (value: Pick<Task, 'title' | 'priority' | 'dueDate' | 'dueAt' | 'categoryId'>) => void
+  onSave: (
+    value: Pick<Task, 'title' | 'description' | 'priority' | 'dueDate' | 'dueAt' | 'categoryId'>,
+  ) => void
   onDelete?: () => void
   onClose: () => void
 }) {
   const [title, setTitle] = useState(task?.title ?? '')
+  const [description, setDescription] = useState(task?.description ?? '')
   const [priority, setPriority] = useState<Task['priority']>(task?.priority ?? 'medium')
   const [dueDate, setDueDate] = useState(
     task ? taskLocalDate(task) : new Date().toLocaleDateString('en-CA'),
@@ -110,7 +113,14 @@ export function TaskDialog({
       return
     }
     if (title.trim())
-      onSave({ title: title.trim(), priority, dueDate, dueAt, categoryId: validCategoryId })
+      onSave({
+        title: title.trim(),
+        description,
+        priority,
+        dueDate,
+        dueAt,
+        categoryId: validCategoryId,
+      })
   }
   return (
     <Modal title={task ? '编辑任务' : '新建任务'} onClose={onClose} className="task-editor-dialog">
@@ -129,6 +139,22 @@ export function TaskDialog({
           onChange={(e) => setTitle(e.target.value)}
           required
         />
+        <label className="form-label" htmlFor="task-description">
+          任务备注（可选）
+        </label>
+        <textarea
+          id="task-description"
+          className="field task-description-input"
+          rows={3}
+          value={description}
+          maxLength={MAX_TASK_DESCRIPTION_LENGTH}
+          placeholder="补充要求、资料链接或执行细节…"
+          onChange={(event) => setDescription(event.target.value)}
+          aria-describedby="task-description-hint"
+        />
+        <p className="field-hint" id="task-description-hint">
+          最多 5000 字；有截止日期的未完成任务，备注也会同步到日历订阅。
+        </p>
         <label className="form-label" htmlFor="task-category">
           任务分类
         </label>
@@ -257,6 +283,7 @@ function TaskCard({
           <Pencil size={14} />
         </button>
       </div>
+      {task.description && <p className="task-card-description">{task.description}</p>}
       <div className="task-card-meta">
         <span className={`priority ${task.priority}`}>
           <i aria-hidden="true" />
@@ -381,7 +408,7 @@ export default function TasksView({
       (t) =>
         (filter === 'all' || (filter === 'done' ? t.done : !t.done || completingIds.has(t.id))) &&
         (priority === 'all' || t.priority === priority) &&
-        t.title.toLowerCase().includes(query.trim().toLowerCase()),
+        `${t.title}\n${t.description || ''}`.toLowerCase().includes(query.trim().toLowerCase()),
     ),
   )
   return (

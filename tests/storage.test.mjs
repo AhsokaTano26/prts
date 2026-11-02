@@ -39,6 +39,44 @@ const file = (id, content, name = '文档.txt') => ({
 })
 const message = (id, content = id) => ({ id, role: 'user', content, mode: 'local' })
 
+test('older task writers preserve remarks while explicit clearing and authoritative imports remain possible', (t) => {
+  const { store } = setup(t)
+  const workspace = createInitialWorkspace()
+  workspace.tasks[0].description = '订阅日历中的备注\n保留换行。'
+  store.putDocument('workspace', write(workspace))
+  assert.equal(
+    store.getDocument('workspace').value.tasks[0].description,
+    workspace.tasks[0].description,
+  )
+  const oldWriter = structuredClone(workspace)
+  delete oldWriter.tasks[0].description
+  oldWriter.tasks[0].title = '旧页面改名'
+  store.putDocument('workspace', write(oldWriter, 1))
+  assert.equal(
+    store.getDocument('workspace').value.tasks[0].description,
+    workspace.tasks[0].description,
+  )
+  const clear = structuredClone(store.getDocument('workspace').value)
+  clear.tasks[0].description = ''
+  store.putDocument('workspace', write(clear, 2))
+  assert.equal(store.getDocument('workspace').value.tasks[0].description, '')
+  clear.tasks[0].description = '再次记录'
+  store.putDocument('workspace', write(clear, 3))
+  const imported = store.importDocuments({
+    documents: {
+      workspace: oldWriter,
+      preferences: {
+        motionEnabled: true,
+        assistant: { persona: 'prts', knowledge: 'all' },
+        assistantMode: 'local',
+      },
+    },
+    expectedRevisions: { workspace: 4, preferences: 0, focus: 0 },
+    mutationId: crypto.randomUUID(),
+  })
+  assert.equal(imported.documents.workspace.value.tasks[0].description, undefined)
+})
+
 test('older workspace writers preserve calendars while explicit clearing and invalid changes are handled safely', (t) => {
   const { store } = setup(t)
   const workspace = createInitialWorkspace()

@@ -85,6 +85,50 @@ test('only unfinished tasks with deadlines become transparent deadline markers',
   assert.match(items[1], /DTSTART:20261028T021500Z\r\nDURATION:PT1M\r\n/)
 })
 
+test('task notes preserve multiline Chinese and emoji with safe TEXT escaping and byte folding', () => {
+  const description =
+    '交付说明😀'.repeat(40) + '\\,;\r\nEND:VEVENT\rBEGIN:VEVENT\nSUMMARY:伪造\u0000'
+  const value = feed(
+    [],
+    [
+      {
+        id: 'task-notes',
+        title: '提交结果',
+        done: false,
+        dueDate: '2026-10-28',
+        description,
+      },
+    ],
+  )
+  const items = components(value)
+  assert.equal(items.length, 1)
+  assert.ok(
+    unfolded(value).includes(
+      'DESCRIPTION:' +
+        '交付说明😀'.repeat(40) +
+        String.raw`\\\,\;\nEND:VEVENT\nBEGIN:VEVENT\nSUMMARY:伪造` +
+        '\r\n',
+    ),
+  )
+  assert.ok(value.includes('\r\n '))
+  assert.ok(value.split('\r\n').every((line) => Buffer.byteLength(line) <= 75))
+  assert.equal(value.includes('\uFFFD'), false)
+  assert.equal(value.replace(/\r\n/g, '').includes('\n'), false)
+  assert.equal(unfolded(value).match(/^SUMMARY:/gm).length, 1)
+})
+
+test('task notes can be added, edited and cleared without changing the deadline UID', () => {
+  const task = { id: 'task-notes', title: '提交结果', done: false, dueDate: '2026-10-28' }
+  const original = feed([], [task])
+  assert.doesNotMatch(original, /DESCRIPTION:/)
+  for (const description of ['初版备注', '更新后的备注', '']) {
+    const value = feed([], [{ ...task, description }])
+    assert.equal(uid(value), uid(original))
+    if (description) assert.ok(unfolded(value).includes(`DESCRIPTION:${description}\r\n`))
+    else assert.doesNotMatch(value, /DESCRIPTION:/)
+  }
+})
+
 test('IDs remain stable across edits and are distinct across instances and item types', () => {
   const first = uid(feed([timed]))
   assert.equal(

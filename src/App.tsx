@@ -336,7 +336,9 @@ export default function App({ onLock }: { onLock: () => void }) {
       return error instanceof Error ? error.message : '分类操作失败，请重试。'
     }
   }
-  function saveTask(value: Pick<Task, 'title' | 'priority' | 'dueDate' | 'dueAt' | 'categoryId'>) {
+  function saveTask(
+    value: Pick<Task, 'title' | 'description' | 'priority' | 'dueDate' | 'dueAt' | 'categoryId'>,
+  ) {
     const editing = taskDialog
     update(
       (w) => ({

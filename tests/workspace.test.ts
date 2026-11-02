@@ -73,6 +73,25 @@ test('a cleared note title saves and reloads while live editing', () => {
   assert.equal(validateWorkspace(workspace).notes[0].title, '')
 })
 
+test('task remarks preserve multiline content and allow clearing without changing legacy tasks', () => {
+  mockStorage()
+  const workspace = createInitialWorkspace()
+  const description = '评审时携带方案、预算表。\n联系人：小王；会议室 A 😀'
+  Object.assign(workspace.tasks[0], { description })
+  saveWorkspace(workspace)
+  assert.equal(loadWorkspace().tasks[0].description, description)
+  assert.equal(
+    Object.hasOwn(validateWorkspace(createInitialWorkspace()).tasks[0], 'description'),
+    false,
+  )
+  Object.assign(workspace.tasks[0], { description: '' })
+  assert.equal(validateWorkspace(workspace).tasks[0].description, '')
+  for (const invalid of [5000, null, '字'.repeat(5001)]) {
+    Object.assign(workspace.tasks[0], { description: invalid })
+    assert.throws(() => validateWorkspace(workspace), /任务备注/)
+  }
+})
+
 test('malformed stored data is preserved while load returns valid defaults', () => {
   const raw = '{"tasks": broken backup'
   const entries = mockStorage(raw)

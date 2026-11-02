@@ -146,6 +146,23 @@
   background: #15181b;
 }
 
+.task-editor-dialog .task-description-input {
+  min-height: 84px;
+  resize: vertical;
+}
+.tasks-page .task-card-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
 .tasks-page .task-card:hover {
   border-color: #454d53;
 }

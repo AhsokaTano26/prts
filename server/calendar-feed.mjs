@@ -111,6 +111,7 @@ export function buildCalendarFeed({
         ? [instant('DTSTART', task.dueAt), 'DURATION:PT1M']
         : allDay(task.dueDate, task.dueDate)),
       `SUMMARY:${text(`截止 · ${task.title}`)}`,
+      ...(task.description ? [`DESCRIPTION:${text(task.description)}`] : []),
       'TRANSP:TRANSPARENT',
     ])
   }

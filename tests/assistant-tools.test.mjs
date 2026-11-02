@@ -793,6 +793,36 @@ test('action approval and document mutation roll back together when the action w
   assert.equal(tools.getAction(result.action.id).status, 'pending')
 })
 
+test('task remarks stay in full details while summaries remain bounded and ordinary edits preserve remarks', async (t) => {
+  const client = await fixture(t, () => ({ content: 'ok' }))
+  const document = client.storage.getDocument('workspace')
+  document.value.tasks[0].description = '备注内容\n'.repeat(500)
+  client.storage.putDocument('workspace', {
+    value: document.value,
+    expectedRevision: document.revision,
+    mutationId: randomUUID(),
+  })
+  const task = document.value.tasks[0]
+  const tools = createWorkspaceTools(client.server.database, client.storage)
+  assert.equal(tools.overview().tasks[0].description, undefined)
+  assert.equal(tools.overview().tasks[0].hasDescription, true)
+  const session = tools.session()
+  const search = session.execute(
+    'search_workspace',
+    JSON.stringify({ query: task.title, kind: 'tasks' }),
+  )
+  assert.equal(search.results[0].description, undefined)
+  const full = session.execute('read_workspace_item', JSON.stringify({ kind: 'task', id: task.id }))
+  assert.equal(full.description, task.description)
+  const update = session.execute(
+    'propose_workspace_change',
+    JSON.stringify({ operation: 'update_task', id: task.id, fields: { title: '仅修改标题' } }),
+  )
+  assert.ok(update.action)
+  tools.decide(update.action.id, 'apply')
+  assert.equal(client.storage.getDocument('workspace').value.tasks[0].description, task.description)
+})
+
 test('category, task, note, preference and focus operations preserve valid workspace state', async (t) => {
   const client = await fixture(t, () => ({ content: 'ok' }))
   const tools = createWorkspaceTools(client.server.database, client.storage)

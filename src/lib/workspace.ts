@@ -8,6 +8,7 @@ export interface TaskCategory {
 export interface Task {
   id: string
   title: string
+  description?: string
   priority: Priority
   categoryId: string
   done: boolean
@@ -66,6 +67,7 @@ export interface Workspace {
 
 export const WORKSPACE_STORAGE_KEY = 'prts-workspace-v1'
 export const MAX_TASK_CATEGORIES = 50
+export const MAX_TASK_DESCRIPTION_LENGTH = 5000
 
 /** Shared by import validation and category mutations, so both accept the same names. */
 export function normalizeTaskCategoryName(value: unknown): string {
@@ -358,6 +360,9 @@ export function validateWorkspace(data: unknown): Workspace {
       return {
         id: text(item.id, '任务 ID', 200),
         title: text(item.title, '任务标题', 300),
+        ...(item.description !== undefined
+          ? { description: text(item.description, '任务备注', MAX_TASK_DESCRIPTION_LENGTH, true) }
+          : {}),
         priority: item.priority as Priority,
         categoryId,
         done: boolean(item.done, '任务完成状态'),

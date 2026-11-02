@@ -74,7 +74,7 @@ export default function CommandPalette({
       : []),
     ...(q
       ? workspace.tasks
-          .filter((t) => t.title.toLowerCase().includes(q))
+          .filter((t) => `${t.title}\n${t.description || ''}`.toLowerCase().includes(q))
           .map((t) => ({
             id: t.id,
             title: t.title,

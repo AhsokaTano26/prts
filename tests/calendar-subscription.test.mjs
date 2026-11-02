@@ -155,6 +155,7 @@ test('resets, disabling, completed tasks and workspace edits change the live fee
     {
       id: 'task',
       title: '提交结果',
+      description: '交付备注：携带文件',
       done: false,
       dueDate: '2026-10-28',
       priority: 'high',
@@ -188,6 +189,29 @@ test('resets, disabling, completed tasks and workspace edits change the live fee
   assert.match(original, /SUMMARY:截止 · 提交结果/)
   assert.doesNotMatch(original, /DO NOT EXPORT|已完成不输出/)
   const uid = /UID:([^\r\n]+)/.exec(original)[1]
+  const deadlineEntry = (value) =>
+    value
+      .replace(/\r\n /g, '')
+      .split('BEGIN:VEVENT\r\n')
+      .find((item) => item.includes('SUMMARY:截止 · 提交结果\r\n'))
+  const originalDeadline = deadlineEntry(original)
+  assert.ok(originalDeadline)
+  assert.match(originalDeadline, /DESCRIPTION:交付备注：携带文件\r\n/)
+  const deadlineUid = /UID:([^\r\n]+)/.exec(originalDeadline)[1]
+  workspace.tasks[0].description = '确认结果😀\n第二行,分号;路径\\资料'
+  await save(1)
+  const updatedDeadline = deadlineEntry(await (await call(app, feedPath(firstToken))).text())
+  assert.ok(updatedDeadline)
+  assert.ok(
+    updatedDeadline.includes(String.raw`DESCRIPTION:确认结果😀\n第二行\,分号\;路径\\资料` + '\r\n'),
+  )
+  assert.equal(/UID:([^\r\n]+)/.exec(updatedDeadline)[1], deadlineUid)
+  workspace.tasks[0].description = ''
+  await save(2)
+  const clearedDeadline = deadlineEntry(await (await call(app, feedPath(firstToken))).text())
+  assert.ok(clearedDeadline)
+  assert.doesNotMatch(clearedDeadline, /DESCRIPTION:/)
+  assert.equal(/UID:([^\r\n]+)/.exec(clearedDeadline)[1], deadlineUid)
   assert.deepEqual(await update(app, 'enable', state.revision), state)
   state = await update(app, 'reset', state.revision)
   assert.notEqual(state.token, firstToken)
@@ -205,10 +229,10 @@ test('resets, disabling, completed tasks and workspace edits change the live fee
   )
   workspace.calendarEvents[0].title = '会面改期'
   workspace.tasks[0].done = true
-  await save(1)
+  await save(3)
   const changed = await (await call(app, feedPath(state.token))).text()
   assert.match(changed, /SUMMARY:会面改期/)
-  assert.match(changed, /SEQUENCE:2\r\n/)
+  assert.match(changed, /SEQUENCE:4\r\n/)
   assert.doesNotMatch(changed, /截止 · 提交结果/)
   assert.equal(/UID:([^\r\n]+)/.exec(changed)[1], uid)
   const exported = JSON.stringify(
@@ -235,7 +259,7 @@ test('resets, disabling, completed tasks and workspace edits change the live fee
           assistantMode: 'local',
         },
       },
-      expectedRevisions: { workspace: 2, preferences: 0, focus: 0 },
+      expectedRevisions: { workspace: 4, preferences: 0, focus: 0 },
       mutationId: crypto.randomUUID(),
     },
   })

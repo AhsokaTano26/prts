@@ -450,6 +450,16 @@
   border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
   padding: 0 4px;
 }
+.matrix-task-description {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 140px;
+  overflow-y: auto;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
 .matrix-pagination {
   display: flex;
   align-items: center;
