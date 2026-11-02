@@ -7,6 +7,7 @@
   line-height: 1.7;
 }
 .assistant-action {
+  min-width: 0;
   margin-top: 16px;
   padding: 16px;
   background: var(--bg);
@@ -42,8 +43,6 @@
 .assistant-action pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  max-height: 300px;
-  overflow-y: auto;
   color: var(--text);
   padding: 12px;
   line-height: 1.7;
@@ -54,6 +53,8 @@
   gap: 10px;
   flex-wrap: wrap;
   margin-top: 14px;
+  padding-top: 12px;
+  background: var(--bg);
 }
 .assistant-action-error {
   color: #ff9875;
@@ -78,6 +79,10 @@
   line-height: 1.7;
 }
 .assistant-action-warnings {
+  max-height: min(220px, 25vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   margin: 12px 0;
   padding: 12px 12px 12px 30px;
   border: 1px solid var(--border);
@@ -91,9 +96,18 @@
   margin-top: 8px;
 }
 .assistant-action-list {
+  max-height: min(360px, 36vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
   margin: 12px 0 0;
-  padding: 0;
+  padding: 0 8px 0 0;
   list-style: none;
+}
+.assistant-action-list:focus-visible,
+.assistant-action-warnings:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 .assistant-action-list li + li {
   border-top: 1px solid var(--border);

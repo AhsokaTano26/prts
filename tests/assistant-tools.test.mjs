@@ -747,8 +747,67 @@ test('an endless tool sequence is bounded and returns a clear error', async (t) 
   }))
   const response = await client.chat()
   assert.equal(response.status, 502)
-  assert.ok(client.requests.length <= 6)
+  assert.equal(client.requests.length, 12)
   assert.match((await response.json()).error, /工具|调用/)
+})
+
+test('a longer multi-step reply completes after nine tool rounds', async (t) => {
+  const client = await fixture(t, (_body, round) =>
+    round < 9
+      ? { content: null, tool_calls: [toolCall('get_workspace', {})] }
+      : { content: '已核对全部资料。' },
+  )
+  const response = await client.chat()
+  assert.equal(response.status, 200)
+  const result = await response.json()
+  assert.equal(result.toolsUsed.length, 9)
+  assert.equal(client.requests.length, 10)
+})
+
+test('thirty-two calls can finish while an oversized call list executes nothing', async (t) => {
+  const client = await fixture(t, (_body, round) =>
+    round === 0
+      ? {
+          content: null,
+          tool_calls: Array.from({ length: 32 }, () => toolCall('get_workspace', {})),
+        }
+      : { content: '已核对工作台。' },
+  )
+  const response = await client.chat()
+  assert.equal(response.status, 200)
+  assert.equal((await response.json()).toolsUsed.length, 32)
+  const overflow = await fixture(t, () => ({
+    content: null,
+    tool_calls: Array.from({ length: 33 }, () =>
+      toolCall('propose_workspace_change', {
+        operation: 'create_task',
+        fields: { title: '不应执行' },
+      }),
+    ),
+  }))
+  assert.equal((await overflow.chat()).status, 502)
+  assert.equal(
+    overflow.server.database.prepare('SELECT COUNT(*) AS n FROM prts_assistant_actions').get().n,
+    0,
+  )
+})
+
+test('aggregate tool budget rejects a later oversized round before any of its calls execute', async (t) => {
+  const client = await fixture(t, (_body, round) => ({
+    content: null,
+    tool_calls: Array.from({ length: round === 0 ? 16 : 17 }, () =>
+      toolCall(
+        round === 0 ? 'get_workspace' : 'propose_workspace_change',
+        round === 0 ? {} : { operation: 'create_task', fields: { title: '不应准备' } },
+      ),
+    ),
+  }))
+  assert.equal((await client.chat()).status, 502)
+  assert.equal(client.requests.length, 2)
+  assert.equal(
+    client.server.database.prepare('SELECT COUNT(*) AS n FROM prts_assistant_actions').get().n,
+    0,
+  )
 })
 
 test('independent task proposals can be confirmed together without creating duplicates', async (t) => {

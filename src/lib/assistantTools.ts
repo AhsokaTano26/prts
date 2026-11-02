@@ -1,3 +1,11 @@
+/** Shared by model tools, server enforcement, stored history and UI parsers. */
+export const ASSISTANT_LIMITS = Object.freeze({
+  maxActions: 50,
+  maxToolCalls: 32,
+  maxRounds: 12,
+  upstreamTimeoutMs: 180_000,
+})
+
 export const ASSISTANT_OPERATIONS = [
   'create_task',
   'update_task',
@@ -36,7 +44,8 @@ export type AssistantAction = {
 export type ToolUsage = { name: string; status: 'ok' | 'error' }
 export function parseAssistantActions(value: unknown): AssistantAction[] {
   if (value === undefined) return []
-  if (!Array.isArray(value) || value.length > 12) throw new Error('AI 操作卡片格式无效。')
+  if (!Array.isArray(value) || value.length > ASSISTANT_LIMITS.maxActions)
+    throw new Error('AI 操作卡片格式无效。')
   return value.map((item) => {
     if (
       !item ||
@@ -71,7 +80,8 @@ export function parseAssistantActions(value: unknown): AssistantAction[] {
 }
 export function parseToolUsage(value: unknown): ToolUsage[] {
   if (value === undefined) return []
-  if (!Array.isArray(value) || value.length > 12) throw new Error('AI 工具记录格式无效。')
+  if (!Array.isArray(value) || value.length > ASSISTANT_LIMITS.maxToolCalls)
+    throw new Error('AI 工具记录格式无效。')
   return value.map((item) => {
     if (
       !item ||

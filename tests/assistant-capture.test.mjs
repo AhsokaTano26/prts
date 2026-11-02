@@ -161,16 +161,84 @@ test('capture bounds and invalid fields never leave excess or partial operations
   const { batch, db } = setup(t)
   for (const changes of [
     [],
-    Array.from({ length: 13 }, (_, i) => task(`任务 ${i}`)),
+    Array.from({ length: 51 }, (_, i) => task(`任务 ${i}`)),
+    [
+      ...Array.from({ length: 49 }, (_, i) => task(`任务 ${i}`)),
+      { operation: 'execute_sql', fields: {} },
+    ],
     [task(), { ...task(), allowDuplicate: 'yes' }],
     [task(), { operation: 'execute_sql', fields: {} }],
   ]) {
     assert.ok(batch(changes).error)
     assert.equal(db.prepare('SELECT COUNT(*) AS n FROM prts_assistant_actions').get().n, 0)
   }
-  assert.equal(batch(Array.from({ length: 12 }, (_, i) => task(`任务 ${i}`))).actions.length, 12)
-  assert.ok(batch([task('第十三项')]).error)
-  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM prts_assistant_actions').get().n, 12)
+  const first = batch(Array.from({ length: 30 }, (_, i) => task(`任务 ${i}`)))
+  assert.equal(first.error, undefined)
+  assert.equal(first.actions.length, 30)
+  assert.equal(
+    batch(Array.from({ length: 20 }, (_, i) => task(`后续任务 ${i}`))).actions.length,
+    20,
+  )
+  assert.ok(batch([task('第五十一项')]).error)
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM prts_assistant_actions').get().n, 50)
+})
+
+test('fifty operations survive frontend parsing, atomic confirmation and idempotent replay', (t) => {
+  const { batch, tools, agent, state, apply } = setup(t)
+  const result = batch(Array.from({ length: 50 }, (_, index) => task(`批量任务 ${index}`)))
+  assert.equal(result.error, undefined)
+  const actions = parseAssistantActions(result.actions)
+  assert.equal(actions.length, 50)
+  assert.equal(state().tasks.length, 0)
+  assert.equal(tools.getActions(actions.map((item) => item.id)).length, 50)
+  apply(actions)
+  apply(actions)
+  assert.equal(state().tasks.length, 50)
+  assert.equal(agent.finalize().actions.length, 50)
+})
+
+test('fifty automatic operations execute only at finalization and do not repeat', (t) => {
+  const { storage, tools, state } = setup(t)
+  storage.putDocument('preferences', {
+    value: {
+      motionEnabled: false,
+      assistant: { persona: 'prts', knowledge: 'none' },
+      assistantMode: 'ai',
+      assistantAutoConfirm: true,
+    },
+    expectedRevision: 0,
+    mutationId: crypto.randomUUID(),
+  })
+  const agent = tools.session()
+  const prepared = agent.execute(
+    'propose_workspace_changes',
+    JSON.stringify({
+      changes: Array.from({ length: 50 }, (_, index) => task(`自动批量任务 ${index}`)),
+    }),
+  )
+  assert.equal(prepared.actions.length, 50)
+  assert.equal(state().tasks.length, 0)
+  const result = agent.finalize()
+  assert.equal(result.actionConfirmation, 'automatic')
+  assert.equal(result.actions.filter((item) => item.status === 'applied').length, 50)
+  assert.equal(state().tasks.length, 50)
+  agent.finalize()
+  assert.equal(state().tasks.length, 50)
+})
+
+test('a conflict at the final item rolls back every earlier write in a fifty-item confirmation', (t) => {
+  const { batch, tools, state, apply } = setup(t)
+  const changes = Array.from({ length: 50 }, (_, index) => task(`冲突批次任务 ${index}`))
+  const prepared = batch(changes)
+  const peer = tools.session().execute('propose_workspace_change', JSON.stringify(changes[49]))
+  apply([peer.action])
+  assert.throws(() => apply(prepared.actions), /已存在/)
+  assert.equal(state().tasks.length, 1)
+  assert.ok(
+    tools
+      .getActions(prepared.actions.map((item) => item.id))
+      .every((item) => item.status === 'pending'),
+  )
 })
 
 test('same-title entries with different source details are preserved as separate records', (t) => {

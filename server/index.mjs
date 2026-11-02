@@ -12,6 +12,7 @@ import { createStorage, storageRoute } from './storage.mjs'
 import { getAsset, assetManager } from './resources.mjs'
 import { createSettings } from './settings.mjs'
 import { createWorkspaceTools } from './assistant-tools.mjs'
+import { ASSISTANT_LIMITS } from '../src/lib/assistantTools.ts'
 import { createNotifications } from './notifications.mjs'
 import { createPasskeys } from './passkeys.mjs'
 import { createCalendarSubscription } from './calendar-subscription.mjs'
@@ -157,7 +158,7 @@ async function completeChat(response, messages, config, timeoutMs, agent, author
   try {
     const callIds = new Set()
     const attachedImages = new Set()
-    for (let round = 0; round < 6; round += 1) {
+    for (let round = 0; round < ASSISTANT_LIMITS.maxRounds; round += 1) {
       authorize()
       const upstream = await fetch(config.endpoint, {
         method: 'POST',
@@ -195,11 +196,22 @@ async function completeChat(response, messages, config, timeoutMs, agent, author
       const message = payload?.choices?.[0]?.message
       const content = message?.content
       const calls = message?.tool_calls
-      if (calls !== undefined && calls !== null && (!Array.isArray(calls) || calls.length > 12))
+      if (
+        calls !== undefined &&
+        calls !== null &&
+        (!Array.isArray(calls) || calls.length > ASSISTANT_LIMITS.maxToolCalls)
+      )
         throw new HttpError(502, 'AI 服务返回了无效的工具调用。')
       if (calls?.length) {
-        if (!agent || agent.toolsUsed.length + calls.length > 12 || round === 5)
-          throw new HttpError(502, 'AI 工具调用次数过多，请缩小请求范围后重试。')
+        if (
+          !agent ||
+          agent.toolsUsed.length + calls.length > ASSISTANT_LIMITS.maxToolCalls ||
+          round === ASSISTANT_LIMITS.maxRounds - 1
+        )
+          throw new HttpError(
+            502,
+            `本轮工具调用已达上限（最多 ${ASSISTANT_LIMITS.maxToolCalls} 次工具调用、${ASSISTANT_LIMITS.maxRounds} 轮模型请求），请拆分请求后重试。`,
+          )
         const normalized = calls.map((call) => {
           if (
             call?.type !== 'function' ||
@@ -264,7 +276,10 @@ async function completeChat(response, messages, config, timeoutMs, agent, author
         ...(agent?.toolsUsed.length ? { toolsUsed: agent.toolsUsed } : {}),
       }
     }
-    throw new HttpError(502, 'AI 工具调用次数过多，请缩小请求范围后重试。')
+    throw new HttpError(
+      502,
+      `本轮模型请求已达 ${ASSISTANT_LIMITS.maxRounds} 轮上限，请拆分请求后重试。`,
+    )
   } catch (error) {
     if (timedOut) throw new HttpError(504, 'AI 响应超时，请稍后重试。')
     if (error instanceof HttpError) throw error
@@ -650,7 +665,7 @@ async function route(
 export function createServer({
   env = process.env,
   distDir = DEFAULT_DIST,
-  upstreamTimeoutMs = 60_000,
+  upstreamTimeoutMs = ASSISTANT_LIMITS.upstreamTimeoutMs,
   now = Date.now,
   corpusDir,
   syncCorpus,

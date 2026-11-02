@@ -104,6 +104,10 @@ test('AI tools prepare a real task, confirmation refreshes the workspace and his
 async function batchChat(
   page: import('@playwright/test').Page,
   theme: 'rhodes' | 'rhine' = 'rhodes',
+  changes?: {
+    operation: 'create_task' | 'create_calendar_event'
+    fields: Record<string, unknown>
+  }[],
 ) {
   let replies = 0
   const upstream = createServer(async (request, response) => {
@@ -115,17 +119,28 @@ async function batchChat(
         ? { content: '博士，本轮计划已整理，请查看操作结果。' }
         : {
             content: null,
-            tool_calls: ['A', 'B'].map((suffix) => ({
-              id: randomUUID(),
-              type: 'function',
-              function: {
-                name: 'propose_workspace_change',
-                arguments: JSON.stringify({
-                  operation: 'create_task',
-                  fields: { title: `批量计划 ${replies} ${suffix}` },
-                }),
-              },
-            })),
+            tool_calls: changes
+              ? [
+                  {
+                    id: randomUUID(),
+                    type: 'function',
+                    function: {
+                      name: 'propose_workspace_changes',
+                      arguments: JSON.stringify({ changes }),
+                    },
+                  },
+                ]
+              : ['A', 'B'].map((suffix) => ({
+                  id: randomUUID(),
+                  type: 'function',
+                  function: {
+                    name: 'propose_workspace_change',
+                    arguments: JSON.stringify({
+                      operation: 'create_task',
+                      fields: { title: `批量计划 ${replies} ${suffix}` },
+                    }),
+                  },
+                })),
           }
     if (payload.messages.at(-1).role !== 'tool') replies++
     response.setHeader('content-type', 'application/json')
@@ -173,9 +188,9 @@ async function batchChat(
     await new Promise<void>((resolve) => upstream.close(() => resolve()))
   }
 }
-async function requestBatch(page: import('@playwright/test').Page) {
-  await page.getByLabel('发送给 PRTS 的消息').fill('请创建两个任务')
-  await expect(page.getByLabel('发送给 PRTS 的消息')).toHaveValue('请创建两个任务')
+async function requestBatch(page: import('@playwright/test').Page, prompt = '请创建两个任务') {
+  await page.getByLabel('发送给 PRTS 的消息').fill(prompt)
+  await expect(page.getByLabel('发送给 PRTS 的消息')).toHaveValue(prompt)
   await page.getByRole('button', { name: '发送消息', exact: true }).click()
   await expect(page.getByRole('button', { name: '停止生成', exact: true })).toHaveCount(0)
   await waitSaved(page)
@@ -238,6 +253,158 @@ for (const theme of ['rhodes', 'rhine'] as const) {
     }
   })
 }
+
+for (const theme of ['rhodes', 'rhine'] as const) {
+  test(`${theme}: a 50-item batch has a keyboard-scrollable preview, confirms once and survives refresh`, async ({
+    page,
+  }) => {
+    const titles = Array.from(
+      { length: 50 },
+      (_, index) => `大批次任务 ${String(index + 1).padStart(2, '0')}`,
+    )
+    const close = await batchChat(
+      page,
+      theme,
+      titles.map((title) => ({
+        operation: 'create_task',
+        fields: { title, priority: 'high', dueDate: '2030-06-10' },
+      })),
+    )
+    const errors: string[] = []
+    page.on('pageerror', (error) => errors.push(error.message))
+    page.on('console', (message) => {
+      if (message.type() === 'error') errors.push(message.text())
+    })
+    try {
+      await requestBatch(page, '请创建以下50项任务，并统一等待我确认。')
+      const card = page.getByRole('region', { name: '工作台操作 · 50 项', exact: true })
+      await expect(page.locator('.assistant-action')).toHaveCount(1)
+      await expect(card).toContainText('等待确认 · 50 项')
+      await card.getByText('查看修改预览', { exact: true }).click()
+      const preview = card.getByRole('list', { name: '操作修改预览', exact: true })
+      await expect(preview.getByRole('listitem')).toHaveCount(50)
+      await expect(card.locator('pre')).toHaveCount(50)
+      const pending = await (await page.request.get('/api/state')).json()
+      expect(
+        pending.documents.workspace.value.tasks.filter((task: { title: string }) =>
+          task.title.startsWith('大批次任务 '),
+        ),
+      ).toHaveLength(0)
+      const cancel = card.getByRole('button', { name: '取消全部', exact: true })
+      const confirm = card.getByRole('button', { name: '确认全部', exact: true })
+      for (const width of [1440, 320]) {
+        await page.setViewportSize({ width, height: width === 320 ? 850 : 1000 })
+        const metrics = await preview.evaluate((element) => ({
+          visible: element.clientHeight,
+          content: element.scrollHeight,
+        }))
+        expect(metrics.visible).toBeLessThanOrEqual(360)
+        expect(metrics.content).toBeGreaterThan(metrics.visible * 5)
+        await preview.evaluate((element) => {
+          element.scrollTop = 0
+        })
+        await preview.focus()
+        await expect(preview).toBeFocused()
+        await page.keyboard.press('PageDown')
+        await expect.poll(() => preview.evaluate((element) => element.scrollTop)).toBeGreaterThan(0)
+        await page.keyboard.press('Tab')
+        await expect(cancel).toBeFocused()
+        await page.keyboard.press('Tab')
+        await expect(confirm).toBeFocused()
+        await expect(confirm).toBeInViewport()
+        await expect(cancel).toBeInViewport()
+        const previewBounds = await preview.boundingBox()
+        const cancelBounds = await cancel.boundingBox()
+        expect(cancelBounds!.y).toBeGreaterThanOrEqual(previewBounds!.y + previewBounds!.height)
+        const bounds = await card.boundingBox()
+        expect(bounds).not.toBeNull()
+        expect(bounds!.x).toBeGreaterThanOrEqual(0)
+        expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width)
+        expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(
+          false,
+        )
+        await page.screenshot({ path: `/tmp/prts-batch-50-${theme}-${width}.png` })
+      }
+      await confirm.click()
+      await expect(card.getByText('已全部执行 · 50 项', { exact: true })).toBeVisible()
+      await expect(card.getByRole('button')).toHaveCount(0)
+      await waitSaved(page)
+      const saved = await (await page.request.get('/api/state')).json()
+      expect(
+        saved.documents.workspace.value.tasks
+          .filter((task: { title: string }) => task.title.startsWith('大批次任务 '))
+          .map((task: { title: string }) => task.title)
+          .sort(),
+      ).toEqual(titles)
+      await page.reload()
+      await expect(page.locator('.assistant-action')).toHaveCount(1)
+      await expect(card.getByText('已全部执行 · 50 项', { exact: true })).toBeVisible()
+      await expect(card.getByRole('button')).toHaveCount(0)
+      await page.setViewportSize({ width: 1440, height: 1000 })
+      await page.getByRole('button', { name: '任务中枢', exact: true }).click()
+      await expect(page.getByText(titles[0], { exact: true })).toBeVisible()
+      await expect(page.getByText(titles[49], { exact: true })).toBeVisible()
+      expect(errors).toEqual([])
+    } finally {
+      await close()
+    }
+  })
+}
+
+test('large overlap warnings remain keyboard-scrollable while batch controls stay reachable on mobile', async ({
+  page,
+}) => {
+  const close = await batchChat(
+    page,
+    'rhodes',
+    Array.from({ length: 50 }, (_, index) => ({
+      operation: 'create_calendar_event' as const,
+      fields: {
+        title: `重叠安排 ${index + 1}`,
+        allDay: false,
+        startAt: '2030-06-10T09:00:00+08:00',
+        endAt: '2030-06-10T10:00:00+08:00',
+      },
+    })),
+  )
+  try {
+    await page.setViewportSize({ width: 320, height: 850 })
+    await requestBatch(page, '请准备这50项同期日程，保留时间重叠提醒，等待统一确认。')
+    const card = page.getByRole('region', { name: '工作台操作 · 50 项', exact: true })
+    const warnings = card.getByRole('list', { name: '录入提醒', exact: true })
+    await expect(warnings).toContainText('时间重叠')
+    expect(await warnings.getByRole('listitem').count()).toBeGreaterThan(50)
+    const metrics = await warnings.evaluate((element) => ({
+      visible: element.clientHeight,
+      content: element.scrollHeight,
+    }))
+    expect(metrics.visible).toBeLessThanOrEqual(220)
+    expect(metrics.content).toBeGreaterThan(metrics.visible * 5)
+    await warnings.focus()
+    await expect(warnings).toBeFocused()
+    await page.keyboard.press('PageDown')
+    await expect.poll(() => warnings.evaluate((element) => element.scrollTop)).toBeGreaterThan(0)
+    const cancel = card.getByRole('button', { name: '取消全部', exact: true })
+    await cancel.focus()
+    await expect(cancel).toBeInViewport()
+    await expect(card.getByRole('button', { name: '确认全部', exact: true })).toBeInViewport()
+    const warningBounds = await warnings.boundingBox()
+    const cancelBounds = await cancel.boundingBox()
+    expect(cancelBounds!.y).toBeGreaterThanOrEqual(warningBounds!.y + warningBounds!.height)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)
+    await page.screenshot({ path: '/tmp/prts-batch-50-overlap-mobile.png' })
+    await cancel.click()
+    await expect(card.getByText('已取消', { exact: true })).toBeVisible()
+    const state = await (await page.request.get('/api/state')).json()
+    expect(
+      state.documents.workspace.value.calendarEvents.filter((event: { title: string }) =>
+        event.title.startsWith('重叠安排 '),
+      ),
+    ).toHaveLength(0)
+  } finally {
+    await close()
+  }
+})
 
 test('automatic confirmation persists, only affects future replies and can be switched off', async ({
   page,

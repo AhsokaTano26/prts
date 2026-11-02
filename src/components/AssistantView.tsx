@@ -19,6 +19,7 @@ import KnowledgePanel, { KnowledgeSources } from './KnowledgePanel'
 import PrtsSelect from './PrtsSelect'
 import AssistantActions from './AssistantActions'
 import {
+  ASSISTANT_LIMITS,
   parseAssistantActions,
   parseToolUsage,
   type AssistantAction,
@@ -532,7 +533,9 @@ export default function AssistantView({
                   开启自动确认后，后续回复中的任务、日程、笔记、分类、普通设置和计时修改会自动执行，包括删除。结果仍保留在对话中；已有待确认操作需手动处理。
                 </p>
                 <p>
-                  可以直接粘贴通知、聊天记录，或提供已上传的图片和笔记名称，让助手整理任务与日程。多项安排会合并预览；时间不明确时先补充，重复事项会跳过，日程重叠会提示核对。
+                  可以直接粘贴通知、聊天记录，或提供已上传的图片和笔记名称，让助手整理任务与日程。
+                  一次最多整理 {ASSISTANT_LIMITS.maxActions}{' '}
+                  项修改，合并预览；时间不明确时先补充，重复事项会跳过，日程重叠会提示核对。
                 </p>
                 <p className="assistant-access-note">
                   已连接工作台：可按需读取任务、日程、笔记、文本附件与图片，相关内容会发送给你配置的

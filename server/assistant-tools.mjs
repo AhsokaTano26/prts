@@ -6,7 +6,7 @@ import {
   renameTaskCategory,
   deleteTaskCategory,
 } from '../src/lib/taskCategories.ts'
-import { ASSISTANT_OPERATIONS } from '../src/lib/assistantTools.ts'
+import { ASSISTANT_LIMITS, ASSISTANT_OPERATIONS } from '../src/lib/assistantTools.ts'
 import { changeCalendar, searchCalendar } from './assistant-calendar.mjs'
 import { captureWarnings, sameCapture } from './assistant-capture.mjs'
 import { focusRunning, resetFocus, toggleFocus, formatFocusTime } from '../src/lib/focusTimer.ts'
@@ -119,12 +119,12 @@ export const WORKSPACE_TOOLS = [
   ),
   tool(
     'propose_workspace_changes',
-    `用户要求从文字、笔记或图片记录多项安排时，优先一次准备完整批次，最多12项；可混合任务与日程。任何一项无效时整批不产生操作卡片，按错误序号修正，缺少时间则先询问用户。重复记录会跳过或复用，时间重叠会提示，不能自行猜测日期、时长、地点。${changeFieldsDescription}`,
+    `用户要求从文字、笔记或图片记录多项安排时，优先一次准备完整批次，最多${ASSISTANT_LIMITS.maxActions}项；可混合任务与日程。任何一项无效时整批不产生操作卡片，按错误序号修正，缺少时间则先询问用户。重复记录会跳过或复用，时间重叠会提示，不能自行猜测日期、时长、地点。${changeFieldsDescription}`,
     {
       changes: {
         type: 'array',
         minItems: 1,
-        maxItems: 12,
+        maxItems: ASSISTANT_LIMITS.maxActions,
         items: {
           type: 'object',
           properties: changeProperties,
@@ -694,8 +694,13 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
     })
   }
   function actionIds(ids) {
-    if (!Array.isArray(ids) || !ids.length || ids.length > 12 || new Set(ids).size !== ids.length)
-      throw new HttpError(400, '每批应包含 1 至 12 个不重复的操作ID。')
+    if (
+      !Array.isArray(ids) ||
+      !ids.length ||
+      ids.length > ASSISTANT_LIMITS.maxActions ||
+      new Set(ids).size !== ids.length
+    )
+      throw new HttpError(400, `每批应包含 1 至 ${ASSISTANT_LIMITS.maxActions} 个不重复的操作ID。`)
     return ids.map((id) => action(id))
   }
   function getActions(ids) {
@@ -753,8 +758,12 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       records = [],
       skippedRecords = []
     function prepareBatch(changes) {
-      if (!Array.isArray(changes) || !changes.length || changes.length > 12)
-        throw new HttpError(400, '每批应包含 1 至 12 项操作。')
+      if (
+        !Array.isArray(changes) ||
+        !changes.length ||
+        changes.length > ASSISTANT_LIMITS.maxActions
+      )
+        throw new HttpError(400, `每批应包含 1 至 ${ASSISTANT_LIMITS.maxActions} 项操作。`)
       const nextRecords = [...records]
       const nextSkipped = [...skippedRecords]
       const prepared = [],
@@ -788,8 +797,14 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
                   actionId: result.action.id,
                 })
             }
-            if (new Set([...actions, ...prepared].map((item) => item.id)).size > 12)
-              throw new HttpError(400, '每轮最多准备 12 项操作，请分次录入。')
+            if (
+              new Set([...actions, ...prepared].map((item) => item.id)).size >
+              ASSISTANT_LIMITS.maxActions
+            )
+              throw new HttpError(
+                400,
+                `每轮最多准备 ${ASSISTANT_LIMITS.maxActions} 项操作，请分次录入。`,
+              )
           } catch (error) {
             if (error instanceof HttpError)
               throw new HttpError(error.status, `第 ${index + 1} 项：${error.message}`)

@@ -111,7 +111,7 @@ function BatchCard({
         <p className="assistant-action-hint">本轮操作统一执行，任一操作冲突时整批不写入。</p>
       )}
       {actions.some((action) => action.warnings?.length) && (
-        <ul className="assistant-action-warnings" aria-label="录入提醒">
+        <ul className="assistant-action-warnings" aria-label="录入提醒" tabIndex={0}>
           {actions.flatMap((action) =>
             (action.warnings || []).map((warning, index) => (
               <li key={`${action.id}-${index}`}>
@@ -124,7 +124,7 @@ function BatchCard({
       )}
       <details>
         <summary>查看修改预览</summary>
-        <ol className="assistant-action-list">
+        <ol className="assistant-action-list" aria-label="操作修改预览" tabIndex={0}>
           {actions.map((action) => (
             <li key={action.id}>
               {multiple && <strong>{action.summary}</strong>}
