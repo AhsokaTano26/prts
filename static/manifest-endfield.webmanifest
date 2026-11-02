@@ -32,7 +32,7 @@
   ],
   "shortcuts": [
     { "name": "任务中枢", "short_name": "任务", "url": "/#tasks" },
-    { "name": "个人档案", "short_name": "笔记", "url": "/#notes" },
+    { "name": "个人思考", "short_name": "笔记", "url": "/#notes" },
     { "name": "PRTS 助手", "short_name": "AI", "url": "/#assistant" }
   ]
 }
