@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Bell, ArrowUpRight } from 'lucide-react'
 import { apiFetch, WORKSPACE_UPDATED_EVENT } from '../lib/api'
 import { useAppearance } from '../lib/appearance'
+import { themeIdentity } from '../lib/themes'
 import {
   NOTIFICATIONS_CHANGED,
   notificationPermission,
@@ -75,10 +76,7 @@ export default function TaskReminders({
           const options = {
             body: `${reminder.title}\n截止：${new Date(reminder.dueAt).toLocaleString('zh-CN')}`,
             tag: `prts-task-${reminder.id}`,
-            icon:
-              themeRef.current === 'rhine'
-                ? '/icons/rhine-lab-192.png'
-                : '/icons/rhodes-island-192.png',
+            icon: themeIdentity[themeRef.current].icon,
             data: { url: '/#tasks' },
             silent: !sound,
           }

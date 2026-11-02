@@ -387,7 +387,7 @@ async function route(
       return json(response, 405, { error: '此接口仅支持 GET 请求。' }, { allow: 'GET' })
     }
     const theme = storage.getDocument('preferences')?.value.appearance?.theme
-    return json(response, 200, { theme: theme === 'rhine' ? 'rhine' : 'rhodes' })
+    return json(response, 200, { theme: ['rhine', 'endfield'].includes(theme) ? theme : 'rhodes' })
   }
   if (['/api/auth/session', '/api/auth/login', '/api/auth/logout'].includes(pathname)) {
     const method = pathname === '/api/auth/session' ? 'GET' : 'POST'

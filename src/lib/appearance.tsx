@@ -8,8 +8,9 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { parseTheme, themeIdentity, type ThemeId } from './themes'
 
-export type ThemeId = 'rhodes' | 'rhine'
+export type { ThemeId } from './themes'
 export type PortraitId = 'amiya' | 'priestess' | 'kaltsit'
 export type AppearancePreferences = { theme: ThemeId; portrait: PortraitId }
 
@@ -25,7 +26,7 @@ export function parseAppearance(value: unknown): AppearancePreferences {
       ? (value as Record<string, unknown>)
       : {}
   return {
-    theme: record.theme === 'rhine' ? 'rhine' : 'rhodes',
+    theme: parseTheme(record.theme),
     portrait:
       record.portrait === 'priestess' || record.portrait === 'kaltsit' ? record.portrait : 'amiya',
   }
@@ -44,7 +45,7 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
   const appliedVersion = useRef(0)
   const applyTheme = useCallback((next: ThemeId) => {
     ++appliedVersion.current
-    setTheme(next === 'rhine' ? 'rhine' : 'rhodes')
+    setTheme(parseTheme(next))
   }, [])
 
   useEffect(() => {
@@ -75,22 +76,20 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
 
   useLayoutEffect(() => {
     const root = document.documentElement
+    const identity = themeIdentity[theme]
     root.dataset.theme = theme
-    root.style.colorScheme = theme === 'rhine' ? 'light' : 'dark'
+    root.style.colorScheme = identity.colorScheme
     const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
-    if (meta) meta.content = theme === 'rhine' ? '#f0f2ed' : '#111315'
+    if (meta) meta.content = identity.color
     const manifest = document.querySelector<HTMLLinkElement>('link[rel="manifest"]')
-    if (manifest)
-      manifest.href = theme === 'rhine' ? '/manifest-rhine.webmanifest' : '/manifest.webmanifest'
+    if (manifest) manifest.href = identity.manifest
     const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]')
     if (icon) {
-      icon.href = theme === 'rhine' ? '/icons/rhine-lab-192.png' : '/rhodes-island.svg'
-      icon.type = theme === 'rhine' ? 'image/png' : 'image/svg+xml'
+      icon.href = identity.favicon
+      icon.type = identity.favicon.endsWith('.svg') ? 'image/svg+xml' : 'image/png'
     }
     const touchIcon = document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]')
-    if (touchIcon)
-      touchIcon.href =
-        theme === 'rhine' ? '/icons/rhine-lab-180.png' : '/icons/rhodes-island-apple-180.png'
+    if (touchIcon) touchIcon.href = identity.touchIcon
   }, [theme])
 
   useEffect(() => {

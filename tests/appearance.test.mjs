@@ -103,6 +103,77 @@ test('appearance survives SQLite reopening and a legacy client cannot erase the 
   assert.equal(store.getDocument('preferences').revision, 2)
 })
 
+test('Endfield saves through the authenticated API and exposes only its public theme', async (t) => {
+  const { base } = await app(t)
+  const login = await fetch(`${base}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ password: 'appearance-test-password-only' }),
+  })
+  const cookie = login.headers.get('set-cookie').split(';')[0]
+  await login.json()
+  const saved = await fetch(`${base}/api/state/preferences`, {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json', cookie },
+    body: JSON.stringify(
+      write({
+        ...preferences(),
+        appearance: { theme: 'endfield', portrait: 'kaltsit' },
+        migratedBrowserIds: ['private-migration-id'],
+      }),
+    ),
+  })
+  assert.equal(saved.status, 200)
+  assert.deepEqual((await saved.json()).value.appearance, {
+    theme: 'endfield',
+    portrait: 'kaltsit',
+  })
+  const publicAppearance = await fetch(`${base}/api/appearance`)
+  assert.equal(publicAppearance.headers.get('cache-control'), 'no-store')
+  assert.deepEqual(await publicAppearance.json(), { theme: 'endfield' })
+})
+
+test('Endfield survives reopening and legacy writes/imports while explicit imports can switch back', async (t) => {
+  const root = await directory(t)
+  const filename = path.join(root, 'prts.sqlite')
+  let db = createDatabase({ filename })
+  let store = createStorage(db, { uploadsDir: path.join(root, 'uploads') })
+  store.putDocument(
+    'preferences',
+    write({ ...preferences(), appearance: { theme: 'endfield', portrait: 'priestess' } }),
+  )
+  db.close()
+  db = createDatabase({ filename })
+  t.after(() => db.close())
+  store = createStorage(db, { uploadsDir: path.join(root, 'uploads') })
+  assert.deepEqual(store.getDocument('preferences').value.appearance, {
+    theme: 'endfield',
+    portrait: 'priestess',
+  })
+  const saved = store.putDocument('preferences', write(preferences(), 1))
+  assert.deepEqual(saved.value.appearance, { theme: 'endfield', portrait: 'priestess' })
+  const legacy = store.importDocuments({
+    documents: { preferences: preferences() },
+    expectedRevisions: { workspace: 0, preferences: 2, focus: 0 },
+    mutationId: crypto.randomUUID(),
+  })
+  assert.deepEqual(legacy.documents.preferences.value.appearance, {
+    theme: 'endfield',
+    portrait: 'priestess',
+  })
+  const explicit = store.importDocuments({
+    documents: {
+      preferences: { ...preferences(), appearance: { theme: 'rhine', portrait: 'priestess' } },
+    },
+    expectedRevisions: { workspace: 0, preferences: 3, focus: 0 },
+    mutationId: crypto.randomUUID(),
+  })
+  assert.deepEqual(explicit.documents.preferences.value.appearance, {
+    theme: 'rhine',
+    portrait: 'priestess',
+  })
+})
+
 test('invalid explicit appearance choices cannot mutate a saved preference document', async (t) => {
   const root = await directory(t)
   const db = createDatabase()

@@ -13,7 +13,9 @@ import {
 } from 'lucide-react'
 import { Logo } from './UI'
 import { useAppearance } from '../lib/appearance'
+import { themeIdentity } from '../lib/themes'
 import RhineInstrument from './RhineInstrument'
+import EndfieldSchematic from './EndfieldSchematic'
 import AppVersion from './AppVersion'
 import '../styles/auth.css'
 
@@ -67,6 +69,8 @@ export default function LoginView({
 }: LoginViewProps) {
   const { theme } = useAppearance()
   const rhine = theme === 'rhine'
+  const endfield = theme === 'endfield'
+  const identity = themeIdentity[theme]
   const [password, setPassword] = useState('')
   const [revealed, setRevealed] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -130,9 +134,9 @@ export default function LoginView({
           <div className="auth-wordmark">
             <Logo small />
             <span>
-              {rhine ? 'RHINE LAB' : 'PRTS'}
+              {identity.brand}
               <span className="auth-wordmark-slash"> / </span>
-              <small>{rhine ? 'ANALYSIS OS' : 'PERSONAL TERMINAL'}</small>
+              <small>{identity.terminal}</small>
             </span>
           </div>
           <span className="auth-topbar-index">
@@ -141,7 +145,23 @@ export default function LoginView({
         </header>
 
         <div className="auth-layout">
-          {rhine ? (
+          {endfield ? (
+            <section className="auth-identity auth-identity--endfield" aria-label="终末地工业终端">
+              <p className="auth-eyebrow">ENDFIELD INDUSTRIES / PERSONAL TERMINAL</p>
+              <h2>
+                THE NEXT
+                <br />
+                <mark>FRONTIER.</mark>
+              </h2>
+              <p className="endfield-auth-intro">开拓前路，构筑日常。</p>
+              <EndfieldSchematic />
+              <div className="endfield-auth-index mono">
+                <span>PLAN</span>
+                <span>BUILD</span>
+                <span>ADVANCE</span>
+              </div>
+            </section>
+          ) : rhine ? (
             <section className="auth-identity auth-identity--rhine" aria-label="莱茵生命科研终端">
               <p className="auth-eyebrow">RHINE LAB / PERSONAL RESEARCH TERMINAL</p>
               <h2 className="rhine-auth-title">
@@ -217,7 +237,11 @@ export default function LoginView({
               <div className="auth-panel-top">
                 <span>
                   <span className="auth-panel-number">01</span>{' '}
-                  {rhine ? 'RESEARCHER ACCESS' : 'IDENTITY VERIFICATION'}
+                  {endfield
+                    ? 'ADMINISTRATOR ACCESS'
+                    : rhine
+                      ? 'RESEARCHER ACCESS'
+                      : 'IDENTITY VERIFICATION'}
                 </span>
                 <LockKeyhole size={16} aria-hidden="true" />
               </div>
@@ -388,11 +412,15 @@ export default function LoginView({
 
         <footer className="auth-footer">
           <span>
-            {rhine ? 'RHINE LAB' : 'PRTS'} <span>//</span> ACCESS CONTROL
+            {identity.brand} <span>//</span> ACCESS CONTROL
           </span>
           <span>
-            {rhine ? 'PERSONAL RESEARCH WORKSPACE' : 'PERSONAL WORKSPACE'} <span>·</span>{' '}
-            <AppVersion />
+            {endfield
+              ? 'PERSONAL INDUSTRIAL WORKSPACE'
+              : rhine
+                ? 'PERSONAL RESEARCH WORKSPACE'
+                : 'PERSONAL WORKSPACE'}{' '}
+            <span>·</span> <AppVersion />
           </span>
         </footer>
       </div>

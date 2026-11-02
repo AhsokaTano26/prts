@@ -18,6 +18,7 @@ import '../styles/amiya.css'
 import '../styles/rhine-overview.css'
 import CharacterPortrait from './CharacterPortrait'
 import RhineHero from './RhineHero'
+import EndfieldHero from './EndfieldHero'
 import { useAppearance, type PortraitId } from '../lib/appearance'
 
 type Props = {
@@ -42,6 +43,7 @@ export default function Overview({
 }: Props) {
   const { theme } = useAppearance()
   const rhine = theme === 'rhine'
+  const endfield = theme === 'endfield'
   const tasks = w.tasks.filter((t) => !t.done).slice(0, 3)
   const notes = [...w.notes]
     .sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.updatedAt.localeCompare(a.updatedAt))
@@ -75,14 +77,22 @@ export default function Overview({
       <div className="view-heading">
         <div>
           <h1>
-            {rhine ? '今日研究工作台' : '欢迎回来，博士'}
+            {endfield ? '你好，管理员' : rhine ? '今日研究工作台' : '欢迎回来，博士'}
             <span className="heading-dot">。</span>
           </h1>
           <p>
-            {rhine ? '把好奇心，写成下一步。' : '今天，也向前一步。'}
+            {endfield
+              ? '把每一个想法，构筑成下一步。'
+              : rhine
+                ? '把好奇心，写成下一步。'
+                : '今天，也向前一步。'}
             <span className="welcome-divider">/</span>
             <span className="mono welcome-en">
-              {rhine ? 'OBSERVE. EXPLORE. ADVANCE.' : 'A NEW DAY. A NEW POSSIBILITY.'}
+              {endfield
+                ? 'PLAN. BUILD. ADVANCE.'
+                : rhine
+                  ? 'OBSERVE. EXPLORE. ADVANCE.'
+                  : 'A NEW DAY. A NEW POSSIBILITY.'}
             </span>
           </p>
         </div>
@@ -91,7 +101,13 @@ export default function Overview({
           新建任务
         </button>
       </div>
-      {rhine ? (
+      {endfield ? (
+        <EndfieldHero
+          portrait={portrait}
+          onResources={() => onNavigate('settings/resources')}
+          onAppearance={() => onNavigate('settings/appearance')}
+        />
+      ) : rhine ? (
         <RhineHero
           portrait={portrait}
           onResources={() => onNavigate('settings/resources')}

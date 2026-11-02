@@ -29,18 +29,32 @@ const brands = {
       ['rhine-lab-180.png', 180, false],
     ],
   },
+  endfield: {
+    name: 'Endfield',
+    original: 'endfield.svg',
+    background: '#f5df20',
+    tint: null,
+    foregroundWidth: 74,
+    favicon: null,
+    icons: [
+      ['endfield-192.png', 192, false],
+      ['endfield-512.png', 512, false],
+      ['endfield-maskable-512.png', 512, true],
+      ['endfield-180.png', 180, false],
+    ],
+  },
 }
 const args = process.argv.slice(2)
 const theme =
   args.length === 0 ? 'rhodes' : args.length === 2 && args[0] === '--theme' ? args[1] : null
-if (!['rhodes', 'rhine', 'all'].includes(theme)) {
-  console.error('Usage: node scripts/generate-icons.mjs [--theme rhodes|rhine|all]')
+if (!['rhodes', 'rhine', 'endfield', 'all'].includes(theme)) {
+  console.error('Usage: node scripts/generate-icons.mjs [--theme rhodes|rhine|endfield|all]')
   process.exit(1)
 }
 
 function brandSvg(size, brand, imageUrl, { maskable = false, rounded = false } = {}) {
   // Keep the maskable foreground inside the central 80% safe circle.
-  const width = maskable ? 56 : 94
+  const width = maskable ? 56 : (brand.foregroundWidth ?? 94)
   const inset = (100 - width) / 2
   const filter = brand.tint
     ? `<defs><filter id="emblem-tint" color-interpolation-filters="sRGB"><feFlood flood-color="${brand.tint}"/><feComposite in2="SourceAlpha" operator="in"/></filter></defs>`
@@ -59,7 +73,8 @@ try {
     const original = await readFile(
       new URL(`../static/branding/${brand.original}`, import.meta.url),
     )
-    const imageUrl = `data:image/png;base64,${original.toString('base64')}`
+    const mimeType = brand.original.endsWith('.svg') ? 'image/svg+xml' : 'image/png'
+    const imageUrl = `data:${mimeType};base64,${original.toString('base64')}`
     for (const [file, size, maskable] of brand.icons) {
       const svg = brandSvg(size, brand, imageUrl, { maskable })
       const data = await page.evaluate(

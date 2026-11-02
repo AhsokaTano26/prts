@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Logo } from './UI'
 import { useAppearance } from '../lib/appearance'
 import RhineInstrument from './RhineInstrument'
+import EndfieldSchematic from './EndfieldSchematic'
 
 interface BootSequenceProps {
   onComplete: () => void
@@ -176,7 +177,7 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
   return (
     <div
       ref={rootRef}
-      className="boot-sequence"
+      className={`boot-sequence${theme === 'endfield' ? ' boot-sequence--endfield' : ''}`}
       data-phase={phase}
       data-replay={onReplay || undefined}
       role="dialog"
@@ -196,7 +197,7 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
       <div className="boot-topline mono" aria-hidden="true">
         <span>
           <i />
-          PRTS PERSONAL TERMINAL
+          {theme === 'endfield' ? 'ENDFIELD INDUSTRIES' : 'PRTS PERSONAL TERMINAL'}
         </span>
         <span>BOOT SEQUENCE</span>
       </div>
@@ -206,12 +207,15 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
       <span className="boot-corner boot-corner-br" aria-hidden="true" />
 
       <div className="boot-center">
+        {theme === 'endfield' && <EndfieldSchematic />}
         <div className="boot-identity" aria-hidden="true">
           <div className="boot-emblem">
             <Logo />
           </div>
-          <div className="boot-wordmark">PRTS</div>
-          <div className="boot-subtitle mono">PERSONAL WORKSPACE</div>
+          <div className="boot-wordmark">{theme === 'endfield' ? 'ENDFIELD' : 'PRTS'}</div>
+          <div className="boot-subtitle mono">
+            {theme === 'endfield' ? 'INDUSTRIES / PERSONAL TERMINAL' : 'PERSONAL WORKSPACE'}
+          </div>
           <div className="boot-scanline" />
         </div>
         <div className="boot-status" role="status" aria-live="polite" aria-atomic="true">
@@ -228,7 +232,7 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
       </div>
 
       <div className="boot-bottomline mono" aria-hidden="true">
-        <span>PRTS / PERSONAL TERMINAL</span>
+        <span>{theme === 'endfield' ? 'ENDFIELD / INDUSTRIES' : 'PRTS / PERSONAL TERMINAL'}</span>
         <span>LOCAL WORKSPACE</span>
       </div>
       <button ref={skipRef} className="boot-skip mono" type="button" onClick={complete}>

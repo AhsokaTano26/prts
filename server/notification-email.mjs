@@ -37,11 +37,19 @@ function escapeHtml(value) {
 export function renderReminderEmail(event, { now, timeZone, theme = 'rhodes', portrait = null }) {
   const payload = qqReminderPayload(event, { now, timeZone })
   const rhine = theme === 'rhine'
-  const accent = rhine ? '#246e43' : '#d94b18'
-  const headerBackground = rhine ? '#e7eee3' : '#151a1f'
-  const headerColor = rhine ? '#1d3025' : '#ffffff'
-  const background = rhine ? '#f0f2ed' : '#f1f3f5'
-  const brand = rhine ? 'RHINE LAB' : 'PRTS'
+  const endfield = theme === 'endfield'
+  const accent = endfield ? '#786400' : rhine ? '#246e43' : '#d94b18'
+  const headerBackground = endfield ? '#f2d33f' : rhine ? '#e7eee3' : '#151a1f'
+  const headerColor = endfield ? '#20221f' : rhine ? '#1d3025' : '#ffffff'
+  const background = endfield ? '#ecece7' : rhine ? '#f0f2ed' : '#f1f3f5'
+  const brand = endfield ? 'ENDFIELD' : rhine ? 'RHINE LAB' : 'PRTS'
+  const ink = endfield ? '#20221f' : '#24312b'
+  const titleColor = endfield ? ink : '#202e27'
+  const muted = endfield ? '#5c6057' : '#52645a'
+  const border = endfield ? '#d4d5cc' : '#d6ddd6'
+  const fieldBackground = endfield ? '#f5f5ef' : '#f5f7f3'
+  const fieldBorder = endfield ? '#e4e4dc' : '#e3e8e0'
+  const footerColor = endfield ? '#62665c' : '#68766d'
   const fields = Object.entries(payload.fields)
   const watermark = portrait
     ? `background-image:linear-gradient(90deg,rgba(255,255,255,0.97),rgba(255,255,255,0.87)),url('cid:${escapeHtml(portrait.cid)}');background-repeat:no-repeat;background-position:center,right center;background-size:100% 100%,contain;`
@@ -72,24 +80,24 @@ export function renderReminderEmail(event, { now, timeZone, theme = 'rhodes', po
     }
   </style>
 </head>
-<body style="margin:0;padding:0;background:${background};color:#24312b;font-family:Arial,'PingFang SC','Microsoft YaHei',sans-serif;">
+<body style="margin:0;padding:0;background:${background};color:${ink};font-family:Arial,'PingFang SC','Microsoft YaHei',sans-serif;">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(payload.message)}</div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;background:${background};">
     <tr><td align="center" style="padding:28px 12px;">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #d6ddd6;border-collapse:collapse;">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid ${border};border-collapse:collapse;">
         <tr><td style="padding:26px 24px;background:${headerBackground};color:${headerColor};border-top:4px solid ${accent};">
           <p style="margin:0 0 8px;font-size:25px;font-weight:700;letter-spacing:2px;">${brand}</p>
           <p style="margin:0;font-size:11px;letter-spacing:2px;">PERSONAL TERMINAL / TASK REMINDER</p>
         </td></tr>
         <tr><td class="mail-copy${portrait ? ' mail-watermark' : ''}" style="padding:28px 24px 12px;vertical-align:top;background-color:#ffffff;${watermark}">
           <p style="margin:0 0 12px;color:${accent};font-size:12px;font-weight:700;letter-spacing:2px;">任务截止提醒</p>
-          <h1 style="margin:0 0 18px;color:#202e27;font-size:25px;font-weight:700;line-height:1.5;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap;">${escapeHtml(event.title)}</h1>
-          <p style="margin:0 0 22px;color:#52645a;font-size:15px;line-height:1.9;overflow-wrap:anywhere;word-break:break-word;">${escapeHtml(payload.message)}</p>
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;background:#f5f7f3;border-left:3px solid ${accent};">
-            ${fields.map(([key, value]) => `<tr><td style="padding:12px 14px;border-bottom:1px solid #e3e8e0;font-size:13px;color:#52645a;line-height:1.6;vertical-align:top;white-space:nowrap;">${escapeHtml(key)}</td><td style="padding:12px 14px;border-bottom:1px solid #e3e8e0;font-size:14px;font-weight:600;color:#24312b;line-height:1.6;overflow-wrap:anywhere;word-break:break-word;">${escapeHtml(value)}</td></tr>`).join('')}
+          <h1 style="margin:0 0 18px;color:${titleColor};font-size:25px;font-weight:700;line-height:1.5;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap;">${escapeHtml(event.title)}</h1>
+          <p style="margin:0 0 22px;color:${muted};font-size:15px;line-height:1.9;overflow-wrap:anywhere;word-break:break-word;">${escapeHtml(payload.message)}</p>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;background:${fieldBackground};border-left:3px solid ${accent};">
+            ${fields.map(([key, value]) => `<tr><td style="padding:12px 14px;border-bottom:1px solid ${fieldBorder};font-size:13px;color:${muted};line-height:1.6;vertical-align:top;white-space:nowrap;">${escapeHtml(key)}</td><td style="padding:12px 14px;border-bottom:1px solid ${fieldBorder};font-size:14px;font-weight:600;color:${ink};line-height:1.6;overflow-wrap:anywhere;word-break:break-word;">${escapeHtml(value)}</td></tr>`).join('')}
           </table>
         </td></tr>
-        <tr><td style="padding:22px 24px 26px;color:#68766d;font-size:12px;line-height:1.8;">
+        <tr><td style="padding:22px 24px 26px;color:${footerColor};font-size:12px;line-height:1.8;">
           由 PRTS 个人终端发送 · 任务通知
         </td></tr>
       </table>

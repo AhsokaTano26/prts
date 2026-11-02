@@ -1,0 +1,614 @@
+/* Endfield: light engineering surfaces, dark ink and high-visibility yellow. */
+:root[data-theme='endfield'] {
+  --bg: #ecece7;
+  --surface: #fafaf7;
+  --surface-raised: #e2e3db;
+  --border: #c9cbc0;
+  --text: #262821;
+  --muted: #606357;
+  --subtle: #6a6d61;
+  --accent: #76600c;
+  --success: #37704b;
+  --danger: #ad3b32;
+  --radius: 0px;
+  --endfield-yellow: #f5df20;
+  --endfield-ink: #20231e;
+  --endfield-grid: #30362c0b;
+  --motion-boot-duration: 1800ms;
+  --motion-boot-prepare-at: 580ms;
+  --motion-boot-ready-at: 1200ms;
+  --motion-boot-exit-at: 1580ms;
+  color-scheme: light;
+}
+[data-theme='endfield'] ::selection {
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+[data-theme='endfield'] ::-webkit-scrollbar-thumb {
+  background: #a1a599;
+}
+[data-theme='endfield'] .sidebar {
+  background: var(--endfield-ink);
+  border-right-color: #3c4034;
+  --text: #f3f3e9;
+  --muted: #c0c3b5;
+  --subtle: #a2a796;
+  --accent: var(--endfield-yellow);
+  --border: #454a3c;
+}
+[data-theme='endfield'] .brand {
+  align-items: flex-start;
+  padding: 26px 22px 24px;
+  color: var(--text);
+  border-bottom: 7px solid var(--endfield-yellow);
+}
+[data-theme='endfield'] .brand > .brand-symbol {
+  width: 88px;
+  height: 46px;
+  margin-bottom: 18px;
+  object-position: left center;
+}
+[data-theme='endfield'] .sidebar .endfield-logo {
+  filter: brightness(0) invert(1);
+}
+[data-theme='endfield'] .brand > strong {
+  font-size: 27px;
+  letter-spacing: -1px;
+}
+[data-theme='endfield'] .brand > small {
+  letter-spacing: 4px;
+}
+[data-theme='endfield'] .nav-section-label {
+  padding-top: 20px;
+}
+[data-theme='endfield'] .nav-item {
+  min-height: 68px;
+  border-bottom: 1px solid var(--border);
+}
+[data-theme='endfield'] .nav-item:hover {
+  background: #30352b;
+}
+[data-theme='endfield'] .nav-item.active {
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+[data-theme='endfield'] .nav-item.active > div > span,
+[data-theme='endfield'] .nav-item.active .nav-count {
+  color: #484923;
+}
+[data-theme='endfield'] .nav-item.active::before {
+  background: var(--endfield-ink);
+  width: 4px;
+}
+[data-theme='endfield'] .nav-active-mark {
+  background: var(--endfield-ink);
+  border-radius: 0;
+  transform: none;
+}
+[data-theme='endfield'] .profile-button {
+  color: var(--text);
+}
+[data-theme='endfield'] .profile-avatar {
+  background: #30352b;
+  border-color: var(--border);
+  border-radius: 0;
+}
+[data-theme='endfield'] .sidebar .live-dot {
+  background: var(--endfield-yellow);
+}
+[data-theme='endfield'] .sidebar-message {
+  letter-spacing: 0.5px;
+}
+[data-theme='endfield'] .sidebar-message > div {
+  font-size: 11px;
+  letter-spacing: 0;
+}
+[data-theme='endfield'] .topbar {
+  background: var(--surface);
+  border-bottom: 2px solid var(--endfield-ink);
+}
+[data-theme='endfield'] .breadcrumb-icon {
+  color: var(--text);
+}
+[data-theme='endfield'] .global-search,
+[data-theme='endfield'] .global-search:hover {
+  background: var(--bg);
+  border-color: var(--border);
+}
+[data-theme='endfield'] .global-search kbd {
+  background: var(--surface);
+  color: var(--muted);
+}
+[data-theme='endfield'] .main-content,
+[data-theme='endfield'] .auth-screen,
+[data-theme='endfield'] .boot-sequence {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--endfield-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--endfield-grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+[data-theme='endfield'] .view-heading h1 {
+  font-weight: 750;
+  letter-spacing: -0.8px;
+}
+[data-theme='endfield'] .heading-dot {
+  color: var(--text);
+  background: var(--endfield-yellow);
+}
+[data-theme='endfield'] .statusbar {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+}
+[data-theme='endfield'] .footer-device,
+[data-theme='endfield'] .status-divider {
+  color: var(--subtle);
+}
+[data-theme='endfield'] .button-primary,
+[data-theme='endfield'] .task-category-button-primary,
+[data-theme='endfield'] .auth-submit,
+[data-theme='endfield'] .send-button {
+  background: var(--endfield-yellow);
+  border-color: #b9a719;
+  color: var(--endfield-ink);
+}
+[data-theme='endfield'] .button-primary:hover:not(:disabled),
+[data-theme='endfield'] .task-category-button-primary:hover:not(:disabled),
+[data-theme='endfield'] .auth-submit:hover:not(:disabled),
+[data-theme='endfield'] .send-button:hover:not(:disabled) {
+  background: #e7d00d;
+  border-color: var(--endfield-ink);
+}
+
+/* Home: an assembly drawing and a yellow signal panel, with the chosen portrait. */
+.endfield-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 264px;
+  margin-bottom: 22px;
+  overflow: hidden;
+  border: 1px solid var(--endfield-ink);
+  background: var(--surface);
+  color: var(--endfield-ink);
+}
+.endfield-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 54%;
+  background: var(--endfield-yellow);
+  clip-path: polygon(60px 0, 100% 0, 100% 100%, 0 100%);
+  z-index: -1;
+}
+.endfield-hero-copy {
+  position: relative;
+  z-index: 2;
+  padding: 24px 30px 58px;
+  width: 52%;
+}
+.endfield-hero-copy > p {
+  font-size: 10px;
+  letter-spacing: 1.3px;
+}
+.endfield-hero-copy > p span {
+  color: var(--muted);
+}
+.endfield-hero h2 {
+  margin-top: 20px;
+  font:
+    900 clamp(38px, 4.5vw, 60px)/0.95 Arial,
+    sans-serif;
+  letter-spacing: -2px;
+}
+.endfield-hero h2 mark {
+  color: inherit;
+  background: var(--endfield-yellow);
+  padding-right: 8px;
+}
+.endfield-hero-caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+  margin-top: 18px;
+}
+.endfield-hero-caption > p {
+  font-size: 13px;
+}
+.endfield-hero-caption button {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.endfield-schematic {
+  width: 100%;
+  height: auto;
+  display: block;
+  color: var(--endfield-ink);
+}
+.endfield-hero > .endfield-schematic {
+  position: absolute;
+  inset: 15px 12% auto auto;
+  width: 43%;
+  opacity: 0.36;
+  z-index: -1;
+}
+.endfield-hero .amiya-visual {
+  width: 48%;
+  left: auto;
+  right: 0;
+  top: 0;
+  bottom: 28px;
+  height: auto;
+  border: 0;
+  z-index: 1;
+}
+.endfield-hero .amiya-portrait {
+  width: 440px;
+  height: 440px;
+  right: calc(50% - 220px);
+  top: -60px;
+  object-fit: contain;
+  opacity: 1;
+  filter: none;
+  mix-blend-mode: normal;
+}
+.endfield-hero .amiya-visual[data-portrait='priestess'] .amiya-portrait {
+  width: 500px;
+  height: 500px;
+  right: calc(50% - 250px);
+  top: -90px;
+}
+.endfield-hero .amiya-visual[data-portrait='kaltsit'] .amiya-portrait {
+  width: 480px;
+  height: 480px;
+  right: calc(50% - 240px);
+  top: -80px;
+}
+.endfield-hero .amiya-visual::before,
+.endfield-hero .amiya-visual::after {
+  display: none;
+}
+.endfield-hero .amiya-caption {
+  display: none;
+}
+.endfield-hero .amiya-empty {
+  color: var(--endfield-ink);
+  background: transparent;
+  inset: 18px 18px 12px;
+  transform: none;
+  width: auto;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+}
+.endfield-hero .amiya-empty p {
+  color: #515335;
+}
+.endfield-hero-footer {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 30px;
+  border-top: 1px solid #30362c40;
+  font-size: 9px;
+  letter-spacing: 1px;
+  background: #fafaf7e8;
+  z-index: 3;
+}
+.endfield-hero-footer > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.endfield-hero-footer i {
+  width: 7px;
+  height: 7px;
+  background: var(--endfield-ink);
+}
+
+/* Access and startup are part of the same industrial terminal. */
+[data-theme='endfield'] .auth-screen {
+  color: var(--text);
+}
+[data-theme='endfield'] .auth-topbar {
+  border-bottom: 2px solid var(--text);
+}
+[data-theme='endfield'] .auth-wordmark {
+  color: var(--text);
+}
+[data-theme='endfield'] .auth-wordmark > .brand-symbol {
+  width: 54px;
+  height: 32px;
+}
+[data-theme='endfield'] .auth-wordmark small,
+[data-theme='endfield'] .auth-topbar-index,
+[data-theme='endfield'] .auth-footer {
+  color: var(--muted);
+}
+[data-theme='endfield'] .auth-layout {
+  gap: 60px;
+}
+[data-theme='endfield'] .auth-identity--endfield {
+  align-items: flex-start;
+  text-align: left;
+  padding-right: 0;
+}
+[data-theme='endfield'] .auth-eyebrow {
+  color: var(--muted);
+}
+.auth-identity--endfield h2 {
+  font:
+    900 clamp(45px, 5.6vw, 84px)/0.95 Arial,
+    sans-serif;
+  letter-spacing: -3px;
+  margin-top: 30px;
+}
+.auth-identity--endfield h2 mark {
+  color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  padding-right: 12px;
+}
+.endfield-auth-intro {
+  font-size: 16px;
+  margin-top: 22px;
+}
+.auth-identity--endfield .endfield-schematic {
+  width: min(420px, 100%);
+  margin-top: 28px;
+}
+.endfield-auth-index {
+  display: flex;
+  gap: 35px;
+  width: 100%;
+  margin-top: 20px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+[data-theme='endfield'] .auth-panel {
+  background: var(--surface);
+  border: 1px solid var(--text);
+  border-top: 9px solid var(--endfield-yellow);
+  box-shadow: 8px 8px 0 #20231e0c;
+}
+[data-theme='endfield'] .auth-panel-top,
+[data-theme='endfield'] .auth-panel-footer {
+  color: var(--muted);
+  background: var(--surface-raised);
+  border-color: var(--border);
+}
+[data-theme='endfield'] .auth-panel h1 {
+  color: var(--text);
+}
+[data-theme='endfield'] .auth-panel-description,
+[data-theme='endfield'] .auth-field-hint,
+[data-theme='endfield'] .auth-access-note {
+  color: var(--muted);
+}
+[data-theme='endfield'] .auth-password-field {
+  background: var(--bg);
+  border-color: #a7ab9b;
+  color: var(--muted);
+}
+[data-theme='endfield'] .auth-password-field input {
+  color: var(--text);
+}
+[data-theme='endfield'] .auth-password-field input::placeholder {
+  color: var(--muted);
+}
+[data-theme='endfield'] .auth-state-mark {
+  color: var(--text);
+  background: var(--endfield-yellow);
+  border-color: #d5bd1f;
+}
+[data-theme='endfield'] .auth-connection-dot {
+  background: var(--success);
+}
+[data-theme='endfield'] .auth-form > label {
+  color: var(--text);
+}
+[data-theme='endfield'] .boot-sequence {
+  color: var(--text);
+}
+[data-theme='endfield'] .boot-sequence::before {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--endfield-ink) 0 10px,
+    var(--endfield-yellow) 10px 20px
+  );
+  height: 10px;
+  inset: 0 0 auto;
+  opacity: 1;
+}
+[data-theme='endfield'] .boot-center {
+  position: relative;
+}
+[data-theme='endfield'] .boot-center > .endfield-schematic {
+  position: absolute;
+  width: min(680px, 95vw);
+  max-width: none;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.13;
+  pointer-events: none;
+}
+[data-theme='endfield'] .boot-emblem {
+  background: var(--endfield-yellow);
+  border-color: var(--text);
+}
+[data-theme='endfield'] .boot-emblem > .brand-symbol {
+  width: 84px;
+  height: 50px;
+  filter: none;
+}
+[data-theme='endfield'] .boot-wordmark {
+  font-size: clamp(38px, 7vw, 70px);
+  color: var(--text);
+  letter-spacing: -2px;
+}
+[data-theme='endfield'] .boot-status,
+[data-theme='endfield'] .boot-subtitle,
+[data-theme='endfield'] .boot-topline,
+[data-theme='endfield'] .boot-bottomline {
+  color: var(--muted);
+}
+[data-theme='endfield'] .boot-skip {
+  color: var(--text);
+  background: var(--endfield-yellow);
+  border-color: var(--text);
+}
+
+@media (max-width: 1250px) {
+  [data-theme='endfield'] .brand {
+    padding-inline: 18px;
+  }
+  [data-theme='endfield'] .brand > strong {
+    font-size: 24px;
+  }
+  .endfield-hero-copy {
+    padding-inline: 24px;
+  }
+  .endfield-hero h2 {
+    font-size: 44px;
+  }
+}
+@media (max-width: 900px) {
+  [data-theme='endfield'] .auth-layout {
+    gap: 30px;
+  }
+  .auth-identity--endfield h2 {
+    font-size: 52px;
+  }
+  .endfield-auth-index {
+    gap: 20px;
+  }
+}
+@media (max-width: 760px) {
+  [data-theme='endfield'] .brand {
+    padding: 20px 22px;
+  }
+  [data-theme='endfield'] .brand > .brand-symbol {
+    margin-bottom: 12px;
+  }
+  [data-theme='endfield'] .auth-identity--endfield {
+    align-items: center;
+    text-align: center;
+  }
+  .auth-identity--endfield h2 {
+    font-size: 52px;
+    margin-top: 18px;
+  }
+  .auth-identity--endfield .endfield-schematic,
+  .endfield-auth-index {
+    display: none;
+  }
+  .endfield-auth-intro {
+    margin-top: 14px;
+  }
+  .endfield-hero {
+    min-height: 242px;
+  }
+  .endfield-hero h2 {
+    font-size: 42px;
+  }
+  .endfield-hero-copy {
+    padding: 24px 18px 54px;
+  }
+  .endfield-hero-copy > p {
+    font-size: 8px;
+    letter-spacing: 0.5px;
+  }
+  .endfield-hero-caption {
+    gap: 8px;
+  }
+  .endfield-hero-caption > p {
+    font-size: 12px;
+  }
+  .endfield-hero-footer {
+    padding-inline: 18px;
+    font-size: 8px;
+  }
+}
+@media (max-width: 420px) {
+  .endfield-hero {
+    min-height: 226px;
+  }
+  .endfield-hero-copy {
+    width: 62%;
+    padding: 21px 14px 50px;
+  }
+  .endfield-hero h2 {
+    font-size: 28px;
+    letter-spacing: -1.5px;
+    margin-top: 18px;
+  }
+  .endfield-hero-caption > p {
+    font-size: 11px;
+  }
+  .endfield-hero::before {
+    left: 55%;
+    clip-path: polygon(40px 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .endfield-hero .amiya-visual {
+    width: 46%;
+    right: -10px;
+  }
+  .endfield-hero .amiya-empty p {
+    display: none;
+  }
+  .endfield-hero .amiya-empty strong {
+    font-size: 11px;
+  }
+  .endfield-hero .amiya-empty .button {
+    font-size: 11px;
+    padding-inline: 6px;
+  }
+  .endfield-hero .amiya-portrait {
+    width: 350px;
+    height: 350px;
+    right: calc(50% - 175px);
+    top: -16px;
+  }
+  .endfield-hero .amiya-visual[data-portrait='priestess'] .amiya-portrait {
+    width: 400px;
+    height: 400px;
+    right: calc(50% - 200px);
+    top: -48px;
+  }
+  .endfield-hero .amiya-visual[data-portrait='kaltsit'] .amiya-portrait {
+    width: 380px;
+    height: 380px;
+    right: calc(50% - 190px);
+    top: -36px;
+  }
+  .endfield-hero-footer > span:last-child {
+    letter-spacing: 0;
+    font-size: 7px;
+  }
+  [data-theme='endfield'] .auth-wordmark > span {
+    font-size: 12px;
+  }
+  [data-theme='endfield'] .auth-wordmark small {
+    font-size: 8px;
+    letter-spacing: 0;
+  }
+  .auth-identity--endfield h2 {
+    font-size: 44px;
+    letter-spacing: -2px;
+  }
+  [data-theme='endfield'] .boot-subtitle {
+    letter-spacing: 0.4px;
+    font-size: 9px;
+  }
+}

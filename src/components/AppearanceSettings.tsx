@@ -19,6 +19,12 @@ const themes: { id: ThemeId; name: string; english: string; detail: string }[] =
     english: 'RHINE LAB',
     detail: '白绿科研 · 环形校准 · 分析工作台',
   },
+  {
+    id: 'endfield',
+    name: '明日方舟：终末地',
+    english: 'ENDFIELD INDUSTRIES',
+    detail: '浅灰工程 · 明黄标识 · 工业工作台',
+  },
 ]
 
 function PortraitPreview({ id, active }: { id: PortraitId; active: boolean }) {

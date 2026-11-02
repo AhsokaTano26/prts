@@ -48,6 +48,7 @@ import { timelineSlotRange, type TimeRange } from './lib/calendarTimeline'
 import { apiFetch } from './lib/api'
 import { useServerStore } from './lib/serverStore'
 import { useAppearance } from './lib/appearance'
+import { themeIdentity } from './lib/themes'
 import { observeInterfaceMotion, stopInterfaceMotion, transitionView } from './lib/motion'
 const navItems = [
   { id: 'overview', label: '总览', en: 'OVERVIEW', icon: LayoutDashboard },
@@ -81,7 +82,7 @@ export default function App({ onLock }: { onLock: () => void }) {
   const workspace = store.documents.workspace.value
   const preferences = store.documents.preferences.value
   const { theme, applyTheme } = useAppearance()
-  const rhine = theme === 'rhine'
+  const identity = themeIdentity[theme]
   useLayoutEffect(
     () => applyTheme(preferences.appearance.theme),
     [preferences.appearance.theme, applyTheme],
@@ -447,13 +448,13 @@ export default function App({ onLock }: { onLock: () => void }) {
           <button className="brand" onClick={() => navigate('overview')} aria-label="PRTS 返回总览">
             <Logo />
             <strong>
-              {rhine ? 'RHINE LAB' : 'PRTS'}
+              {identity.brand}
               <span>®</span>
             </strong>
-            <small className="mono">{rhine ? 'ANALYSIS OS' : 'PERSONAL TERMINAL'}</small>
+            <small className="mono">{identity.terminal}</small>
           </button>
           <div className="nav-section-label mono">
-            {rhine ? 'RESEARCH INDEX' : 'WORKSPACE'}
+            {identity.index}
             <span>01—{String(navItems.length).padStart(2, '0')}</span>
           </div>
           <nav>
@@ -482,8 +483,8 @@ export default function App({ onLock }: { onLock: () => void }) {
           <div className="sidebar-bottom">
             <div className="sidebar-message mono">
               <span className="live-dot" />
-              {rhine ? 'RESEARCH IN PROGRESS' : 'SYSTEM OPERATIONAL'}
-              <div>{rhine ? '让好奇心，抵达更远。' : '思绪有序，自由前行。'}</div>
+              {identity.status}
+              <div>{identity.motto}</div>
             </div>
             <button
               className="profile-button"
@@ -496,7 +497,7 @@ export default function App({ onLock }: { onLock: () => void }) {
               </div>
               <div>
                 <strong className="mono">Dr. {workspace.settings.name}</strong>
-                <span>{rhine ? '莱茵生命 · 科研终端' : '罗德岛 · 个人终端'}</span>
+                <span>{identity.profile}</span>
               </div>
               <ChevronRight size={15} />
             </button>
@@ -515,7 +516,7 @@ export default function App({ onLock }: { onLock: () => void }) {
                 <Menu size={20} />
               </button>
               <span className="breadcrumb-icon">◈</span>
-              <span>{rhine ? '研究工作台' : '工作空间'}</span>
+              <span>{identity.workspace}</span>
               <ChevronRight size={12} />
               <strong key={page}>{currentLabel}</strong>
             </div>
@@ -728,9 +729,7 @@ export default function App({ onLock }: { onLock: () => void }) {
                   ? '正在保存到服务器…'
                   : 'SQLite · 已保存到服务器'}
               <span className="status-divider">/</span>
-              <span className="footer-device mono">
-                {rhine ? 'RHINE LAB / ANALYSIS OS' : 'PERSONAL WORKSPACE'}
-              </span>
+              <span className="footer-device mono">{identity.footer}</span>
             </span>
             <span className="mono">
               {timer.running && (

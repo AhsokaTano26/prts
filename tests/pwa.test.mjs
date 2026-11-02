@@ -27,6 +27,13 @@ async function buildWorker(t) {
     'icons/rhine-lab-512.png',
     'icons/rhine-lab-maskable-512.png',
     'icons/rhine-lab-180.png',
+    'offline-endfield.html',
+    'manifest-endfield.webmanifest',
+    'branding/endfield.svg',
+    'icons/endfield-192.png',
+    'icons/endfield-512.png',
+    'icons/endfield-maskable-512.png',
+    'icons/endfield-180.png',
   ])
     await writeFile(path.join(root, file), file)
   const { writePwaWorker } = await import('../scripts/pwa.ts')
@@ -48,6 +55,7 @@ function runtime(
     writes = []
   storage.set('/offline.html', 'PRTS offline shell')
   storage.set('/offline-rhine.html', 'Rhine Lab offline shell')
+  storage.set('/offline-endfield.html', 'Endfield offline shell')
   const cache = {
     addAll: async (requests) =>
       cached.push(...requests.map((request) => new URL(request.url).pathname)),
@@ -103,7 +111,13 @@ test('PWA build versions change with app builds and public offline content', asy
   const offlineVersion = await built.writePwaWorker(built.root)
   assert.notEqual(offlineVersion, next)
   await writeFile(path.join(built.root, 'icons/rhine-lab-192.png'), 'updated Rhine Lab icon')
-  assert.notEqual(await built.writePwaWorker(built.root), offlineVersion)
+  const rhineVersion = await built.writePwaWorker(built.root)
+  assert.notEqual(rhineVersion, offlineVersion)
+  await writeFile(path.join(built.root, 'icons/endfield-192.png'), 'updated Endfield icon')
+  const endfieldVersion = await built.writePwaWorker(built.root)
+  assert.notEqual(endfieldVersion, rhineVersion)
+  await writeFile(path.join(built.root, 'offline-endfield.html'), 'updated Endfield offline copy')
+  assert.notEqual(await built.writePwaWorker(built.root), endfieldVersion)
 })
 
 test('worker precaches only public install/offline assets and never handles private API or mutations', async (t) => {
@@ -118,6 +132,13 @@ test('worker precaches only public install/offline assets and never handles priv
   assert.ok(worker.cached.includes('/manifest-rhine.webmanifest'))
   assert.ok(worker.cached.includes('/icons/rhine-lab-512.png'))
   assert.ok(worker.cached.includes('/icons/rhine-lab-180.png'))
+  assert.ok(worker.cached.includes('/offline-endfield.html'))
+  assert.ok(worker.cached.includes('/manifest-endfield.webmanifest'))
+  assert.ok(worker.cached.includes('/branding/endfield.svg'))
+  assert.ok(worker.cached.includes('/icons/endfield-192.png'))
+  assert.ok(worker.cached.includes('/icons/endfield-512.png'))
+  assert.ok(worker.cached.includes('/icons/endfield-maskable-512.png'))
+  assert.ok(worker.cached.includes('/icons/endfield-180.png'))
   assert.equal(
     worker.cached.some((url) => url.startsWith('/api') || url === '/' || url === '/index.html'),
     false,
@@ -211,6 +232,31 @@ test('offline theme messages reject invalid values, untrusted sources and out-of
   }
 })
 
+test('Endfield offline selection survives restart and can switch back to either existing theme', async (t) => {
+  const { source } = await buildWorker(t)
+  const worker = runtime(source, { offline: true })
+  await setOfflineTheme(worker, {
+    type: 'PRTS_THEME',
+    theme: 'endfield',
+    privateData: { title: 'never-store' },
+  })
+  assert.equal(worker.writes.length, 1)
+  assert.equal(worker.writes[0].value, 'endfield')
+  assert.equal(worker.writes[0].key.startsWith('/api'), false)
+  const restarted = runtime(source, { offline: true, storage: worker.storage })
+  assert.equal(await navigation(restarted), 'Endfield offline shell')
+  for (const [theme, expected] of [
+    ['rhine', 'Rhine Lab offline shell'],
+    ['rhodes', 'PRTS offline shell'],
+  ]) {
+    await setOfflineTheme(restarted, { type: 'PRTS_THEME', theme })
+    assert.equal(await navigation(restarted), expected)
+  }
+  assert.equal(worker.fetched.length, 0)
+  assert.equal(restarted.fetched.length, 3)
+  assert.equal(await navigation(runtime(source, { storage: worker.storage })), 'online document')
+})
+
 test('published app icons have real installable PNG dimensions', async () => {
   const manifest = JSON.parse(
     await readFile(new URL('../static/manifest.webmanifest', import.meta.url), 'utf8'),
@@ -250,6 +296,44 @@ test('Rhine Lab installation keeps the same application identity and uses distin
     ['rhine-lab-512.png', 512],
     ['rhine-lab-maskable-512.png', 512],
     ['rhine-lab-180.png', 180],
+  ]) {
+    const bytes = await readFile(new URL(`../static/icons/${name}`, import.meta.url))
+    assert.equal(bytes.subarray(0, 8).toString('hex'), '89504e470d0a1a0a')
+    assert.equal(bytes.readUInt32BE(16), size)
+    assert.equal(bytes.readUInt32BE(20), size)
+  }
+})
+
+test('Endfield installation keeps the same application identity and uses valid light theme icons', async () => {
+  const original = JSON.parse(
+    await readFile(new URL('../static/manifest.webmanifest', import.meta.url), 'utf8'),
+  )
+  const endfield = JSON.parse(
+    await readFile(new URL('../static/manifest-endfield.webmanifest', import.meta.url), 'utf8'),
+  )
+  for (const key of ['id', 'scope', 'start_url', 'display'])
+    assert.equal(endfield[key], original[key])
+  assert.equal(endfield.theme_color, '#ecece7')
+  assert.equal(endfield.background_color, '#ecece7')
+  assert.equal(endfield.icons.length, 3)
+  assert.deepEqual(
+    endfield.icons.map(({ src, sizes, type, purpose }) => ({ src, sizes, type, purpose })),
+    [
+      { src: '/icons/endfield-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: '/icons/endfield-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      {
+        src: '/icons/endfield-maskable-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
+      },
+    ],
+  )
+  for (const [name, size] of [
+    ['endfield-192.png', 192],
+    ['endfield-512.png', 512],
+    ['endfield-maskable-512.png', 512],
+    ['endfield-180.png', 180],
   ]) {
     const bytes = await readFile(new URL(`../static/icons/${name}`, import.meta.url))
     assert.equal(bytes.subarray(0, 8).toString('hex'), '89504e470d0a1a0a')

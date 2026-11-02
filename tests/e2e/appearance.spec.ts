@@ -81,6 +81,7 @@ test('returning after an image download retries failed previews without losing a
   await expect(choice.getByText('等待下载', { exact: true })).toBeVisible()
   await page.getByRole('radio', { name: '普瑞赛斯', exact: true }).check()
   await page.goto('/#settings/resources')
+  await expect(page.getByRole('heading', { name: '资源管理', exact: true })).toBeVisible()
   downloaded = true
   await page.goto('/#settings/appearance')
   await expect(choice.locator('img')).toBeVisible()
@@ -213,10 +214,16 @@ for (const width of [1440, 768, 390, 320]) {
     await page.getByRole('button', { name: '新建任务', exact: true }).click()
     await expect(page.getByRole('dialog')).toBeVisible()
     await page.getByLabel('任务内容', { exact: true }).fill('莱茵生命主题交互验证')
-    if (width <= 420)
-      expect(
-        (await page.getByLabel('截止日期', { exact: true }).boundingBox())!.width,
-      ).toBeGreaterThan(200)
+    if (width <= 420) {
+      const date = await page
+        .getByRole('dialog')
+        .locator('.prts-picker')
+        .filter({ has: page.getByLabel('截止日期', { exact: true }) })
+        .boundingBox()
+      const row = await page.getByRole('dialog').locator('.form-row').boundingBox()
+      expect(date!.width).toBeGreaterThanOrEqual(row!.width - 1)
+      expect(date!.x + date!.width).toBeLessThanOrEqual(row!.x + row!.width + 1)
+    }
     await page.screenshot({ path: `/tmp/prts-rhine-dialog-${width}.png`, animations: 'disabled' })
     await page.keyboard.press('Escape')
     expect(errors).toEqual([])

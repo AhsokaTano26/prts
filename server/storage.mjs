@@ -109,7 +109,7 @@ function validateDocument(key, value) {
     if (value.appearance !== undefined) {
       const appearance = object(value.appearance)
       if (
-        !['rhodes', 'rhine'].includes(appearance.theme) ||
+        !['rhodes', 'rhine', 'endfield'].includes(appearance.theme) ||
         !['amiya', 'priestess', 'kaltsit'].includes(appearance.portrait)
       )
         invalid('主题或首页立绘选择无效。')

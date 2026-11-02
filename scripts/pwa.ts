@@ -19,6 +19,13 @@ const publicAssets = [
   '/icons/rhine-lab-512.png',
   '/icons/rhine-lab-maskable-512.png',
   '/icons/rhine-lab-180.png',
+  '/offline-endfield.html',
+  '/manifest-endfield.webmanifest',
+  '/branding/endfield.svg',
+  '/icons/endfield-192.png',
+  '/icons/endfield-512.png',
+  '/icons/endfield-maskable-512.png',
+  '/icons/endfield-180.png',
 ]
 
 export async function writePwaWorker(directory: string): Promise<string> {
@@ -45,7 +52,7 @@ self.addEventListener('activate', (event) => {
 })
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'PRTS_ACTIVATE_UPDATE') self.skipWaiting()
-  if (event.data?.type !== 'PRTS_THEME' || !['rhodes', 'rhine'].includes(event.data.theme) || typeof event.source?.id !== 'string') return
+  if (event.data?.type !== 'PRTS_THEME' || !['rhodes', 'rhine', 'endfield'].includes(event.data.theme) || typeof event.source?.id !== 'string') return
   const theme = event.data.theme
   const clientId = event.source.id
   themeWrites = themeWrites.catch(() => {}).then(async () => {
@@ -79,7 +86,8 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(fetch(request).catch(async () => {
       const cache = await caches.open(CACHE_NAME)
       const storedTheme = await cache.match(OFFLINE_THEME_KEY)
-      const offlinePage = storedTheme && await storedTheme.text() === 'rhine' ? '/offline-rhine.html' : '/offline.html'
+      const theme = storedTheme ? await storedTheme.text() : 'rhodes'
+      const offlinePage = theme === 'endfield' ? '/offline-endfield.html' : theme === 'rhine' ? '/offline-rhine.html' : '/offline.html'
       return (await cache.match(offlinePage)) || (await cache.match('/offline.html')) || Response.error()
     }))
     return

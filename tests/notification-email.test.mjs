@@ -66,3 +66,19 @@ test('portrait lookup cannot include a file outside the image resource directory
   assert.equal(await loadEmailPortrait(root, 'amiya'), null)
   assert.equal(await loadEmailPortrait(root, '../private'), null)
 })
+
+test('Endfield reminder emails use readable dark text on engineering yellow and escape task content', () => {
+  const now = Date.parse('2026-11-02T00:00:00Z')
+  const mail = renderReminderEmail(
+    { title: '<工程> & "任务"', dueAt: now + 600000, offsetMinutes: 10 },
+    { now, timeZone: 'Asia/Shanghai', theme: 'endfield' },
+  )
+  assert.match(mail.html, /ENDFIELD/)
+  assert.match(mail.html, /background:#ecece7/)
+  assert.match(mail.html, /background:#f2d33f;color:#20221f/)
+  assert.match(mail.html, /color:#786400;font-size:12px/)
+  assert.match(mail.html, /&lt;工程&gt; &amp; &quot;任务&quot;/)
+  assert.doesNotMatch(mail.html, /<工程>/)
+  assert.match(mail.text, /<工程> & "任务"/)
+  assert.deepEqual(mail.attachments, [])
+})

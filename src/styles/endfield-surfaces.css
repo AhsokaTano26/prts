@@ -1,0 +1,696 @@
+/* Functional work surfaces for the Endfield engineering palette. */
+[data-theme='endfield'] .panel {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .section-title {
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme='endfield'] .section-title::before {
+  background: var(--endfield-yellow);
+}
+
+[data-theme='endfield'] .section-title h2 > span,
+[data-theme='endfield'] .welcome-divider,
+[data-theme='endfield'] .welcome-en {
+  color: var(--muted);
+}
+
+[data-theme='endfield'] .button-primary,
+[data-theme='endfield'] .task-category-button-primary,
+[data-theme='endfield'] .send-button,
+[data-theme='endfield'] .focus-start {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .button-primary:hover:not(:disabled),
+[data-theme='endfield'] .task-category-button-primary:hover:not(:disabled),
+[data-theme='endfield'] .send-button:hover:not(:disabled),
+[data-theme='endfield'] .focus-start:hover:not(:disabled) {
+  border-color: var(--endfield-ink);
+  background: color-mix(in srgb, var(--endfield-yellow) 78%, var(--surface));
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .button-ghost:hover,
+[data-theme='endfield'] .task-category-button:hover:not(:disabled) {
+  border-color: var(--muted);
+  background: var(--surface-raised);
+}
+
+[data-theme='endfield'] .segmented,
+[data-theme='endfield'] .calendar-view-switch,
+[data-theme='endfield'] .calendar-month-layout-switch {
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .segmented > button.active,
+[data-theme='endfield'] .focus-modes > button[aria-pressed='true'],
+[data-theme='endfield'] .calendar-view-switch button[aria-pressed='true'],
+[data-theme='endfield'] .calendar-month-layout-switch button[aria-pressed='true'] {
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+  box-shadow: inset 0 -2px var(--endfield-ink);
+}
+
+[data-theme='endfield'] .segmented > button.active > span {
+  color: var(--endfield-ink);
+}
+
+/* Task ledger and overview instruments. */
+[data-theme='endfield'] .stat-strip {
+  border-top: 2px solid var(--endfield-ink);
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .stat > svg:first-child,
+[data-theme='endfield'] .stat-arrow {
+  color: var(--muted);
+}
+
+[data-theme='endfield'] .stat:hover {
+  background: var(--surface-raised);
+}
+
+[data-theme='endfield'] .stat strong {
+  font-weight: 600;
+  color: var(--text);
+}
+
+[data-theme='endfield'] .task-summary,
+[data-theme='endfield'] .tasks-page .task-board-column {
+  border-top: 2px solid var(--endfield-ink);
+}
+
+[data-theme='endfield'] .tasks-page .task-category-column-heading {
+  background: var(--surface-raised);
+}
+
+[data-theme='endfield'] .tasks-page .task-card {
+  background: var(--surface);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--endfield-ink) 7%, transparent);
+}
+
+[data-theme='endfield'] .tasks-page .task-card:hover {
+  border-color: var(--muted);
+}
+
+[data-theme='endfield'] .tasks-page .task-category-chip[aria-pressed='true'] {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield']
+  .tasks-page
+  .task-category-chip[aria-pressed='true']
+  .task-category-chip-count {
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .task-row,
+[data-theme='endfield'] .inline-add {
+  border-top-color: var(--border);
+}
+
+[data-theme='endfield'] .task-title {
+  color: var(--text);
+}
+
+[data-theme='endfield'] .task-title:hover {
+  color: var(--accent);
+}
+
+[data-theme='endfield'] .is-done .task-title {
+  color: var(--subtle);
+}
+
+[data-theme='endfield'] .task-check {
+  border-color: var(--muted);
+}
+
+[data-theme='endfield'] .task-check:hover {
+  border-color: var(--endfield-ink);
+  background: color-mix(in srgb, var(--endfield-yellow) 25%, transparent);
+}
+
+[data-theme='endfield'] .is-done .task-check {
+  border-color: var(--success);
+  background: var(--success);
+  color: var(--surface);
+}
+
+[data-theme='endfield'] .task-completion-target.is-completing .task-check {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .task-completion-target.is-completing::before {
+  background: linear-gradient(
+    110deg,
+    color-mix(in srgb, var(--endfield-yellow) 30%, transparent),
+    transparent 80%
+  );
+}
+
+[data-theme='endfield'] .priority.high > i {
+  background: var(--danger);
+}
+
+[data-theme='endfield'] .priority.medium > i {
+  background: var(--accent);
+}
+
+[data-theme='endfield'] .priority.low > i {
+  background: var(--success);
+}
+
+[data-theme='endfield'] .task-due {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+[data-theme='endfield'] .task-due.overdue {
+  color: var(--danger);
+}
+
+[data-theme='endfield'] .task-table-head {
+  background: var(--surface-raised);
+}
+
+[data-theme='endfield'] .note-preview {
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .note-preview:hover {
+  border-color: var(--muted);
+  background: var(--surface-raised);
+}
+
+[data-theme='endfield'] .note-preview-top,
+[data-theme='endfield'] .note-preview-bottom > svg,
+[data-theme='endfield'] .activity-row p {
+  color: var(--muted);
+}
+
+[data-theme='endfield'] .overview-end,
+[data-theme='endfield'] .overview-end > span:first-child::before {
+  color: var(--subtle);
+}
+
+[data-theme='endfield'] .timer-track {
+  stroke: var(--surface-raised);
+}
+
+[data-theme='endfield'] .timer-progress {
+  stroke: var(--muted);
+  stroke-linecap: butt;
+}
+
+[data-theme='endfield'] .is-running .timer-progress {
+  stroke: var(--accent);
+}
+
+[data-theme='endfield'] .timer-digits > span {
+  color: var(--muted);
+}
+
+/* Quadrant marker lightness remains readable against the light plot. */
+[data-theme='endfield'] .matrix-page {
+  --matrix-dot-lightness: 38%;
+}
+
+[data-theme='endfield'] .matrix-chart,
+[data-theme='endfield'] .matrix-inspector {
+  border-top: 2px solid var(--endfield-ink);
+}
+
+[data-theme='endfield'] .matrix-zones {
+  border-color: var(--muted);
+}
+
+[data-theme='endfield'] .matrix-zone-act {
+  background: color-mix(in srgb, var(--endfield-yellow) 16%, var(--bg));
+}
+
+[data-theme='endfield'] .matrix-zone-plan {
+  background: color-mix(in srgb, var(--success) 5%, var(--bg));
+}
+
+[data-theme='endfield'] .matrix-zone-heading > span:last-of-type,
+[data-theme='endfield'] .matrix-point[aria-pressed='true'] {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .matrix-point-alert {
+  color: var(--surface);
+}
+
+[data-theme='endfield'] .matrix-priority-high {
+  color: var(--danger);
+}
+
+/* Calendar highlights distinguish selections, events, tasks and overdue time. */
+[data-theme='endfield'] .calendar-month,
+[data-theme='endfield'] .calendar-agenda {
+  border-top: 2px solid var(--endfield-ink);
+}
+
+[data-theme='endfield'] .calendar-toolbar,
+[data-theme='endfield'] .calendar-agenda-heading,
+[data-theme='endfield'] .calendar-weekdays,
+[data-theme='endfield'] .timeline-day-heading,
+[data-theme='endfield'] .timeline-corner {
+  background: var(--surface-raised);
+}
+
+[data-theme='endfield'] .calendar-day.is-selected {
+  background: color-mix(in srgb, var(--endfield-yellow) 25%, var(--surface));
+  box-shadow: inset 0 0 0 1px var(--endfield-ink);
+}
+
+[data-theme='endfield'] .calendar-day.is-today .calendar-day-number {
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .calendar-day-today,
+[data-theme='endfield'] .timeline-day-heading.is-today strong {
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .timeline-day-heading.is-selected {
+  background: color-mix(in srgb, var(--endfield-yellow) 24%, var(--surface));
+}
+
+[data-theme='endfield'] .calendar-event-card {
+  border-left-color: var(--endfield-ink);
+  background: var(--bg);
+}
+
+[data-theme='endfield'] .calendar-event-card:hover {
+  border-color: var(--endfield-ink);
+  background: color-mix(in srgb, var(--endfield-yellow) 12%, var(--surface));
+}
+
+[data-theme='endfield'] .timeline-block:not(.timeline-task),
+[data-theme='endfield'] .timeline-all-day button:not(.timeline-floating-task) {
+  border-color: var(--accent);
+  border-left-color: var(--endfield-ink);
+  background: color-mix(in srgb, var(--endfield-yellow) 36%, var(--surface));
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .timeline-block:not(.timeline-task):hover {
+  background: color-mix(in srgb, var(--endfield-yellow) 55%, var(--surface));
+}
+
+[data-theme='endfield'] .timeline-block.is-done,
+[data-theme='endfield'] .timeline-all-day button.is-done {
+  color: var(--subtle);
+}
+
+/* Notes and the file library keep their document and table layouts. */
+[data-theme='endfield'] .notes-sidebar,
+[data-theme='endfield'] .notes-editor {
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .notes-sidebar-heading,
+[data-theme='endfield'] .notes-editor-toolbar,
+[data-theme='endfield'] .files-library-toolbar {
+  background: var(--surface-raised);
+}
+
+[data-theme='endfield'] .notes-list-item.is-selected {
+  background: color-mix(in srgb, var(--endfield-yellow) 19%, var(--surface));
+}
+
+[data-theme='endfield'] .notes-list-item.is-selected::before {
+  background: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .notes-markdown,
+[data-theme='endfield'] .markdown-content,
+[data-theme='endfield'] .knowledge-results .corpus-markdown {
+  color: var(--text);
+}
+
+[data-theme='endfield'] .notes-content-input::placeholder,
+[data-theme='endfield'] .chat-composer textarea::placeholder {
+  color: var(--subtle);
+}
+
+[data-theme='endfield'] .files-drop-area {
+  border-color: var(--muted);
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .files-drop-area.is-dragging {
+  border-color: var(--endfield-ink);
+  background: color-mix(in srgb, var(--endfield-yellow) 20%, var(--surface));
+}
+
+[data-theme='endfield'] .files-dropzone-symbol {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .files-table th {
+  background: var(--surface-raised);
+}
+
+[data-theme='endfield'] .files-filter.is-active {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .files-filter.is-active > span {
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .files-confirm-delete {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* Assistant controls, messages and source material. */
+[data-theme='endfield'] .chat-shell {
+  border-top: 2px solid var(--endfield-ink);
+}
+
+[data-theme='endfield'] .chat-toolbar,
+[data-theme='endfield'] .assistant-options,
+[data-theme='endfield'] .assistant-confirmation-setting {
+  background: var(--surface-raised);
+}
+
+[data-theme='endfield'] .persona-description,
+[data-theme='endfield'] .message-label {
+  color: var(--muted);
+}
+
+[data-theme='endfield'] .assistant-emblem,
+[data-theme='endfield'] .message-avatar {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .assistant-emblem {
+  transform: none;
+}
+
+[data-theme='endfield'] .assistant-emblem > .brand-symbol {
+  width: 72px;
+  height: 56px;
+  transform: none;
+}
+
+[data-theme='endfield'] .assistant-emblem > svg,
+[data-theme='endfield'] .message-avatar .brand-symbol {
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .suggestion-grid button {
+  background: var(--surface);
+  color: var(--text);
+}
+
+[data-theme='endfield'] .suggestion-grid button:hover {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .chat-message.user .markdown-content {
+  border-color: var(--border);
+  border-left: 3px solid var(--endfield-ink);
+  background: color-mix(in srgb, var(--endfield-yellow) 17%, var(--surface));
+  color: var(--text);
+}
+
+[data-theme='endfield'] .chat-composer {
+  border-color: var(--muted);
+  border-top: 2px solid var(--endfield-ink);
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .chat-composer:focus-within {
+  border-color: var(--accent);
+  border-top-color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .markdown-content pre,
+[data-theme='endfield'] .markdown-content code,
+[data-theme='endfield'] .notes-markdown pre,
+[data-theme='endfield'] .notes-markdown code {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+[data-theme='endfield'] .markdown-content pre code,
+[data-theme='endfield'] .notes-markdown pre code {
+  background: transparent;
+}
+
+[data-theme='endfield'] .corpus-card {
+  border-top: 2px solid var(--endfield-ink);
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .corpus-card a {
+  color: var(--accent);
+}
+
+[data-theme='endfield'] .corpus-image-variants > button[aria-pressed='true'] {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .assistant-action {
+  border-left-color: var(--endfield-ink);
+  background: var(--bg);
+}
+
+[data-theme='endfield'] .assistant-action-warnings {
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--endfield-yellow) 15%, var(--surface));
+}
+
+[data-theme='endfield'] .assistant-action-error {
+  color: var(--danger);
+}
+
+/* Configuration sheets and on/off controls. */
+[data-theme='endfield'] .settings-navigation-label,
+[data-theme='endfield'] .settings-category-heading {
+  border-bottom: 2px solid var(--endfield-ink);
+}
+
+[data-theme='endfield'] .settings-navigation-label {
+  padding-bottom: 12px;
+}
+
+[data-theme='endfield'] .settings-category-heading {
+  padding-bottom: 18px;
+}
+
+[data-theme='endfield'] .settings-subnav a {
+  border-bottom-color: var(--border);
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .settings-subnav a[aria-current='page'] {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .settings-subnav a[aria-current='page'] .settings-nav-copy strong,
+[data-theme='endfield'] .settings-subnav a[aria-current='page'] .settings-nav-copy small {
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .form-label {
+  color: var(--text);
+}
+
+[data-theme='endfield'] .field {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .field:hover {
+  border-color: var(--muted);
+}
+
+[data-theme='endfield'] .field::placeholder {
+  color: var(--subtle);
+}
+
+[data-theme='endfield'] .api-state,
+[data-theme='endfield'] .config-example,
+[data-theme='endfield'] .corpus-sync-status {
+  background: var(--bg);
+  color: var(--text);
+}
+
+[data-theme='endfield'] .switch {
+  border-color: var(--muted);
+}
+
+[data-theme='endfield'] .switch-row input:checked + .switch,
+[data-theme='endfield'] .prts-switch-row[aria-checked='true'] .prts-switch-track {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+}
+
+[data-theme='endfield'] .switch-row input:checked + .switch::before,
+[data-theme='endfield'] .prts-switch-row[aria-checked='true'] .prts-switch-track > span {
+  background: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .theme-choice.is-selected,
+[data-theme='endfield'] .portrait-choice.is-selected {
+  border-color: var(--endfield-ink);
+  box-shadow: inset 0 -3px var(--endfield-yellow);
+}
+
+[data-theme='endfield'] .appearance-choice-check,
+[data-theme='endfield'] .passkey-intro-icon {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+/* Dialogs and native top-layer popovers share a light instrument housing. */
+[data-theme='endfield'] .modal,
+[data-theme='endfield'] .files-preview-dialog,
+[data-theme='endfield'] .prts-picker-popover,
+[data-theme='endfield'] .prts-select-popover {
+  border-color: var(--muted);
+  border-top: 3px solid var(--endfield-ink);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 16px 60px color-mix(in srgb, var(--endfield-ink) 22%, transparent);
+}
+
+[data-theme='endfield'] .modal::backdrop,
+[data-theme='endfield'] .files-preview-dialog::backdrop {
+  background: color-mix(in srgb, var(--endfield-ink) 68%, transparent);
+}
+
+[data-theme='endfield'] .prts-picker-field,
+[data-theme='endfield'] .prts-select-trigger {
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .prts-date-week button[aria-selected='true'],
+[data-theme='endfield'] .prts-time-list button[aria-selected='true'],
+[data-theme='endfield'] .prts-select-option[aria-selected='true'] {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+  box-shadow: inset 2px 0 var(--endfield-ink);
+}
+
+[data-theme='endfield'] .prts-select-option[aria-selected='true'] .prts-select-option-description,
+[data-theme='endfield'] .prts-select-option[aria-selected='true'] .prts-select-check {
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .prts-select-option[aria-selected='true']:hover,
+[data-theme='endfield'] .prts-select-option[aria-selected='true'][data-active='true'] {
+  background: color-mix(in srgb, var(--endfield-yellow) 75%, var(--surface));
+}
+
+[data-theme='endfield'] .command-search,
+[data-theme='endfield'] .command-footer {
+  background: var(--bg);
+}
+
+[data-theme='endfield'] .command-search kbd {
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .command-results > button.selected {
+  border-color: var(--endfield-ink);
+  background: var(--endfield-yellow);
+  color: var(--endfield-ink);
+}
+
+[data-theme='endfield'] .command-results > button.selected > svg:first-child,
+[data-theme='endfield'] .command-results > button.selected > small {
+  color: var(--endfield-ink);
+}
+
+/* Exceptional states stay separate from yellow action and selection surfaces. */
+[data-theme='endfield'] .toast,
+[data-theme='endfield'] .pwa-notice {
+  border-color: var(--muted);
+  border-left: 4px solid var(--endfield-yellow);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--endfield-ink) 18%, transparent);
+}
+
+[data-theme='endfield'] .storage-warning,
+[data-theme='endfield'] .inline-error,
+[data-theme='endfield'] .files-error,
+[data-theme='endfield'] .corpus-settings-error,
+[data-theme='endfield'] .auth-error,
+[data-theme='endfield'] .knowledge-warning {
+  border-color: color-mix(in srgb, var(--danger) 48%, var(--border));
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+  color: var(--danger);
+}
+
+[data-theme='endfield'] .files-error > svg {
+  color: var(--danger);
+}
+
+[data-theme='endfield'] .storage-warning button,
+[data-theme='endfield'] .corpus-sync-status.failed {
+  border-color: var(--danger);
+}
+
+[data-theme='endfield'] .danger.confirming,
+[data-theme='endfield'] .workspace-inline-confirm {
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+}
+
+[data-theme='endfield'] .workspace-danger-button {
+  border-color: var(--danger) !important;
+  color: var(--danger) !important;
+}
+
+[data-theme='endfield'] .task-reminder-tray {
+  border-color: var(--border);
+  border-top: 2px solid var(--endfield-ink);
+  border-left: 4px solid var(--endfield-yellow);
+  background: var(--surface);
+}
+
+[data-theme='endfield'] .task-reminder-tray li {
+  border-top-color: var(--border);
+}
+
+@media (max-width: 420px) {
+  [data-theme='endfield'] .task-editor-dialog .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

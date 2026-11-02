@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#ecece7" />
+    <meta name="color-scheme" content="light" />
+    <title>PRTS · 终末地 · 暂时离线</title>
+    <link rel="icon" type="image/png" href="/icons/endfield-192.png" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+          max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+        background: #ecece7;
+        background-image:
+          linear-gradient(#20221f0a 1px, transparent 1px),
+          linear-gradient(90deg, #20221f0a 1px, transparent 1px);
+        background-size: 32px 32px;
+        color: #20221f;
+        font:
+          16px/1.8 system-ui,
+          sans-serif;
+      }
+      main {
+        width: min(100%, 760px);
+        border: 1px solid #bfc1b7;
+        background: #f7f7f1;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 28px 32px;
+        border-bottom: 1px solid #bfc1b7;
+      }
+      header img {
+        display: block;
+        width: min(52%, 240px);
+        height: auto;
+      }
+      header span,
+      footer {
+        font: 11px/1.8 monospace;
+        letter-spacing: 1px;
+        color: #5c6057;
+      }
+      .body {
+        padding: 40px 32px;
+        border-left: 8px solid #f2d33f;
+      }
+      .status {
+        display: inline-block;
+        padding: 4px 10px;
+        background: #f2d33f;
+        color: #20221f;
+        font: 11px/1.8 monospace;
+        letter-spacing: 1px;
+      }
+      h1 {
+        margin: 22px 0 14px;
+        font-size: clamp(26px, 5vw, 38px);
+        line-height: 1.4;
+        font-weight: 600;
+      }
+      p {
+        max-width: 560px;
+        margin: 0 0 30px;
+        color: #5c6057;
+        font-size: 15px;
+      }
+      a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 40px;
+        min-height: 48px;
+        padding: 10px 20px;
+        background: #f2d33f;
+        color: #20221f;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid #20221f;
+      }
+      a:hover {
+        background: #f8df66;
+      }
+      a:focus-visible {
+        outline: 3px solid #786400;
+        outline-offset: 4px;
+      }
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 18px 32px;
+        border-top: 1px solid #bfc1b7;
+      }
+      footer::before {
+        content: '';
+        width: 48px;
+        flex: 0 0 48px;
+        background: repeating-linear-gradient(135deg, #20221f 0 3px, transparent 3px 7px);
+      }
+      @media (max-width: 520px) {
+        header,
+        footer {
+          padding: 20px;
+          flex-wrap: wrap;
+        }
+        header img {
+          width: min(100%, 220px);
+        }
+        .body {
+          padding: 28px 20px;
+          border-left-width: 6px;
+        }
+        a {
+          width: 100%;
+        }
+        footer::before {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <img src="/branding/endfield.svg" alt="明日方舟：终末地" />
+        <span>ENGINEERING TERMINAL<br />PRTS / PERSONAL WORKSPACE</span>
+      </header>
+      <section class="body" aria-labelledby="offline-title">
+        <span class="status">CONNECTION INTERRUPTED / 00</span>
+        <h1 id="offline-title">终端暂时离线</h1>
+        <p>当前无法连接服务器。任务、笔记和文件仍保存在你的服务器上，恢复网络后即可继续使用。</p>
+        <a href="/">重新连接终端<span aria-hidden="true">↗</span></a>
+      </section>
+      <footer><span>ENDFIELD · ENGINEERING TERMINAL</span><span>等待恢复连接</span></footer>
+    </main>
+  </body>
+</html>
