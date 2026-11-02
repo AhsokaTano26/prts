@@ -867,7 +867,7 @@ p {
 .task-row.compact {
   padding: 12px 0;
   min-height: 49px;
-  grid-template-columns: 18px minmax(80px, 1fr) 77px 67px 20px;
+  grid-template-columns: 18px minmax(0, 1fr) 77px 80px 25px;
   gap: 10px;
 }
 .task-check {
@@ -938,6 +938,12 @@ p {
 }
 .task-due.overdue {
   color: #e9937d;
+}
+.task-row.compact .task-due {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
 }
 .task-edit {
   width: 25px;
@@ -2376,7 +2382,7 @@ p {
     margin: 0 15px;
   }
   .task-row.compact {
-    grid-template-columns: 17px minmax(65px, 1fr) 68px 36px 20px;
+    grid-template-columns: 17px minmax(0, 1fr) 68px 80px 25px;
     gap: 9px;
   }
   .task-row.compact .priority {
@@ -2388,10 +2394,6 @@ p {
   }
   .task-row.compact .task-due {
     font-size: 12px;
-  }
-  .task-row.compact .task-due.overdue {
-    font-size: 12px;
-    white-space: normal;
   }
   .note-previews {
     padding: 0 14px;
@@ -2558,7 +2560,7 @@ p {
     font-size: 10px;
   }
   .task-row.compact {
-    grid-template-columns: 16px minmax(65px, 1fr) 21px;
+    grid-template-columns: 16px minmax(65px, 1fr) 25px;
     gap: 10px;
   }
   .task-row.compact .priority,
@@ -3067,7 +3069,7 @@ p {
     gap: 3px;
   }
   .task-row.compact {
-    grid-template-columns: 17px minmax(80px, 1fr) 65px 21px;
+    grid-template-columns: 17px minmax(80px, 1fr) 65px 25px;
     min-height: 52px;
     gap: 10px;
   }
@@ -3599,7 +3601,7 @@ p {
     font-size: 12px;
   }
   .task-row.compact {
-    grid-template-columns: 16px minmax(0, 1fr) 64px 20px;
+    grid-template-columns: 16px minmax(0, 1fr) 64px 25px;
     gap: 8px;
   }
   .task-row.compact .priority {

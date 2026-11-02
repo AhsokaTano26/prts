@@ -59,9 +59,11 @@ export function TaskRow({
         {priorityNames[task.priority]}
       </span>
       <span className={`task-due mono ${overdue ? 'overdue' : ''}`}>
-        {overdue ? '已逾期 · ' : ''}
-        {due}
-        {task.dueAt ? ` ${taskLocalTime(task)}` : ''}
+        {overdue && <span>已逾期</span>}
+        <span>
+          {due}
+          {task.dueAt ? ` ${taskLocalTime(task)}` : ''}
+        </span>
       </span>
       <button
         className="icon-button task-edit"
