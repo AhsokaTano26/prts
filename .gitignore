@@ -18,3 +18,4 @@ public/assets/corpus-images/**/*.download
 /data/uploads/
 /data/assets/
 /data/tmp/
+/data/demo/
