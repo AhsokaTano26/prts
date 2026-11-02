@@ -15,6 +15,7 @@ import {
   WifiOff,
   LockKeyhole,
   CalendarDays,
+  Grid2X2,
 } from 'lucide-react'
 import {
   makeId,
@@ -41,6 +42,7 @@ import CommandPalette from './components/CommandPalette'
 import BootSequence from './components/BootSequence'
 import AppVersion from './components/AppVersion'
 import CalendarView from './components/CalendarView'
+import TaskQuadrantsView from './components/TaskQuadrantsView'
 import CalendarEventDialog from './components/CalendarEventDialog'
 import { dateKey, eventStartDate } from './lib/calendar'
 import { timelineSlotRange, type TimeRange } from './lib/calendarTimeline'
@@ -51,14 +53,24 @@ import { observeInterfaceMotion, stopInterfaceMotion, transitionView } from './l
 const navItems = [
   { id: 'overview', label: '总览', en: 'OVERVIEW', icon: LayoutDashboard },
   { id: 'tasks', label: '任务中枢', en: 'TASK CENTER', icon: ListTodo },
+  { id: 'quadrants', label: '四象限法', en: 'PRIORITY MATRIX', icon: Grid2X2 },
   { id: 'calendar', label: '日历日程', en: 'CALENDAR', icon: CalendarDays },
   { id: 'notes', label: '个人思考', en: 'THOUGHTS', icon: FileText },
   { id: 'files', label: '文件资料库', en: 'FILE STORAGE', icon: FolderOpen },
   { id: 'assistant', label: 'PRTS 助手', en: 'INTELLIGENCE', icon: Sparkles },
 ]
-const validPages = ['overview', 'tasks', 'calendar', 'notes', 'files', 'assistant', 'settings']
+const validPages = [
+  'overview',
+  'tasks',
+  'quadrants',
+  'calendar',
+  'notes',
+  'files',
+  'assistant',
+  'settings',
+]
 function readPage() {
-  const h = location.hash.slice(1)
+  const h = location.hash.slice(1).split('?')[0]
   if (h.startsWith('settings/')) return 'settings'
   return validPages.includes(h) ? h : 'overview'
 }
@@ -632,6 +644,16 @@ export default function App({ onLock }: { onLock: () => void }) {
                   }
                 />
               )}{' '}
+              {page === 'quadrants' && (
+                <TaskQuadrantsView
+                  tasks={workspace.tasks}
+                  categories={workspace.taskCategories}
+                  now={Math.floor(time.getTime() / 60000) * 60000}
+                  onNew={() => openNewTask()}
+                  onEdit={setTaskDialog}
+                  onToggle={toggleTask}
+                />
+              )}
               {page === 'notes' && (
                 <NotesView
                   notes={workspace.notes}

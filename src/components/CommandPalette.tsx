@@ -10,6 +10,7 @@ import {
   Settings2,
   Sparkles,
   CalendarDays,
+  Grid2X2,
 } from 'lucide-react'
 import { Modal } from './UI'
 import type { Workspace } from '../lib/workspace'
@@ -47,6 +48,7 @@ export default function CommandPalette({
     ...[
       { id: 'overview', title: '总览', icon: LayoutDashboard },
       { id: 'tasks', title: '任务中枢', icon: ListTodo },
+      { id: 'quadrants', title: '四象限法', icon: Grid2X2 },
       { id: 'calendar', title: '日历日程', icon: CalendarDays },
       { id: 'notes', title: '个人思考', icon: FileText },
       { id: 'files', title: '文件资料库', icon: FolderOpen },

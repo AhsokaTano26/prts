@@ -28,6 +28,7 @@ test('overview and all modules render without page errors', async ({ page }) => 
   await page.screenshot({ path: '/tmp/prts-desktop.png', fullPage: true })
   for (const [nav, heading] of [
     ['任务中枢', '任务中枢.'],
+    ['四象限法', '四象限法.'],
     ['个人思考', '个人思考'],
     ['文件资料库', '文件资料库'],
     ['PRTS 助手', 'PRTS 助手.'],

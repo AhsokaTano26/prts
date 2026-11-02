@@ -1,0 +1,618 @@
+.matrix-page {
+  max-width: 1800px;
+}
+[data-theme='rhine'] .matrix-page {
+  --matrix-dot-lightness: 40%;
+}
+.matrix-page .view-heading {
+  align-items: flex-start;
+}
+.matrix-filter-toggle,
+.matrix-return {
+  display: none;
+}
+.matrix-controls {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.5fr) repeat(3, minmax(130px, 1fr));
+  align-items: end;
+  gap: 18px;
+  padding: 18px;
+}
+.matrix-controls > label {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.matrix-controls .matrix-search {
+  min-height: 40px;
+  flex-direction: row;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.matrix-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  padding: 10px 0;
+  font-size: 13px;
+}
+.matrix-controls .prts-select {
+  width: 100%;
+}
+.matrix-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 20px;
+  margin: 18px 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.matrix-summary strong {
+  font-family: var(--mono);
+  color: var(--text);
+  font-size: 18px;
+  margin-right: 4px;
+}
+.matrix-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 294px;
+  align-items: start;
+  gap: 18px;
+}
+.matrix-chart,
+.matrix-inspector {
+  min-width: 0;
+}
+.matrix-chart {
+  padding: 20px;
+}
+.matrix-chart-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+.matrix-chart-heading h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+}
+.matrix-chart-heading > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.matrix-canvas {
+  position: relative;
+  margin-left: 24px;
+  margin-right: 14px;
+}
+.matrix-plot {
+  height: 420px;
+  position: relative;
+  isolation: isolate;
+}
+.matrix-y-labels {
+  position: absolute;
+  inset: 0 auto 30px -25px;
+  width: 18px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.matrix-y-labels span {
+  position: absolute;
+  transform: translateY(-50%);
+}
+.matrix-zones {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  border: 1px solid var(--border);
+}
+.matrix-zone {
+  position: relative;
+  min-width: 0;
+  background: var(--bg);
+}
+.matrix-zone:nth-child(odd) {
+  border-right: 1px solid var(--border);
+}
+.matrix-zone:nth-child(-n + 2) {
+  border-bottom: 1px solid var(--border);
+}
+.matrix-zone-act {
+  background: color-mix(in srgb, var(--accent) 6%, var(--bg));
+}
+.matrix-zone-plan {
+  background: color-mix(in srgb, var(--success) 4%, var(--bg));
+}
+.matrix-zone-heading {
+  position: absolute;
+  left: 12px;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  background: none;
+  color: var(--muted);
+  font-size: 11px;
+}
+.matrix-zone-heading strong {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+}
+.matrix-zone-heading > span:first-child {
+  font-size: 10px;
+  color: var(--subtle);
+}
+.matrix-zone-heading > span:last-of-type {
+  font-family: var(--mono);
+  border: 1px solid var(--border);
+  min-width: 20px;
+  padding: 1px 4px;
+  text-align: center;
+}
+.matrix-zone-heading small {
+  width: 100%;
+  color: var(--muted);
+  font-size: 10px;
+}
+.matrix-point {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  transform: translate(-50%, -50%);
+}
+.matrix-connector {
+  position: absolute;
+  border-left: 1px solid var(--muted);
+  pointer-events: none;
+}
+.matrix-connector::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.matrix-dot-cluster {
+  display: grid;
+  grid-template-columns: auto;
+  place-items: center;
+  gap: 3px;
+  pointer-events: none;
+}
+.matrix-dot {
+  display: block;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--task-color);
+  border: 1px solid color-mix(in srgb, var(--task-color) 75%, var(--text));
+}
+.matrix-dot-done {
+  border: 2px dashed var(--task-color);
+  background: var(--surface);
+}
+.matrix-point-group .matrix-dot-cluster {
+  grid-template-columns: repeat(2, 9px);
+}
+.matrix-point-group .matrix-dot {
+  width: 9px;
+  height: 9px;
+}
+.matrix-point-group .matrix-dot-done {
+  border-width: 1px;
+}
+.matrix-point:hover,
+.matrix-point[aria-pressed='true'] {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+}
+.matrix-point:focus-visible {
+  z-index: 3;
+}
+.matrix-point:active:not(:disabled) {
+  transform: translate(-50%, -50%) scale(0.97);
+}
+.matrix-x-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 30px;
+  padding-top: 10px;
+  font-size: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+.matrix-x-labels span {
+  min-width: 0;
+  white-space: nowrap;
+}
+.matrix-axis-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-left: 24px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.matrix-axis-caption > span:nth-child(2) {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text);
+}
+.matrix-help {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+}
+.matrix-undated {
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+}
+.matrix-undated strong {
+  font-size: 12px;
+  font-weight: 500;
+}
+.matrix-undated strong span {
+  color: var(--accent);
+  margin-left: 8px;
+}
+.matrix-undated small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 5px;
+}
+.matrix-undated-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.matrix-undated-actions button {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 11px;
+  padding: 8px 9px;
+}
+.matrix-undated-actions span {
+  margin-left: 6px;
+  font-family: var(--mono);
+  color: var(--muted);
+}
+.matrix-inspector-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 18px 0;
+}
+.matrix-inspector-heading .workspace-eyebrow {
+  margin: 0;
+  font-size: 9px;
+  color: var(--muted);
+}
+.matrix-inspector-heading h2 {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.matrix-inspector-heading h2 span {
+  font-family: var(--mono);
+  color: var(--muted);
+  margin-left: 6px;
+  font-size: 12px;
+}
+.matrix-reset {
+  padding: 8px 0;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  font-size: 11px;
+}
+.matrix-selection {
+  padding: 0 18px;
+  margin: 12px 0 16px;
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.matrix-task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 600px;
+  overflow-y: auto;
+}
+.matrix-task-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px 18px;
+  border-top: 1px solid var(--border);
+}
+.matrix-task-list li > div {
+  min-width: 0;
+  flex: 1;
+}
+.matrix-task-check {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  border: 1px solid var(--muted);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--success);
+}
+.matrix-task-check[aria-checked='true'] {
+  border-color: var(--success);
+}
+.matrix-task-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  text-align: left;
+  line-height: 1.65;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.matrix-task-title .matrix-dot {
+  width: 9px;
+  height: 9px;
+  align-self: flex-start;
+  margin-top: 6px;
+}
+.matrix-task-title > span:last-child {
+  min-width: 0;
+}
+.matrix-task-title:hover {
+  color: var(--accent);
+}
+.matrix-task-done .matrix-task-title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.matrix-task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+  margin: 7px 0 5px;
+}
+.matrix-priority-high {
+  color: var(--accent);
+}
+.matrix-task-list time {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.matrix-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding: 12px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.matrix-pagination button {
+  border: 1px solid var(--border);
+  padding: 8px;
+  background: var(--bg);
+}
+.matrix-plot-empty {
+  position: absolute;
+  inset: 48px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  pointer-events: none;
+}
+.matrix-plot:has(.matrix-plot-empty) .matrix-zone-heading {
+  visibility: hidden;
+}
+.matrix-plot-empty strong {
+  background: var(--surface);
+  padding: 7px 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.matrix-plot-empty > span {
+  max-width: 260px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+  background: var(--surface);
+  padding: 5px;
+}
+.matrix-details-empty {
+  padding: 24px 18px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.sidebar > nav {
+  min-height: 0;
+  overflow-y: auto;
+}
+.sidebar > .brand,
+.sidebar > .nav-section-label,
+.sidebar > .sidebar-bottom {
+  flex-shrink: 0;
+}
+@media (max-width: 1200px) {
+  .matrix-layout {
+    grid-template-columns: minmax(0, 1fr) 260px;
+  }
+  .matrix-chart {
+    padding: 16px;
+  }
+}
+@media (max-width: 1023px) {
+  .matrix-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .matrix-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .matrix-controls .matrix-search {
+    grid-column: 1 / -1;
+  }
+  .matrix-task-list {
+    max-height: 500px;
+  }
+  .matrix-inspector {
+    scroll-margin-top: 80px;
+  }
+  .matrix-return {
+    display: block;
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font-size: 12px;
+    padding: 8px 18px 16px;
+  }
+}
+@media (max-width: 600px) {
+  .matrix-page .view-heading {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .matrix-page .view-heading h1 {
+    font-size: 28px;
+  }
+  .matrix-controls {
+    display: none;
+    gap: 12px;
+    padding: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .matrix-controls.is-open {
+    display: grid;
+  }
+  .matrix-filter-toggle {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 9px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 12px;
+  }
+  .matrix-filter-toggle span {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .matrix-controls.is-open {
+    margin-top: 10px;
+  }
+  .matrix-controls > label:last-child {
+    grid-column: 1 / -1;
+  }
+  .matrix-chart {
+    padding: 14px 10px;
+  }
+  .matrix-summary {
+    font-size: 11px;
+  }
+  .matrix-chart-heading {
+    padding: 0 4px;
+  }
+  .matrix-plot {
+    height: 480px;
+  }
+  .matrix-zone-heading {
+    left: 7px;
+    right: 5px;
+    gap: 4px;
+  }
+  .matrix-zone-heading > span:first-child {
+    display: none;
+  }
+  .matrix-zone-heading strong {
+    font-size: 11px;
+  }
+  .matrix-zone-heading small {
+    font-size: 9px;
+  }
+  .matrix-point {
+    width: 44px;
+    height: 44px;
+  }
+  .matrix-x-labels {
+    font-size: 8px;
+    gap: 2px;
+  }
+  .matrix-task-list li {
+    padding: 15px;
+  }
+  .matrix-task-check {
+    width: 32px;
+    height: 32px;
+  }
+  .matrix-task-title {
+    min-height: 32px;
+  }
+  .matrix-undated {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  .matrix-undated-actions {
+    width: 100%;
+  }
+  .matrix-undated-actions button {
+    flex: 1;
+    padding: 10px 4px;
+  }
+}
