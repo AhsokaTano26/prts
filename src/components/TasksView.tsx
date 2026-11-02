@@ -15,6 +15,7 @@ import PrtsSelect from './PrtsSelect'
 import { PrtsDatePicker, PrtsTimePicker } from './PrtsDateTimePicker'
 import TaskCategoriesDialog from './TaskCategoriesDialog'
 import { taskLocalDate, taskLocalTime, editedTaskDeadline } from '../lib/reminders'
+import { sortTasks } from '../lib/taskSorting'
 import { transitionView } from '../lib/motion'
 import { useTaskCompletion } from '../lib/useTaskCompletion'
 import TaskCompletionCheck from './TaskCompletionCheck'
@@ -375,18 +376,14 @@ export default function TasksView({
     currentCategory === null
       ? tasks
       : tasks.filter((task) => taskCategory(task) === currentCategory)
-  const visible = scopedTasks
-    .filter(
+  const visible = sortTasks(
+    scopedTasks.filter(
       (t) =>
         (filter === 'all' || (filter === 'done' ? t.done : !t.done || completingIds.has(t.id))) &&
         (priority === 'all' || t.priority === priority) &&
         t.title.toLowerCase().includes(query.trim().toLowerCase()),
-    )
-    .sort(
-      (a, b) =>
-        Number(a.done && !completingIds.has(a.id)) - Number(b.done && !completingIds.has(b.id)) ||
-        { high: 0, medium: 1, low: 2 }[a.priority] - { high: 0, medium: 1, low: 2 }[b.priority],
-    )
+    ),
+  )
   return (
     <div className="page-content tasks-page">
       <div className="view-heading">
