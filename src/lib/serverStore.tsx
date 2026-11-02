@@ -19,6 +19,8 @@ import { listLegacyFiles, type LegacyWorkspaceFile } from './legacyFiles'
 import { storeFileRecords } from './files'
 import { DEFAULT_APPEARANCE, parseAppearance, type AppearancePreferences } from './appearance'
 import { Modal } from '../components/UI'
+import type { FocusState } from './focusTimer'
+export type { FocusState } from './focusTimer'
 import '../styles/server-storage.css'
 
 export type AssistantMode = 'local' | 'ai' | 'knowledge'
@@ -30,7 +32,6 @@ export type ServerPreferences = {
   appearance: AppearancePreferences
   migratedBrowserIds?: string[]
 }
-export type FocusState = { remaining: number; endAt: number | null; sessionId: string | null }
 export type Values = { workspace: Workspace; preferences: ServerPreferences; focus: FocusState }
 type Key = keyof Values
 export type Document<T> = { value: T; revision: number }

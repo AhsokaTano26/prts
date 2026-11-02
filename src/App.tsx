@@ -733,8 +733,7 @@ export default function App({ onLock }: { onLock: () => void }) {
             <span className="mono">
               {timer.running && (
                 <button onClick={() => navigate('overview')} className="footer-focus">
-                  FOCUS {String(Math.floor(timer.remaining / 60)).padStart(2, '0')}:
-                  {String(timer.remaining % 60).padStart(2, '0')}
+                  {timer.mode === 'countup' ? 'COUNT UP' : 'FOCUS'} {timer.display}
                   <span> / </span>
                 </button>
               )}

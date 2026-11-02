@@ -213,7 +213,7 @@ export default function Overview({
           </section>
         </div>
         <div className="dashboard-side">
-          <FocusPanel timer={timer} onSettings={() => onNavigate('settings')} />
+          <FocusPanel timer={timer} />
           <section className="panel activity-panel">
             <SectionTitle title="终端动态" english="ACTIVITY LOG" />
             <div className="activity-list">

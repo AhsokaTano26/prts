@@ -1064,7 +1064,7 @@ p {
   padding-bottom: 17px;
 }
 .focus-panel .section-title {
-  padding-right: 38px;
+  padding-right: 17px;
 }
 .focus-panel .section-title h2 {
   gap: 8px;
@@ -1072,13 +1072,6 @@ p {
 .focus-panel .section-title h2 > span {
   font-size: 10px;
   letter-spacing: 0.7px;
-}
-.focus-settings {
-  position: absolute;
-  right: 11px;
-  top: 11px;
-  width: 27px;
-  min-width: 27px;
 }
 .timer-display {
   position: relative;

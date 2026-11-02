@@ -463,6 +463,86 @@ test('persona histories infer legacy pairs, paginate independently and clear onl
   )
 })
 
+test('focus duration and stopwatch state survive storage without losing fractional elapsed time', (t) => {
+  const { store } = setup(t)
+  const countdown = {
+    remaining: 420,
+    endAt: null,
+    sessionId: null,
+    mode: 'countdown',
+    duration: 420,
+  }
+  store.putDocument('focus', write(countdown))
+  assert.deepEqual(store.getDocument('focus').value, countdown)
+  const stopwatch = {
+    remaining: 0,
+    endAt: null,
+    sessionId: 'stopwatch',
+    mode: 'countup',
+    duration: 420,
+    elapsed: 1.25,
+    startedAt: 100000,
+    completed: false,
+  }
+  store.putDocument('focus', write(stopwatch, 1))
+  assert.deepEqual(store.getDocument('focus').value, stopwatch)
+  for (const invalid of [
+    { ...stopwatch, mode: 'unknown' },
+    { ...stopwatch, elapsed: -1 },
+    { ...stopwatch, startedAt: 1.5 },
+    { ...stopwatch, duration: 1 },
+    { ...stopwatch, endAt: 120000 },
+    { ...stopwatch, sessionId: null },
+    { ...stopwatch, completed: true },
+  ])
+    assert.throws(() => store.putDocument('focus', write(invalid, 2)), { status: 400 })
+})
+
+test('stopwatch finish records elapsed time and counts once from running or paused state', (t) => {
+  let clock = 100000
+  const { store } = setup(t, { now: () => clock })
+  store.putDocument('workspace', write(createInitialWorkspace()))
+  store.putDocument(
+    'focus',
+    write({
+      remaining: 0,
+      endAt: null,
+      sessionId: 'running-up',
+      mode: 'countup',
+      duration: 1500,
+      elapsed: 1.25,
+      startedAt: clock,
+      completed: false,
+    }),
+  )
+  clock += 3000
+  const finished = store.completeFocus('running-up')
+  assert.equal(finished.completed, true)
+  assert.equal(finished.documents.focus.value.elapsed, 4.25)
+  assert.equal(finished.documents.focus.value.startedAt, null)
+  assert.equal(finished.documents.focus.value.completed, true)
+  assert.equal(finished.documents.workspace.value.focusSessions, 1)
+  assert.equal(store.completeFocus('running-up').completed, false)
+  store.putDocument(
+    'focus',
+    write(
+      {
+        remaining: 0,
+        endAt: null,
+        sessionId: 'paused-up',
+        mode: 'countup',
+        duration: 1500,
+        elapsed: 10,
+        startedAt: null,
+        completed: false,
+      },
+      2,
+    ),
+  )
+  assert.equal(store.completeFocus('paused-up').documents.workspace.value.focusSessions, 2)
+  assert.equal(store.completeFocus('paused-up').completed, false)
+})
+
 test('focus completion updates count once, atomically, and cannot complete before the deadline', (t) => {
   let now = 1000
   const { store } = setup(t, { now: () => now })

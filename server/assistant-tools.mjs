@@ -9,6 +9,7 @@ import {
 import { ASSISTANT_OPERATIONS } from '../src/lib/assistantTools.ts'
 import { changeCalendar, searchCalendar } from './assistant-calendar.mjs'
 import { captureWarnings, sameCapture } from './assistant-capture.mjs'
+import { focusRunning, resetFocus, toggleFocus, formatFocusTime } from '../src/lib/focusTimer.ts'
 
 const actionLifetime = 30 * 60_000
 const changeFieldsDescription =
@@ -380,23 +381,21 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
     if (focusOperation) {
       onlyKeys(fields, [])
       if (operation === 'start_focus') {
-        if (value.endAt !== null) throw new HttpError(400, '专注计时已在运行。')
-        if (!value.remaining) {
-          value.remaining = current.settings.focusMinutes * 60
-          value.sessionId = randomUUID()
-        }
-        value.sessionId ||= randomUUID()
-        value.endAt = now() + value.remaining * 1000
+        if (focusRunning(value)) throw new HttpError(400, '专注计时已在运行。')
+        Object.assign(
+          value,
+          toggleFocus(value, current.settings.focusMinutes * 60, now(), randomUUID()),
+        )
         summary = '开始专注计时'
       } else if (operation === 'pause_focus') {
-        if (value.endAt === null) throw new HttpError(400, '专注计时尚未运行。')
-        value.remaining = Math.max(0, Math.ceil((value.endAt - now()) / 1000))
-        value.endAt = null
+        if (!focusRunning(value)) throw new HttpError(400, '专注计时尚未运行。')
+        Object.assign(
+          value,
+          toggleFocus(value, current.settings.focusMinutes * 60, now(), randomUUID()),
+        )
         summary = '暂停专注计时'
       } else {
-        value.remaining = current.settings.focusMinutes * 60
-        value.endAt = null
-        value.sessionId = null
+        Object.assign(value, resetFocus(value, current.settings.focusMinutes * 60))
         summary = '重置专注计时'
       }
       before = document?.value
@@ -527,6 +526,10 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
         focusMinutes: '专注时长（分钟）',
         sound: '完成提示音',
         remaining: '剩余时间',
+        mode: '计时模式',
+        duration: '本轮时长',
+        elapsed: '已专注时间',
+        startedAt: '正计时开始于',
         endAt: focusOperation ? '计时结束于' : '结束时间',
         explanation: '说明',
         description: '备注',
@@ -543,6 +546,9 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
             val = current.taskCategories.find((category) => category.id === val)?.name || '未分类'
           if (key === 'priority') val = { high: '高', medium: '中', low: '低' }[val]
           if (key === 'remaining') val = `${Math.floor(val / 60)} 分 ${val % 60} 秒`
+          if (key === 'mode') val = val === 'countup' ? '正计时' : '倒计时'
+          if (key === 'duration' || key === 'elapsed') val = formatFocusTime(val)
+          if (key === 'startedAt') val = val === null ? '未运行' : new Date(val).toISOString()
           if (key === 'endAt' && focusOperation)
             val = val === null ? '未运行' : new Date(val).toISOString()
           if (typeof val === 'boolean') val = val ? '是' : '否'

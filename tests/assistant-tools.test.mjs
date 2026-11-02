@@ -835,6 +835,31 @@ test('category, task, note, preference and focus operations preserve valid works
   assert.equal(client.storage.getDocument('focus').value.endAt, null)
   apply('reset_focus')
   assert.equal(client.storage.getDocument('focus').value.sessionId, null)
+  const focus = client.storage.getDocument('focus')
+  client.storage.putDocument('focus', {
+    value: {
+      remaining: 0,
+      endAt: null,
+      sessionId: null,
+      mode: 'countup',
+      duration: 420,
+      elapsed: 0,
+      startedAt: null,
+      completed: false,
+    },
+    expectedRevision: focus.revision,
+    mutationId: randomUUID(),
+  })
+  apply('start_focus')
+  assert.equal(client.storage.getDocument('focus').value.endAt, null)
+  assert.ok(client.storage.getDocument('focus').value.startedAt > 0)
+  apply('pause_focus')
+  assert.equal(client.storage.getDocument('focus').value.startedAt, null)
+  assert.ok(client.storage.getDocument('focus').value.elapsed >= 0)
+  apply('reset_focus')
+  assert.equal(client.storage.getDocument('focus').value.mode, 'countup')
+  assert.equal(client.storage.getDocument('focus').value.duration, 420)
+  assert.equal(client.storage.getDocument('focus').value.elapsed, 0)
   const rejected = tools
     .session()
     .execute(

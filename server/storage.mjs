@@ -19,6 +19,7 @@ import { HttpError } from './errors.mjs'
 import { parseAssistantActions, parseToolUsage } from '../src/lib/assistantTools.ts'
 import { validateWorkspace } from '../src/lib/workspace.ts'
 import { parseKnowledgeResults } from '../src/lib/assistant.ts'
+import { focusElapsed, focusMode } from '../src/lib/focusTimer.ts'
 
 export const MAX_FILE_BYTES = 20 * 1024 * 1024
 export const MAX_TOTAL_FILE_BYTES = 100 * 1024 * 1024
@@ -133,7 +134,51 @@ function validateDocument(key, value) {
     invalid('专注计时格式无效。')
   const sessionId = value.sessionId === null ? null : id(value.sessionId, '专注会话 ID')
   if (value.endAt !== null && sessionId === null) invalid('运行中的专注计时需要会话 ID。')
-  return { remaining: value.remaining, endAt: value.endAt, sessionId }
+  const result = { remaining: value.remaining, endAt: value.endAt, sessionId }
+  if (value.mode !== undefined) {
+    if (!['countdown', 'countup'].includes(value.mode)) invalid('专注计时模式无效。')
+    result.mode = value.mode
+  }
+  if (value.duration !== undefined) {
+    if (
+      !Number.isInteger(value.duration) ||
+      value.duration < 60 ||
+      value.duration > 10800 ||
+      value.duration % 60 !== 0
+    )
+      invalid('专注时长须为 1–180 分钟的整数。')
+    result.duration = value.duration
+  }
+  if (value.elapsed !== undefined) {
+    if (
+      !Number.isFinite(value.elapsed) ||
+      value.elapsed < 0 ||
+      value.elapsed > Number.MAX_SAFE_INTEGER / 1000
+    )
+      invalid('已专注时间格式无效。')
+    result.elapsed = value.elapsed
+  }
+  if (value.startedAt !== undefined) {
+    if (
+      value.startedAt !== null &&
+      (!Number.isSafeInteger(value.startedAt) || value.startedAt <= 0 || !sessionId)
+    )
+      invalid('正计时开始时间无效。')
+    result.startedAt = value.startedAt
+  }
+  if (value.completed !== undefined) {
+    if (typeof value.completed !== 'boolean') invalid('专注完成状态无效。')
+    result.completed = value.completed
+  }
+  if (result.mode === 'countup') {
+    if (
+      result.endAt !== null ||
+      result.remaining !== 0 ||
+      (result.completed && result.startedAt != null)
+    )
+      invalid('正计时状态无效。')
+  } else if (result.startedAt != null || (result.elapsed || 0) !== 0) invalid('倒计时状态无效。')
+  return result
 }
 
 function validateMessage(value) {
@@ -626,9 +671,13 @@ export function createStorage(
       const documents = { workspace, focus }
       if (db.prepare('SELECT 1 FROM prts_focus_completions WHERE session_id=?').get(sessionId))
         return { completed: false, documents }
-      if (!workspace || !focus || focus.value.sessionId !== sessionId || focus.value.endAt === null)
+      if (!workspace || !focus || focus.value.sessionId !== sessionId)
         return { completed: false, documents }
-      if (focus.value.endAt > now()) throw new HttpError(409, '专注计时尚未结束。')
+      const countup = focusMode(focus.value) === 'countup'
+      const elapsed = countup ? focusElapsed(focus.value, now()) : 0
+      if (!countup && focus.value.endAt === null) return { completed: false, documents }
+      if (countup ? elapsed < 1 : focus.value.endAt > now())
+        throw new HttpError(409, countup ? '请至少专注一秒后结束本轮。' : '专注计时尚未结束。')
       const date = new Date(now()).toISOString()
       const updated = {
         ...workspace.value,
@@ -646,7 +695,12 @@ export function createStorage(
       documents.workspace = writeDocument('workspace', updated, workspace.revision + 1)
       documents.focus = writeDocument(
         'focus',
-        { remaining: 0, endAt: null, sessionId },
+        {
+          ...focus.value,
+          remaining: 0,
+          endAt: null,
+          ...(countup ? { elapsed, startedAt: null, completed: true } : {}),
+        },
         focus.revision + 1,
       )
       return { completed: true, documents }
