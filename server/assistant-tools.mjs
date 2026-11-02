@@ -12,13 +12,18 @@ import { captureWarnings, sameCapture } from './assistant-capture.mjs'
 
 const actionLifetime = 30 * 60_000
 const changeFieldsDescription =
-  '创建任务或日程须title；修改/删除须id。日程用create_calendar_event/update_calendar_event/delete_calendar_event；定时须startAt/endAt（带时区），全天须allDay=true及startDate/endDate；切换类型须完整新范围。分类须name；笔记正文用content；普通设置只支持name/focusMinutes/sound。'
+  '创建任务或日程须title；修改/删除须id。日程用create_calendar_event/update_calendar_event/delete_calendar_event；定时须startAt/endAt（带时区），全天须allDay=true及startDate/endDate；切换类型须完整新范围。分类须name；个人思考用简短贴题的title和用户口吻的content，编辑前先读原文；普通设置只支持name/focusMinutes/sound。'
 const fieldsSchema = {
   type: 'object',
   additionalProperties: false,
   properties: {
     title: { type: 'string' },
-    content: { type: 'string' },
+    content: {
+      type: 'string',
+      maxLength: 6000,
+      description:
+        '个人思考正文，以用户自己的视角自然记录，沿用原始材料的细节和不确定性；不混入聊天角色口吻、助手寒暄或虚构的个人经历。默认短段落，用户明确要求其他文体时遵循其要求。',
+    },
     tag: { type: 'string' },
     priority: { type: 'string', enum: ['high', 'medium', 'low'] },
     categoryId: { type: 'string' },
