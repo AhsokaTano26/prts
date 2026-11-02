@@ -4,13 +4,11 @@ import { taskDeadline } from './reminders.ts'
 export type MatrixOptions = {
   urgentDays: 1 | 3 | 7 | 14
   importantPriority: 'high' | 'medium'
-  status: 'all' | 'pending' | 'done'
 }
 export type QuadrantId = 'act' | 'plan' | 'fit' | 'later'
 export const MATRIX_OPTIONS: MatrixOptions = {
   urgentDays: 7,
   importantPriority: 'high',
-  status: 'all',
 }
 export const QUADRANTS: { id: QuadrantId; title: string; description: string }[] = [
   { id: 'act', title: '优先处理', description: '重要 · 紧急' },
@@ -34,18 +32,15 @@ export function taskMarkerColor(id: string): string {
 export function parseMatrixOptions(hash: string): MatrixOptions {
   const query = new URLSearchParams(hash.length <= 1000 ? hash.split('?')[1] || '' : '')
   const days = Number(query.get('days'))
-  const status = query.get('status')
   return {
     urgentDays: [1, 3, 7, 14].includes(days) ? (days as MatrixOptions['urgentDays']) : 7,
     importantPriority: query.get('important') === 'medium' ? 'medium' : 'high',
-    status: status === 'pending' || status === 'done' ? status : 'all',
   }
 }
 export function matrixHash(options: MatrixOptions): string {
   const query = new URLSearchParams()
   if (options.urgentDays !== 7) query.set('days', String(options.urgentDays))
   if (options.importantPriority !== 'high') query.set('important', options.importantPriority)
-  if (options.status !== 'all') query.set('status', options.status)
   return `#quadrants${query.size ? `?${query}` : ''}`
 }
 export type MatrixPoint = {
@@ -58,15 +53,14 @@ export type MatrixPoint = {
   labelY: number
   deadlineStart: number
   deadlineEnd: number
+  overdueCount: number
 }
 
 export function buildTaskMatrix(
   input: readonly Task[],
   options: MatrixOptions & { now: number; timeZone: string; columns?: number },
 ) {
-  const tasks = input.filter(
-    (task) => options.status === 'all' || task.done === (options.status === 'done'),
-  )
+  const tasks = input.filter((task) => !task.done)
   const cutoff = options.now + options.urgentDays * DAY
   // Priority is ordinal: divide its levels within the two fixed-size halves.
   const importantLevels = rank[options.importantPriority] + 1
@@ -83,6 +77,7 @@ export function buildTaskMatrix(
   }
   const counts: Record<QuadrantId, number> = { act: 0, plan: 0, fit: 0, later: 0 }
   const undated: Task[] = []
+  const overdueIds = new Set<string>()
   const dated: { task: Task; deadline: number; quadrant: QuadrantId }[] = []
   const deadlines = new Map<string, number | null>()
   let radius = Math.max(7, options.urgentDays) * DAY
@@ -94,6 +89,7 @@ export function buildTaskMatrix(
       undated.push(task)
       continue
     }
+    if (deadline < options.now) overdueIds.add(task.id)
     const important = rank[task.priority] <= rank[options.importantPriority]
     const urgent = deadline <= cutoff
     const quadrant = important ? (urgent ? 'act' : 'plan') : urgent ? 'fit' : 'later'
@@ -121,6 +117,7 @@ export function buildTaskMatrix(
       const x = ((deadline - min) / (max - min)) * 100
       if (point && x - point.x < spacing) {
         point.tasks.push(task)
+        if (overdueIds.has(task.id)) point.overdueCount++
         point.deadlineEnd = deadline
         point.x = (((point.deadlineStart + point.deadlineEnd) / 2 - min) / (max - min)) * 100
       } else {
@@ -135,6 +132,7 @@ export function buildTaskMatrix(
           labelY: y,
           deadlineStart: deadline,
           deadlineEnd: deadline,
+          overdueCount: overdueIds.has(task.id) ? 1 : 0,
         }
         points.push(point)
       }
@@ -158,6 +156,7 @@ export function buildTaskMatrix(
     tasks,
     counts,
     undated,
+    overdueIds,
     points,
     min,
     max,

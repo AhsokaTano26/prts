@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { ArrowRight, Check, Grid2X2, Plus, Search, SlidersHorizontal } from 'lucide-react'
+import { ArrowRight, Grid2X2, Plus, Search, SlidersHorizontal, TriangleAlert } from 'lucide-react'
 import type { Priority, Task, TaskCategory } from '../lib/workspace'
 import {
   buildTaskMatrix,
@@ -27,10 +27,10 @@ type Selection =
   | { kind: 'undated'; priority: Priority }
   | null
 
-function TaskDot({ task }: { task: Task }) {
+function TaskDot({ task, overdue }: { task: Task; overdue: boolean }) {
   return (
     <span
-      className={`matrix-dot${task.done ? ' matrix-dot-done' : ''}`}
+      className={`matrix-dot${overdue ? ' matrix-dot-overdue' : ''}`}
       data-task-id={task.id}
       aria-hidden="true"
       style={{ '--task-color': taskMarkerColor(task.id) } as CSSProperties}
@@ -110,6 +110,7 @@ export default function TaskQuadrantsView({
       ),
     [tasks, query],
   )
+  const pendingCount = useMemo(() => tasks.filter((task) => !task.done).length, [tasks])
   const model = useMemo(
     () => buildTaskMatrix(filtered, { ...options, now, timeZone, columns }),
     [filtered, options, now, timeZone, columns],
@@ -165,8 +166,8 @@ export default function TaskQuadrantsView({
   }
   function pointName(point: MatrixPoint) {
     return point.tasks.length === 1
-      ? `查看任务：${point.tasks[0].title}，${priorityNames[point.priority]}，截止 ${format.format(point.deadlineStart)}${point.tasks[0].done ? '，已完成' : ''}`
-      : `查看聚合任务：${priorityNames[point.priority]}，${point.tasks.length} 项，截止 ${format.format(point.deadlineStart)} 至 ${format.format(point.deadlineEnd)}`
+      ? `查看任务：${point.tasks[0].title}，${priorityNames[point.priority]}，截止 ${format.format(point.deadlineStart)}${point.overdueCount ? '，已逾期' : ''}`
+      : `查看聚合任务：${priorityNames[point.priority]}，${point.tasks.length} 项，截止 ${format.format(point.deadlineStart)} 至 ${format.format(point.deadlineEnd)}${point.overdueCount ? `，含 ${point.overdueCount} 项已逾期` : ''}`
   }
   const undated = model.undated
   return (
@@ -243,24 +244,17 @@ export default function TaskQuadrantsView({
             ]}
           />
         </label>
-        <label>
-          <span>任务状态</span>
-          <PrtsSelect
-            aria-label="四象限任务状态"
-            value={options.status}
-            onValueChange={(value) => changeOptions({ status: value as MatrixOptions['status'] })}
-            options={[
-              { value: 'all', label: '全部任务' },
-              { value: 'pending', label: '进行中' },
-              { value: 'done', label: '已完成' },
-            ]}
-          />
-        </label>
       </section>
       <div className="matrix-summary">
         <span>
-          <strong>{model.tasks.length}</strong> / {tasks.length} 项任务
+          <strong>{model.tasks.length}</strong> / {pendingCount} 项未完成任务
         </span>
+        {model.overdueIds.size > 0 && (
+          <span className="matrix-overdue-summary">
+            <TriangleAlert size={14} aria-hidden="true" />
+            已逾期 {model.overdueIds.size} 项
+          </span>
+        )}
         <span>
           紧急界线：{format.format(model.cutoff)} · {timeZone}
         </span>
@@ -318,7 +312,7 @@ export default function TaskQuadrantsView({
                   )}
                   <button
                     type="button"
-                    className={`matrix-point${point.tasks.length > 1 ? ' matrix-point-group' : ''}`}
+                    className={`matrix-point${point.tasks.length > 1 ? ' matrix-point-group' : ''}${point.overdueCount ? ' matrix-point-overdue' : ''}`}
                     style={{ left: `${point.x}%`, top: `${point.labelY}%` }}
                     aria-label={pointName(point)}
                     title={pointName(point)}
@@ -329,9 +323,18 @@ export default function TaskQuadrantsView({
                   >
                     <span className="matrix-dot-cluster" aria-hidden="true">
                       {point.tasks.slice(0, 4).map((task) => (
-                        <TaskDot key={task.id} task={task} />
+                        <TaskDot
+                          key={task.id}
+                          task={task}
+                          overdue={model.overdueIds.has(task.id)}
+                        />
                       ))}
                     </span>
+                    {point.overdueCount > 0 && (
+                      <span className="matrix-point-alert" aria-hidden="true">
+                        !
+                      </span>
+                    )}
                   </button>
                 </Fragment>
               ))}
@@ -340,15 +343,19 @@ export default function TaskQuadrantsView({
                   <Grid2X2 size={26} />
                   <strong>
                     {!model.tasks.length
-                      ? tasks.length
+                      ? pendingCount
                         ? '没有符合筛选的任务'
-                        : '还没有任务'
+                        : tasks.length
+                          ? '没有待处理任务'
+                          : '还没有任务'
                       : '这些任务还没有截止时间'}
                   </strong>
                   <span>
                     {model.tasks.length
                       ? '在下方未设截止时间区域选择任务，补充日期后即可定位。'
-                      : '新建任务或调整筛选后，可在这里查看它们的位置。'}
+                      : tasks.length && !pendingCount
+                        ? '已完成任务保留在任务中枢；未完成任务会显示在这里。'
+                        : '新建任务或调整筛选后，可在这里查看它们的位置。'}
                   </span>
                 </div>
               )}
@@ -368,7 +375,8 @@ export default function TaskQuadrantsView({
           </div>
           <p className="matrix-help" id="matrix-help">
             四个象限固定等大，彩色圆点与明细中的任务颜色对应。按真实截止时间定位，密集点簇显示代表色，
-            点击圆点查看任务明细，再点击明细中的任务标题编辑。虚线空心点表示已完成，细线连接错开前的位置。
+            点击圆点查看任务明细，再点击明细中的任务标题编辑。仅显示未完成任务，红色外圈和 !
+            表示逾期，细线连接错开前的位置。
           </p>
           <div className="matrix-undated" role="group" aria-label="未设截止时间的任务">
             <div>
@@ -426,18 +434,17 @@ export default function TaskQuadrantsView({
           <ul className="matrix-task-list" aria-label="四象限任务明细">
             {shown.map((task) => {
               const deadline = taskDeadline(task, timeZone)
+              const overdue = model.overdueIds.has(task.id)
               return (
-                <li key={task.id} className={task.done ? 'matrix-task-done' : ''}>
+                <li key={task.id} className={overdue ? 'matrix-task-overdue' : ''}>
                   <button
                     className="matrix-task-check"
                     type="button"
                     role="checkbox"
-                    aria-checked={task.done}
-                    aria-label={`${task.done ? '恢复' : '完成'}任务：${task.title}`}
+                    aria-checked={false}
+                    aria-label={`完成任务：${task.title}`}
                     onClick={() => onToggle(task.id)}
-                  >
-                    {task.done && <Check size={14} aria-hidden="true" />}
-                  </button>
+                  />
                   <div>
                     <button
                       type="button"
@@ -445,7 +452,7 @@ export default function TaskQuadrantsView({
                       aria-label={`编辑任务：${task.title}`}
                       onClick={() => onEdit(task)}
                     >
-                      <TaskDot task={task} />
+                      <TaskDot task={task} overdue={overdue} />
                       <span>{task.title}</span>
                     </button>
                     <div className="matrix-task-meta">
@@ -456,9 +463,12 @@ export default function TaskQuadrantsView({
                         {categories.find((category) => category.id === task.categoryId)?.name ||
                           '未分类'}
                       </span>
-                      <span>{task.done ? '已完成' : '进行中'}</span>
+                      <span className={overdue ? 'matrix-overdue-label' : ''}>
+                        {overdue ? '已逾期' : '进行中'}
+                      </span>
                     </div>
                     <time
+                      className={overdue ? 'matrix-overdue-time' : ''}
                       dateTime={deadline === null ? undefined : new Date(deadline).toISOString()}
                     >
                       {deadline === null ? '未设截止时间' : `截止 ${format.format(deadline)}`}

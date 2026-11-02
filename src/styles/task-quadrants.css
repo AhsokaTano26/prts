@@ -13,7 +13,7 @@
 }
 .matrix-controls {
   display: grid;
-  grid-template-columns: minmax(180px, 1.5fr) repeat(3, minmax(130px, 1fr));
+  grid-template-columns: minmax(180px, 1.5fr) repeat(2, minmax(130px, 1fr));
   align-items: end;
   gap: 18px;
   padding: 18px;
@@ -59,6 +59,13 @@
   color: var(--text);
   font-size: 18px;
   margin-right: 4px;
+}
+.matrix-summary .matrix-overdue-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--danger);
+  margin-right: auto;
 }
 .matrix-layout {
   display: grid;
@@ -217,9 +224,9 @@
   background: var(--task-color);
   border: 1px solid color-mix(in srgb, var(--task-color) 75%, var(--text));
 }
-.matrix-dot-done {
-  border: 2px dashed var(--task-color);
-  background: var(--surface);
+.matrix-dot-overdue {
+  outline: 2px solid var(--danger);
+  outline-offset: 2px;
 }
 .matrix-point-group .matrix-dot-cluster {
   grid-template-columns: repeat(2, 9px);
@@ -228,8 +235,19 @@
   width: 9px;
   height: 9px;
 }
-.matrix-point-group .matrix-dot-done {
-  border-width: 1px;
+.matrix-point-alert {
+  position: absolute;
+  right: -1px;
+  top: -1px;
+  display: grid;
+  place-items: center;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: var(--bg);
+  font: 700 10px/1 var(--mono);
+  pointer-events: none;
 }
 .matrix-point:hover,
 .matrix-point[aria-pressed='true'] {
@@ -382,9 +400,6 @@
   background: transparent;
   color: var(--success);
 }
-.matrix-task-check[aria-checked='true'] {
-  border-color: var(--success);
-}
 .matrix-task-title {
   display: flex;
   align-items: baseline;
@@ -409,10 +424,6 @@
 .matrix-task-title:hover {
   color: var(--accent);
 }
-.matrix-task-done .matrix-task-title {
-  color: var(--muted);
-  text-decoration: line-through;
-}
 .matrix-task-meta {
   display: flex;
   flex-wrap: wrap;
@@ -430,6 +441,14 @@
   font-family: var(--mono);
   font-size: 10px;
   overflow-wrap: anywhere;
+}
+.matrix-task-list .matrix-overdue-label,
+.matrix-task-list .matrix-overdue-time {
+  color: var(--danger);
+}
+.matrix-task-list .matrix-overdue-label {
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+  padding: 0 4px;
 }
 .matrix-pagination {
   display: flex;
@@ -502,7 +521,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .matrix-controls {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .matrix-controls .matrix-search {
     grid-column: 1 / -1;
@@ -556,9 +575,6 @@
   }
   .matrix-controls.is-open {
     margin-top: 10px;
-  }
-  .matrix-controls > label:last-child {
-    grid-column: 1 / -1;
   }
   .matrix-chart {
     padding: 14px 10px;

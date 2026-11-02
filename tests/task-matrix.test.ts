@@ -19,22 +19,26 @@ const options = {
   timeZone: 'Asia/Shanghai',
   urgentDays: 7 as const,
   importantPriority: 'high' as const,
-  status: 'all' as const,
   columns: 16,
 }
 
-test('all tasks, including completed tasks, remain represented with truthful coordinates and quadrants', () => {
+test('only unfinished tasks remain represented with truthful coordinates and quadrants', () => {
   const tasks = [
     task('act', { priority: 'high', dueAt: '2026-11-03T04:00:00Z' }),
-    task('plan', { priority: 'high', dueAt: '2026-11-20T04:00:00Z', done: true }),
+    task('plan', { priority: 'high', dueAt: '2026-11-20T04:00:00Z' }),
     task('fit', { priority: 'medium', dueDate: '2026-11-03' }),
     task('later', { priority: 'low', dueDate: '2026-12-01' }),
     task('unknown', { priority: 'high' }),
+    task('completed', { dueAt: '2099-01-01T00:00:00Z', done: true }),
+    task('completed-undated', { done: true }),
   ]
   const before = structuredClone(tasks)
   const model = buildTaskMatrix(tasks, options)
   assert.deepEqual(model.counts, { act: 1, plan: 1, fit: 1, later: 1 })
   assert.equal(model.undated[0].id, 'unknown')
+  assert.equal(model.tasks.length, 5)
+  assert.ok(model.tasks.every((item) => !item.done))
+  assert.ok(model.max < Date.parse('2027-01-01T00:00:00Z'))
   assert.equal(model.points.flatMap((point) => point.tasks).length + model.undated.length, 5)
   for (const point of model.points) {
     const id = point.tasks[0].id
@@ -51,7 +55,7 @@ test('all tasks, including completed tasks, remain represented with truthful coo
   assert.deepEqual(tasks, before)
 })
 
-test('urgency includes overdue tasks and the exact cutoff; importance and statuses are configurable', () => {
+test('urgency includes overdue tasks and the exact cutoff while completed tasks stay excluded', () => {
   const tasks = [
     task('overdue', { dueAt: '2026-10-01T00:00:00Z' }),
     task('boundary', { dueAt: '2026-11-09T04:00:00Z' }),
@@ -59,11 +63,31 @@ test('urgency includes overdue tasks and the exact cutoff; importance and status
     task('completed', { dueAt: '2026-11-03T00:00:00Z', done: true }),
   ]
   const model = buildTaskMatrix(tasks, { ...options, importantPriority: 'medium' })
-  assert.equal(model.counts.act, 3)
+  assert.equal(model.counts.act, 2)
   assert.equal(model.counts.plan, 1)
   assert.ok(model.points.every((point) => point.quadrant === 'act' || point.quadrant === 'plan'))
-  assert.equal(buildTaskMatrix(tasks, { ...options, status: 'pending' }).tasks.length, 3)
-  assert.equal(buildTaskMatrix(tasks, { ...options, status: 'done' }).tasks[0].id, 'completed')
+  assert.equal(model.tasks.length, 3)
+})
+
+test('overdue flags use actual deadlines and distinguish overdue tasks inside mixed clusters', () => {
+  const input = [
+    task('overdue', { dueAt: new Date(now - 1).toISOString() }),
+    task('boundary', { dueAt: new Date(now).toISOString() }),
+    task('yesterday', { dueDate: '2026-11-01', priority: 'low' }),
+    task('today', { dueDate: '2026-11-02' }),
+    task('unknown'),
+    task('completed', { dueAt: new Date(now - 1).toISOString(), done: true }),
+  ]
+  const model = buildTaskMatrix(input, options)
+  assert.deepEqual([...model.overdueIds].sort(), ['overdue', 'yesterday'])
+  const mixed = model.points.find((point) => point.tasks.some((item) => item.id === 'boundary'))!
+  assert.equal(mixed.overdueCount, 1)
+  assert.ok(mixed.tasks.some((item) => item.id === 'overdue'))
+  assert.equal(
+    model.points.reduce((total, point) => total + point.overdueCount, 0),
+    2,
+  )
+  assert.equal(model.undated[0].id, 'unknown')
 })
 
 test('quadrants stay equal while the chosen importance threshold repositions priority levels', () => {
@@ -128,12 +152,10 @@ test('shareable matrix options round trip while invalid options safely fall back
   assert.deepEqual(parseMatrixOptions('#quadrants'), {
     urgentDays: 7,
     importantPriority: 'high',
-    status: 'all',
   })
   const custom = {
     urgentDays: 3 as const,
     importantPriority: 'medium' as const,
-    status: 'pending' as const,
   }
   assert.deepEqual(parseMatrixOptions(matrixHash(custom)), custom)
   assert.deepEqual(
@@ -141,6 +163,7 @@ test('shareable matrix options round trip while invalid options safely fall back
     parseMatrixOptions('#quadrants'),
   )
   assert.equal(matrixHash(parseMatrixOptions('#quadrants')), '#quadrants')
+  assert.deepEqual(parseMatrixOptions('#quadrants?status=done'), parseMatrixOptions('#quadrants'))
 })
 
 test('nearby marks have distinct hit targets without changing true time or priority coordinates', () => {

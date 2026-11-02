@@ -25,6 +25,68 @@ async function expectEqualQuadrants(page: Page) {
     expect(Math.abs(size.height - sizes[0].height)).toBeLessThan(1)
   }
 }
+
+for (const theme of ['rhodes', 'rhine']) {
+  test(`${theme}: completed tasks stay hidden and overdue marks remain clear inside a mixed cluster`, async ({
+    page,
+  }) => {
+    await seed(
+      page,
+      [
+        { id: 'expired', title: '逾期的材料', priority: 'high', dueAt: '2026-11-02T03:59:00Z' },
+        { id: 'future', title: '即将截止的材料', priority: 'high', dueAt: '2026-11-02T04:01:00Z' },
+        {
+          id: 'hidden',
+          title: '完成后不再显示',
+          priority: 'high',
+          dueAt: '2026-11-01T04:00:00Z',
+          done: true,
+        },
+        { id: 'unknown', title: '已完成的无日期任务', priority: 'low', done: true },
+      ],
+      theme,
+    )
+    await page.goto('/#quadrants?status=done')
+    await expect(page.locator('.matrix-summary')).toContainText('2 / 2 项未完成任务')
+    await expect(page.locator('.matrix-summary')).toContainText('已逾期 1 项')
+    await expect(page.locator('.matrix-point')).toHaveCount(1)
+    await expect(page.locator('.matrix-plot .matrix-dot[data-task-id="hidden"]')).toHaveCount(0)
+    const mixed = page.getByRole('button', { name: /查看聚合任务：高优先级，2 项.*含 1 项已逾期/ })
+    await expect(mixed).toHaveClass(/matrix-point-overdue/)
+    await expect(mixed.locator('.matrix-point-alert')).toHaveText('!')
+    await mixed.click()
+    const rows = page.getByRole('list', { name: '四象限任务明细' })
+    await expect(rows.getByRole('listitem')).toHaveCount(2)
+    const expired = rows.getByRole('listitem').filter({ hasText: '逾期的材料' })
+    await expect(expired).toContainText('已逾期')
+    await expect(
+      rows.getByRole('listitem').filter({ hasText: '即将截止的材料' }),
+    ).not.toContainText('已逾期')
+    await expect(page.getByRole('dialog', { name: '编辑任务', exact: true })).toHaveCount(0)
+    await page.screenshot({ path: `/tmp/prts-matrix-overdue-${theme}.png`, fullPage: true })
+    await page.setViewportSize({ width: 320, height: 844 })
+    await page
+      .locator('.matrix-chart')
+      .evaluate((element) => element.scrollIntoView({ block: 'start' }))
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)
+    await page.screenshot({ path: `/tmp/prts-matrix-overdue-${theme}-320.png`, fullPage: true })
+    await expired.getByRole('checkbox', { name: '完成任务：逾期的材料', exact: true }).click()
+    await waitSaved(page)
+    await expect(page.locator('.matrix-summary')).toContainText('1 / 1 项未完成任务')
+    await expect(page.locator('.matrix-point-overdue')).toHaveCount(0)
+    await expect(rows.getByRole('listitem')).toHaveCount(1)
+    await page.clock.setFixedTime(new Date('2026-11-02T04:02:00Z'))
+    await expect(page.locator('.matrix-point-overdue')).toHaveCount(1)
+    await expect(rows).toContainText('已逾期')
+    await rows.getByRole('checkbox', { name: '完成任务：即将截止的材料', exact: true }).click()
+    await waitSaved(page)
+    await expect(page.locator('.matrix-point')).toHaveCount(0)
+    await expect(page.getByText('没有待处理任务', { exact: true })).toBeVisible()
+    await page.reload()
+    await expect(page.locator('.matrix-point')).toHaveCount(0)
+    await expect(page.getByText('没有待处理任务', { exact: true })).toBeVisible()
+  })
+}
 async function seed(page: Page, items = tasks, theme = 'rhodes') {
   await page.clock.setFixedTime(new Date(now))
   expect(
@@ -75,7 +137,7 @@ async function seed(page: Page, items = tasks, theme = 'rhodes') {
 }
 
 for (const theme of ['rhodes', 'rhine']) {
-  test(`${theme}: matrix represents all tasks, edits clusters, completes tasks and restores shared options`, async ({
+  test(`${theme}: matrix represents unfinished tasks, edits clusters, completes tasks and restores shared options`, async ({
     page,
   }) => {
     const errors: string[] = []
@@ -87,14 +149,14 @@ for (const theme of ['rhodes', 'rhine']) {
     await page.goto('/#quadrants')
     await expect(page).toHaveTitle(/PRTS/)
     await expect(page.getByRole('heading', { name: /^四象限法/ })).toBeVisible()
-    await expect(page.locator('.matrix-summary')).toContainText('7 / 7 项任务')
+    await expect(page.locator('.matrix-summary')).toContainText('6 / 6 项未完成任务')
     await expect(
       page.getByRole('button', { name: '查看优先处理任务，2 项', exact: true }),
     ).toBeVisible()
     await expect(
       page.getByRole('button', { name: '查看计划安排任务，1 项', exact: true }),
     ).toBeVisible()
-    await expect(page.locator('.matrix-point')).toHaveCount(5)
+    await expect(page.locator('.matrix-point')).toHaveCount(4)
     await expectEqualQuadrants(page)
     const planDot = page.locator('.matrix-plot .matrix-dot[data-task-id="plan"]')
     await expect(planDot).toBeVisible()
@@ -106,15 +168,15 @@ for (const theme of ['rhodes', 'rhine']) {
     const colors = await page
       .locator('.matrix-task-list .matrix-dot')
       .evaluateAll((dots) => dots.map((dot) => getComputedStyle(dot).borderColor))
-    expect(new Set(colors).size).toBe(7)
-    await expect(page.locator('.matrix-point')).toHaveText(['', '', '', '', ''])
+    expect(new Set(colors).size).toBe(6)
+    await expect(page.locator('.matrix-point')).toHaveText(['', '', '', ''])
     await page.screenshot({ path: `/tmp/prts-matrix-initial-${theme}.png`, fullPage: true })
     await expect(page.getByRole('group', { name: '未设截止时间的任务' })).toContainText('1')
     await expect(
       page
         .getByRole('list', { name: '四象限任务明细' })
         .getByRole('button', { name: '编辑任务：已完成的检查', exact: true }),
-    ).toBeVisible()
+    ).toHaveCount(0)
     await page.getByRole('button', { name: /^查看聚合任务：高优先级，2 项/ }).click()
     await expect(page.locator('.matrix-task-list > li')).toHaveCount(2)
     await page.getByRole('button', { name: '编辑任务：核对报价', exact: true }).click()
@@ -130,10 +192,10 @@ for (const theme of ['rhodes', 'rhine']) {
     await page.getByRole('checkbox', { name: '完成任务：核对报价与交付', exact: true }).click()
     await waitSaved(page)
     await expect(
-      page.getByRole('checkbox', { name: '恢复任务：核对报价与交付', exact: true }),
-    ).toHaveAttribute('aria-checked', 'true')
-    await chooseOption(page, '四象限任务状态', '进行中')
-    await expect(page.locator('.matrix-summary')).toContainText('5 / 7 项任务')
+      page.getByRole('button', { name: '编辑任务：核对报价与交付', exact: true }),
+    ).toHaveCount(0)
+    await expect(page.locator('.matrix-task-list > li')).toHaveCount(1)
+    await expect(page.locator('.matrix-summary')).toContainText('5 / 5 项未完成任务')
     await chooseOption(page, '紧急范围', '3 天内')
     await chooseOption(page, '重要界线', '中及以上')
     await expectEqualQuadrants(page)
@@ -143,9 +205,7 @@ for (const theme of ['rhodes', 'rhine']) {
     await expect(page.getByRole('combobox', { name: '紧急范围', exact: true })).toContainText(
       '3 天内',
     )
-    await expect(page.getByRole('combobox', { name: '四象限任务状态', exact: true })).toContainText(
-      '进行中',
-    )
+    await expect(page.getByRole('combobox', { name: '四象限任务状态', exact: true })).toHaveCount(0)
     await expect(
       page.getByRole('button', { name: '查看优先处理任务，2 项', exact: true }),
     ).toBeVisible()
@@ -172,7 +232,6 @@ for (const theme of ['rhodes', 'rhine']) {
     await expect(page.getByRole('dialog', { name: '编辑任务', exact: true })).toBeVisible()
     await page.getByRole('button', { name: '关闭弹窗', exact: true }).click()
     await page.getByRole('searchbox', { name: '搜索四象限任务', exact: true }).fill('')
-    await chooseOption(page, '四象限任务状态', '全部任务')
     for (const width of [1440, 1280, 768, 390, 320]) {
       await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 })
       await expectEqualQuadrants(page)
