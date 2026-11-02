@@ -195,6 +195,13 @@ AI 对话中可开启「自动确认工作台操作」，默认关闭，选择�
 
 首次部署不含语料，需要在设置页手动下载。目前支持的完整语料基线包含两个语料库，共 **34,007 篇文档**。登录后，在「PRTS 助手 → 语料检索」中可按关键词和作品检索原文。检索由 VPS 的 Node.js 后端读取 data/corpus 资源完成，资源就绪后无需外网或 AI 密钥；AI 生成仍需要上节的模型配置。
 
+语料由 [PRTS.chat](https://prts.chat/agent-test) 整理并版本化发布，通过 HTiantian 在 ModelScope 维护的两份数据集分发。同步脚本先从 [PRTS.chat 当前发布接口](https://prts.chat/api/agent/data/releases/current) 确定版本，再下载并核验对应资源。各部分原始来源如下：
+
+- **明日方舟游戏原文**：来自 [Kengxxiao/ArknightsGameData](https://github.com/Kengxxiao/ArknightsGameData) 的版本冻结投影。
+- **明日方舟审校资料**：PRTS.chat 整理的审校 Wiki、《大地巡旅》、实体与版本绑定参考资料。
+- **终末地游戏原文**：来自 `endfield_research_kit` 的结构化剧情、任务与场景恢复产物。
+- **终末地档案与审校资料**：由 `Endfield_Wiki_Lib` 导出，并通过 PRTS.chat 的版本管线冻结。
+
 检索结果与 AI 引用中的原文支持 Markdown 标题、列表、强调、引用和代码排版。语料中的游戏图片标记通过独立的本地图片清单匹配原图，支持正文配图、社交图片和行内表情/图标；图片可点击查看原图，涉及男女管理员的图片提供版本切换。代码示例中的字面标记保持原样，未匹配资源仍显示「原文配图未收录」。原文不会自动加载任意远程图片或执行 HTML。
 
 当前补充图片共 **185 张原始 PNG**，覆盖当前语料全部 119 个正文图片标记，以及 63 个社交图片、表情和图标标记；还有 2 个社交图片 ID 暂未找到可确认的原图。部署时不附带原始图片；在「系统设置 → 资源管理 → 图片资源」中手动下载或更新后，图片保存在 `data/assets/`。来源与校验清单位于 `server/image-sources.json`，说明见 [图片素材记录](docs/assets.md)。仓库内的 `public/assets/` 仅保留作开发校验素材，不复制到 `dist` 或 Docker 镜像。语料更新后新增的未知图片标记需要补充映射，不能按近似文件名自动配图。
@@ -313,3 +320,15 @@ npm run test:e2e
 ```sh
 npm run format:check
 ```
+
+## 致谢
+
+感谢以下项目、维护者与资料整理者，让本项目能够接入有来源记录、可核验的游戏语料：
+
+- [PRTS.chat](https://prts.chat/agent-test)：整理、审校和发布版本化检索资料，提供发布清单、来源信息与校验数据。
+- **HTiantian**：在 ModelScope 维护[明日方舟语料集](https://modelscope.cn/datasets/HTiantian/prts-agent-corpus-arknights)与[终末地语料集](https://modelscope.cn/datasets/HTiantian/prts-agent-corpus-endfield)，提供公开下载渠道。
+- [Kengxxiao/ArknightsGameData](https://github.com/Kengxxiao/ArknightsGameData) 及其贡献者：整理和维护《明日方舟》游戏数据，为游戏原文语料提供基础。
+- `endfield_research_kit`、`Endfield_Wiki_Lib` 及其贡献者：恢复、导出和整理《明日方舟：终末地》的剧情、档案与相关资料。
+- 参与 Wiki 审校、实体整理与参考资料维护的社区贡献者，以及《明日方舟》《明日方舟：终末地》的创作团队。
+
+上述语料及游戏内容的权利归各自原始权利人所有，使用时遵循对应来源的许可与权利要求；具体来源记录见前文「本地语料与同步」及随版本保存的上游说明。
