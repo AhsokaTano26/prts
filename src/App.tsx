@@ -5,7 +5,6 @@ import {
   FileText,
   FolderOpen,
   Sparkles,
-  Settings2,
   Search,
   ChevronRight,
   Menu,
@@ -485,20 +484,10 @@ export default function App({ onLock }: { onLock: () => void }) {
               <div>{rhine ? '让好奇心，抵达更远。' : '思绪有序，自由前行。'}</div>
             </div>
             <button
-              className={`nav-item settings-nav ${page === 'settings' ? 'active' : ''}`}
-              onClick={() => navigate('settings')}
-              aria-label="系统设置"
-              aria-current={page === 'settings' ? 'page' : undefined}
-            >
-              <Settings2 size={19} strokeWidth={1.5} />
-              <div>
-                系统设置<span className="mono">PREFERENCES</span>
-              </div>
-            </button>
-            <button
               className="profile-button"
               onClick={() => navigate('settings')}
               aria-label={`个人设置：${workspace.settings.name}`}
+              aria-current={page === 'settings' ? 'page' : undefined}
             >
               <div className="profile-avatar">
                 <Logo small />

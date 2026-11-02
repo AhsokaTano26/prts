@@ -25,7 +25,7 @@ test('PWA manifest and worker install, private APIs stay uncached, and offline n
   expect(response.headers()['cache-control']).toContain('no-cache')
   await page.getByLabel('访问密码', { exact: true }).fill('prts-e2e-test-password-only')
   await page.getByRole('button', { name: '验证并进入', exact: true }).click()
-  await page.getByRole('button', { name: '系统设置' }).click()
+  await page.getByRole('button', { name: /^个人设置：/ }).click()
   await expect(page.getByRole('heading', { name: '手机桌面应用' })).toBeVisible()
   await page.evaluate(async () => {
     await fetch('/api/state')

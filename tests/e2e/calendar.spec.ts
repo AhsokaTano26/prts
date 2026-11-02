@@ -260,10 +260,10 @@ test('both calendar themes remain usable on desktop, tablet and small phones wit
     await page.getByRole('button', { name: '打开导航', exact: true }).click()
     await page
       .locator('.sidebar')
-      .getByRole('button', { name: '系统设置', exact: true })
+      .getByRole('button', { name: /^个人设置：/ })
       .scrollIntoViewIfNeeded()
     await expect(
-      page.locator('.sidebar').getByRole('button', { name: '系统设置', exact: true }),
+      page.locator('.sidebar').getByRole('button', { name: /^个人设置：/ }),
     ).toBeInViewport()
     await page.getByRole('button', { name: '关闭导航', exact: true }).last().click()
   }

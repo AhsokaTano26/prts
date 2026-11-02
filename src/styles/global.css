@@ -279,9 +279,6 @@ p {
   letter-spacing: 1px;
   color: var(--subtle);
 }
-.settings-nav {
-  min-height: 64px;
-}
 .profile-button {
   width: calc(100% - 40px);
   margin: 4px 20px 0;
@@ -2488,9 +2485,6 @@ p {
   }
   .sidebar-bottom {
     padding-top: 20px;
-  }
-  .settings-nav {
-    margin-bottom: 10px;
   }
   .toast {
     left: calc(50% + 38px);

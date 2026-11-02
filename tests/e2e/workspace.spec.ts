@@ -32,7 +32,7 @@ test('overview and all modules render without page errors', async ({ page }) => 
     ['个人思考', '个人思考'],
     ['文件资料库', '文件资料库'],
     ['PRTS 助手', 'PRTS 助手.'],
-    ['系统设置', '系统设置.'],
+    ['个人设置：', '系统设置.'],
   ]) {
     await page
       .locator('.sidebar')
@@ -159,7 +159,7 @@ test('focus timer pauses, resets, and restores across reload', async ({ page }) 
 test('settings backup round-trip and invalid import do not destroy data', async ({ page }) => {
   await page
     .locator('.sidebar')
-    .getByRole('button', { name: /系统设置/ })
+    .getByRole('button', { name: /^个人设置：/ })
     .click()
   await page.getByLabel('博士代号', { exact: true }).fill('测试博士')
   await page.getByRole('button', { name: '保存偏好', exact: true }).click()
@@ -203,7 +203,7 @@ for (const width of [1440, 1280, 1024, 768, 390, 320]) {
       ).toBeVisible()
       await expect(
         page.locator('.sidebar').getByRole('button', { name: '系统设置', exact: true }),
-      ).toBeVisible()
+      ).toHaveCount(0)
       await expect(page.getByRole('button', { name: /^个人设置：/ })).toBeVisible()
     }
     await expect(page.getByRole('button', { name: '新建任务', exact: true })).toBeVisible()
@@ -224,8 +224,15 @@ for (const width of [1440, 1280, 1024, 768, 390, 320]) {
       )
     }
     if (width <= 390) await page.getByRole('button', { name: '打开导航', exact: true }).click()
-    await page.locator('.sidebar').getByRole('button', { name: '系统设置', exact: true }).click()
+    if (width === 1440 || width === 390) {
+      await page.screenshot({ path: `/tmp/prts-navigation-${width}.png`, fullPage: true })
+    }
+    await page
+      .locator('.sidebar')
+      .getByRole('button', { name: /^个人设置：/ })
+      .click()
     await expect(page.getByRole('heading', { name: '系统设置.', exact: true })).toBeVisible()
+    await expect(page.locator('.sidebar .profile-button')).toHaveAttribute('aria-current', 'page')
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)
     if (width === 1440 || width === 390) {
       await page
@@ -240,7 +247,7 @@ for (const width of [1440, 1280, 1024, 768, 390, 320]) {
 test('boot sequence auto-completes, skips, and respects reduced motion', async ({ page }) => {
   await page
     .locator('.sidebar')
-    .getByRole('button', { name: /系统设置/ })
+    .getByRole('button', { name: /^个人设置：/ })
     .click()
   await page.getByRole('button', { name: '重播启动动画', exact: true }).click()
   await expect(page.getByRole('dialog', { name: 'PRTS 启动序列' })).toBeVisible()
