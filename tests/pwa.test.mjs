@@ -30,6 +30,7 @@ async function buildWorker(t) {
     'offline-endfield.html',
     'manifest-endfield.webmanifest',
     'branding/endfield.svg',
+    'branding/endfield-opening.mp4',
     'icons/endfield-192.png',
     'icons/endfield-512.png',
     'icons/endfield-maskable-512.png',
@@ -120,6 +121,12 @@ test('PWA build versions change with app builds and public offline content', asy
   assert.notEqual(await built.writePwaWorker(built.root), endfieldVersion)
 })
 
+test('changes to the Endfield opening film invalidate the public cache version', async (t) => {
+  const built = await buildWorker(t)
+  await writeFile(path.join(built.root, 'branding/endfield-opening.mp4'), 'updated film')
+  assert.notEqual(await built.writePwaWorker(built.root), built.version)
+})
+
 test('worker precaches only public install/offline assets and never handles private API or mutations', async (t) => {
   const { source } = await buildWorker(t)
   const worker = runtime(source)
@@ -135,6 +142,7 @@ test('worker precaches only public install/offline assets and never handles priv
   assert.ok(worker.cached.includes('/offline-endfield.html'))
   assert.ok(worker.cached.includes('/manifest-endfield.webmanifest'))
   assert.ok(worker.cached.includes('/branding/endfield.svg'))
+  assert.ok(worker.cached.includes('/branding/endfield-opening.mp4'))
   assert.ok(worker.cached.includes('/icons/endfield-192.png'))
   assert.ok(worker.cached.includes('/icons/endfield-512.png'))
   assert.ok(worker.cached.includes('/icons/endfield-maskable-512.png'))
@@ -161,6 +169,34 @@ test('worker precaches only public install/offline assets and never handles priv
       respondWith: () => (handled = true),
     })
     assert.equal(handled, false, url)
+  }
+  assert.equal(worker.fetched.length, 0)
+})
+
+test('cached opening film supports offline byte ranges without fetching private data', async (t) => {
+  const { source } = await buildWorker(t)
+  const worker = runtime(source, {
+    offline: true,
+    storage: new Map([['/branding/endfield-opening.mp4', '0123456789']]),
+  })
+  for (const [range, expected, body] of [
+    ['bytes=0-1', 206, '01'],
+    ['bytes=4-', 206, '456789'],
+    ['bytes=-3', 206, '789'],
+    ['bytes=20-', 416, ''],
+  ]) {
+    let result
+    worker.handlers.get('fetch')({
+      request: new Request('https://prts.test/branding/endfield-opening.mp4', {
+        headers: { Range: range },
+      }),
+      respondWith: (promise) => {
+        result = promise
+      },
+    })
+    const response = await result
+    assert.equal(response.status, expected)
+    assert.equal(await response.text(), body)
   }
   assert.equal(worker.fetched.length, 0)
 })

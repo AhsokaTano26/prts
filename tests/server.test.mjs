@@ -350,6 +350,40 @@ test('static serving supports SPA routes, HEAD, and correct asset MIME types', a
   assert.equal(mutation.status, 405)
 })
 
+test('public opening video supports MIME, byte ranges, suffixes and HEAD', async (t) => {
+  const directory = await mkdtemp(path.join(os.tmpdir(), 'prts-film-'))
+  t.after(() => rm(directory, { recursive: true, force: true }))
+  await writeFile(path.join(directory, 'opening.mp4'), '0123456789')
+  const base = await app(t, { distDir: directory })
+  const full = await fetch(`${base}/opening.mp4`)
+  assert.equal(full.headers.get('content-type'), 'video/mp4')
+  assert.equal(await full.text(), '0123456789')
+  for (const [range, body, contentRange] of [
+    ['bytes=0-1', '01', 'bytes 0-1/10'],
+    ['bytes=4-', '456789', 'bytes 4-9/10'],
+    ['bytes=-3', '789', 'bytes 7-9/10'],
+    ['bytes=8-30', '89', 'bytes 8-9/10'],
+  ]) {
+    const response = await fetch(`${base}/opening.mp4`, { headers: { range } })
+    assert.equal(response.status, 206)
+    assert.equal(response.headers.get('content-range'), contentRange)
+    assert.equal(response.headers.get('content-length'), String(body.length))
+    assert.equal(await response.text(), body)
+  }
+  const head = await fetch(`${base}/opening.mp4`, {
+    method: 'HEAD',
+    headers: { range: 'bytes=0-1' },
+  })
+  assert.equal(head.status, 200)
+  assert.equal(head.headers.get('content-length'), '10')
+  assert.equal(await head.text(), '')
+  for (const range of ['bytes=20-', 'bytes=4-2', 'bytes=-0']) {
+    const response = await fetch(`${base}/opening.mp4`, { headers: { range } })
+    assert.equal(response.status, 416)
+    assert.equal(response.headers.get('content-range'), 'bytes */10')
+  }
+})
+
 test('static serving rejects traversal, hidden files, and symlinks outside dist', async (t) => {
   const directory = await mkdtemp(path.join(os.tmpdir(), 'prts-static-security-'))
   t.after(() => rm(directory, { recursive: true, force: true }))

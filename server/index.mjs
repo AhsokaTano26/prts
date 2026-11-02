@@ -13,6 +13,7 @@ import { getAsset, assetManager } from './resources.mjs'
 import { createSettings } from './settings.mjs'
 import { createWorkspaceTools } from './assistant-tools.mjs'
 import { ASSISTANT_LIMITS } from '../src/lib/assistantTools.ts'
+import { parseByteRange } from '../src/lib/httpRange.ts'
 import { createNotifications } from './notifications.mjs'
 import { createPasskeys } from './passkeys.mjs'
 import { createCalendarSubscription } from './calendar-subscription.mjs'
@@ -40,6 +41,7 @@ const MIME_TYPES = {
   '.avif': 'image/avif',
   '.gif': 'image/gif',
   '.ico': 'image/x-icon',
+  '.mp4': 'video/mp4',
   '.woff': 'font/woff',
   '.woff2': 'font/woff2',
   '.txt': 'text/plain; charset=utf-8',
@@ -647,16 +649,26 @@ async function route(
   const asset = storedAsset || (gameResource ? null : await staticFile(distDir, pathname))
   if (!asset) return json(response, 404, { error: '页面或资源不存在，请先构建前端。' })
   const extension = path.extname(asset.file).toLowerCase()
-  response.writeHead(200, {
+  const range =
+    extension === '.mp4' && request.method === 'GET'
+      ? parseByteRange(request.headers.range, asset.size)
+      : null
+  if (range === 'unsatisfiable') {
+    response.writeHead(416, { 'content-range': `bytes */${asset.size}`, 'content-length': 0 })
+    return response.end()
+  }
+  response.writeHead(range ? 206 : 200, {
     'content-type': asset.mime || MIME_TYPES[extension] || 'application/octet-stream',
-    'content-length': asset.size,
+    'content-length': range ? range.end - range.start + 1 : asset.size,
+    ...(extension === '.mp4' ? { 'accept-ranges': 'bytes' } : {}),
+    ...(range ? { 'content-range': `bytes ${range.start}-${range.end}/${asset.size}` } : {}),
     'cache-control':
       extension === '.html' || pathname === '/sw.js' || extension === '.webmanifest'
         ? 'no-cache'
         : 'public, max-age=3600',
   })
   if (request.method === 'HEAD') return response.end()
-  const stream = createReadStream(asset.file)
+  const stream = createReadStream(asset.file, range || undefined)
   stream.on('error', () => response.destroy())
   response.once('close', () => stream.destroy())
   stream.pipe(response)

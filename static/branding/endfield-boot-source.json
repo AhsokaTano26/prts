@@ -1,0 +1,9 @@
+{
+  "source": "user-provided reference recording: 录屏2026-11-03 00.16.09.mov",
+  "recordingSha256": "d4c737daf7bff25cde680bb90a698af264073680b287e4ee12399115ab8fa011",
+  "asset": "endfield-opening.mp4",
+  "assetSha256": "39a2466eab8722c56fc4b537f87f98dfd43fbc1989102264dd82ac47eeb35783",
+  "processing": "Original H.264 video stream copied without re-encoding into fast-start MP4; audio removed; original frame order and presentation timing retained. Display playback rate: 1.5. Background graphics are separate project artwork.",
+  "retrieved": "2026-11-03",
+  "rights": "Arknights: Endfield / HYPERGRYPH / GRYPHLINE; fan project theme branding"
+}

@@ -42,9 +42,42 @@ test('PWA manifest and worker install, private APIs stay uncached, and offline n
     ).flat()
   })
   expect(keys).toContain('/offline.html')
+  expect(keys).toContain('/branding/endfield-opening.mp4')
   expect(keys.some((key) => key.startsWith('/api'))).toBe(false)
   await context.setOffline(true)
   await expect(page.locator('.sidebar')).toHaveCount(0)
+  const mediaRange = await page.evaluate(async () => {
+    const response = await fetch('/branding/endfield-opening.mp4', {
+      headers: { Range: 'bytes=0-1' },
+    })
+    return {
+      status: response.status,
+      size: (await response.arrayBuffer()).byteLength,
+      type: response.headers.get('content-type'),
+    }
+  })
+  expect(mediaRange).toEqual({ status: 206, size: 2, type: 'video/mp4' })
+  await page.evaluate(async () => {
+    const video = document.createElement('video')
+    video.muted = true
+    video.playsInline = true
+    video.playbackRate = 1.5
+    video.src = '/branding/endfield-opening.mp4'
+    document.body.append(video)
+    let timeout: ReturnType<typeof setTimeout>
+    try {
+      await new Promise<void>((resolve, reject) => {
+        timeout = setTimeout(() => reject(new Error('cached opening did not finish')), 5000)
+        video.onended = () => resolve()
+        video.onerror = () => reject(new Error('cached opening could not decode'))
+        void video.play().catch(reject)
+      })
+    } finally {
+      clearTimeout(timeout!)
+      video.pause()
+      video.remove()
+    }
+  })
   await page.reload()
   await expect(page.getByRole('heading', { name: '终端暂时离线' })).toBeVisible()
   await expect(page.locator('.sidebar')).toHaveCount(0)

@@ -45,6 +45,8 @@ AI 性格、参考语料、检索作品及任务优先级使用统一的 PRTS �
 
 终末地主题参考[《明日方舟：终末地》官网](https://endfield.gryphline.com/en-us)的工业视觉语言，字标取自官网公开的页眉 SVG。感谢鹰角网络与 GRYPHLINE 提供的原作视觉素材；相关名称及标识的权利归原权利方所有。来源记录见 `static/branding/endfield-source.json`，工业装配图与主题样式由本项目实现；可用 `node scripts/generate-icons.mjs --theme endfield` 从本地原始字标重新生成安装图标。
 
+终末地启动序列使用提供的录屏原始视频帧，保留三角工业标志、纵向错位字块和四角方块的动作。原片无损封装为无声 MP4，以 1.5 倍速播放，连同退场约 1.8 秒；缩小主体，并叠加本项目绘制的暗色工程网格、轮廓线和扫描光带。素材来源及处理记录见 `static/branding/endfield-boot-source.json`，原始 MOV 与签名下载地址不进入项目。支持跳过、Escape、重播和减少动态效果；资源加载或播放失败会直接进入工作台。感谢鹰角网络与 GRYPHLINE，原片中的标识和画面归原权利方所有。
+
 阿米娅、普瑞赛斯（Priestess）和凯尔希可与任意主题组合，首页角色不改变 AI 对话人格。首次部署的原始立绘仍为空，请在「资源管理 → 图片资源」手动下载；已有安装点击「检查并更新图片」即可补齐新增立绘，原有已校验图片会复用。图片保存在 `data/assets`，不会作为二进制写入 SQLite 或打包进 Docker 镜像。来源、尺寸和校验值见 [图片下载清单](server/image-sources.json)。
 
 公开的 `GET /api/appearance` 只返回当前主题标识，使未登录页面使用同一外观。其余配置仍需登录读取；Service Worker 不缓存任何 API 或用户数据，仅记住公共离线页该用哪套样式。

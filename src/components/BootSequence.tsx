@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Logo } from './UI'
 import { useAppearance } from '../lib/appearance'
 import RhineInstrument from './RhineInstrument'
-import EndfieldSchematic from './EndfieldSchematic'
+import EndfieldBootVisual from './EndfieldBootVisual'
 
 interface BootSequenceProps {
   onComplete: () => void
@@ -31,6 +31,7 @@ function readMilliseconds(style: CSSStyleDeclaration, token: string, fallback: n
 export default function BootSequence({ onComplete, onReplay = false }: BootSequenceProps) {
   const { theme } = useAppearance()
   const [phase, setPhase] = useState<BootPhase>('load')
+  const [artworkReady, setArtworkReady] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const skipRef = useRef<HTMLButtonElement>(null)
   const onCompleteRef = useRef(onComplete)
@@ -59,17 +60,68 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
     const previousFocus =
       document.activeElement instanceof HTMLElement ? document.activeElement : null
     skipRef.current?.focus({ preventScroll: true })
-    const style = getComputedStyle(element)
-    const duration = readMilliseconds(style, '--motion-boot-duration', 1600)
-    const schedule = (callback: () => void, token: string, fallback: number) => {
-      timeouts.current.push(
-        setTimeout(callback, Math.min(duration, readMilliseconds(style, token, fallback))),
-      )
+    let disposed = false
+    let stopFilm: (() => void) | undefined
+    setPhase('load')
+    if (theme === 'endfield') {
+      const film = element.querySelector('video')
+      setArtworkReady(false)
+      if (!film) {
+        complete()
+        return
+      }
+      let started = false
+      let ended = false
+      // No deliberate pre-roll. Slow/failed media must never block the workspace.
+      const loadingDeadline = setTimeout(complete, 1200)
+      timeouts.current.push(loadingDeadline)
+      const onPlaying = () => {
+        if (disposed || completed.current || started) return
+        started = true
+        clearTimeout(loadingDeadline)
+        setArtworkReady(true)
+        timeouts.current.push(setTimeout(complete, 3000))
+      }
+      const onTimeUpdate = () => {
+        if (disposed || completed.current || ended) return
+        setPhase(film.currentTime >= 1.8 ? 'ready' : film.currentTime >= 0.5 ? 'prepare' : 'load')
+      }
+      const onEnded = () => {
+        if (disposed || completed.current || ended) return
+        ended = true
+        setPhase('exit')
+        timeouts.current.push(setTimeout(complete, 100))
+      }
+      const onError = () => {
+        if (!disposed) complete()
+      }
+      film.muted = true
+      film.playbackRate = 1.5
+      film.addEventListener('playing', onPlaying)
+      film.addEventListener('timeupdate', onTimeUpdate)
+      film.addEventListener('ended', onEnded)
+      film.addEventListener('error', onError)
+      void film.play().catch(onError)
+      stopFilm = () => {
+        film.removeEventListener('playing', onPlaying)
+        film.removeEventListener('timeupdate', onTimeUpdate)
+        film.removeEventListener('ended', onEnded)
+        film.removeEventListener('error', onError)
+        film.pause()
+      }
+    } else {
+      const style = getComputedStyle(element)
+      const duration = readMilliseconds(style, '--motion-boot-duration', 1600)
+      const schedule = (callback: () => void, token: string, fallback: number) => {
+        timeouts.current.push(
+          setTimeout(callback, Math.min(duration, readMilliseconds(style, token, fallback))),
+        )
+      }
+      schedule(() => setPhase('prepare'), '--motion-boot-prepare-at', 560)
+      schedule(() => setPhase('ready'), '--motion-boot-ready-at', 1120)
+      schedule(() => setPhase('exit'), '--motion-boot-exit-at', 1420)
+      timeouts.current.push(setTimeout(complete, duration))
     }
-    schedule(() => setPhase('prepare'), '--motion-boot-prepare-at', 560)
-    schedule(() => setPhase('ready'), '--motion-boot-ready-at', 1120)
-    schedule(() => setPhase('exit'), '--motion-boot-exit-at', 1420)
-    timeouts.current.push(setTimeout(complete, duration))
 
     const onPreferenceChange = () => {
       if (motionDisabled()) complete()
@@ -82,6 +134,8 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
     })
 
     return () => {
+      disposed = true
+      stopFilm?.()
       timeouts.current.forEach(clearTimeout)
       timeouts.current = []
       media.removeEventListener('change', onPreferenceChange)
@@ -90,7 +144,41 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
         previousFocus.focus({ preventScroll: true })
       }
     }
-  }, [complete])
+  }, [complete, theme])
+
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    event.stopPropagation()
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') event.preventDefault()
+    if (event.key === 'Escape') complete()
+    if (event.key === 'Tab') {
+      event.preventDefault()
+      skipRef.current?.focus()
+    }
+  }
+
+  if (theme === 'endfield')
+    return (
+      <div
+        ref={rootRef}
+        className="boot-sequence boot-sequence--endfield"
+        data-phase={phase}
+        data-artwork={artworkReady ? 'ready' : 'waiting'}
+        data-replay={onReplay || undefined}
+        role="dialog"
+        aria-modal="true"
+        aria-label={onReplay ? '重播 PRTS 启动序列' : 'PRTS 启动序列'}
+        onKeyDown={handleKeyDown}
+      >
+        <EndfieldBootVisual />
+        <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          {phaseLabels[phase]}
+        </span>
+        <button ref={skipRef} className="boot-skip mono" type="button" onClick={complete}>
+          <span>跳过启动</span>
+          <span aria-hidden="true">↗</span>
+        </button>
+      </div>
+    )
 
   if (theme === 'rhine')
     return (
@@ -102,16 +190,7 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
         role="dialog"
         aria-modal="true"
         aria-label={onReplay ? '重播 PRTS 启动序列' : 'PRTS 启动序列'}
-        onKeyDown={(event) => {
-          event.stopPropagation()
-          if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k')
-            event.preventDefault()
-          if (event.key === 'Escape') complete()
-          if (event.key === 'Tab') {
-            event.preventDefault()
-            skipRef.current?.focus()
-          }
-        }}
+        onKeyDown={handleKeyDown}
       >
         <div className="rhine-boot-brand" aria-hidden="true">
           <strong>RHINE LAB</strong>
@@ -177,27 +256,18 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
   return (
     <div
       ref={rootRef}
-      className={`boot-sequence${theme === 'endfield' ? ' boot-sequence--endfield' : ''}`}
+      className="boot-sequence"
       data-phase={phase}
       data-replay={onReplay || undefined}
       role="dialog"
       aria-modal="true"
       aria-label={onReplay ? '重播 PRTS 启动序列' : 'PRTS 启动序列'}
-      onKeyDown={(event) => {
-        event.stopPropagation()
-        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k')
-          event.preventDefault()
-        if (event.key === 'Escape') complete()
-        if (event.key === 'Tab') {
-          event.preventDefault()
-          skipRef.current?.focus()
-        }
-      }}
+      onKeyDown={handleKeyDown}
     >
       <div className="boot-topline mono" aria-hidden="true">
         <span>
           <i />
-          {theme === 'endfield' ? 'ENDFIELD INDUSTRIES' : 'PRTS PERSONAL TERMINAL'}
+          PRTS PERSONAL TERMINAL
         </span>
         <span>BOOT SEQUENCE</span>
       </div>
@@ -207,15 +277,12 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
       <span className="boot-corner boot-corner-br" aria-hidden="true" />
 
       <div className="boot-center">
-        {theme === 'endfield' && <EndfieldSchematic />}
         <div className="boot-identity" aria-hidden="true">
           <div className="boot-emblem">
             <Logo />
           </div>
-          <div className="boot-wordmark">{theme === 'endfield' ? 'ENDFIELD' : 'PRTS'}</div>
-          <div className="boot-subtitle mono">
-            {theme === 'endfield' ? 'INDUSTRIES / PERSONAL TERMINAL' : 'PERSONAL WORKSPACE'}
-          </div>
+          <div className="boot-wordmark">PRTS</div>
+          <div className="boot-subtitle mono">PERSONAL WORKSPACE</div>
           <div className="boot-scanline" />
         </div>
         <div className="boot-status" role="status" aria-live="polite" aria-atomic="true">
@@ -232,7 +299,7 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
       </div>
 
       <div className="boot-bottomline mono" aria-hidden="true">
-        <span>{theme === 'endfield' ? 'ENDFIELD / INDUSTRIES' : 'PRTS / PERSONAL TERMINAL'}</span>
+        <span>PRTS / PERSONAL TERMINAL</span>
         <span>LOCAL WORKSPACE</span>
       </div>
       <button ref={skipRef} className="boot-skip mono" type="button" onClick={complete}>

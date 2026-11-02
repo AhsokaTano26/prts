@@ -14,10 +14,6 @@
   --endfield-yellow: #f5df20;
   --endfield-ink: #20231e;
   --endfield-grid: #30362c0b;
-  --motion-boot-duration: 1800ms;
-  --motion-boot-prepare-at: 580ms;
-  --motion-boot-ready-at: 1200ms;
-  --motion-boot-exit-at: 1580ms;
   color-scheme: light;
 }
 [data-theme='endfield'] ::selection {
@@ -120,8 +116,7 @@
   color: var(--muted);
 }
 [data-theme='endfield'] .main-content,
-[data-theme='endfield'] .auth-screen,
-[data-theme='endfield'] .boot-sequence {
+[data-theme='endfield'] .auth-screen {
   background-color: var(--bg);
   background-image:
     linear-gradient(var(--endfield-grid) 1px, transparent 1px),
@@ -417,57 +412,6 @@
 [data-theme='endfield'] .auth-form > label {
   color: var(--text);
 }
-[data-theme='endfield'] .boot-sequence {
-  color: var(--text);
-}
-[data-theme='endfield'] .boot-sequence::before {
-  background: repeating-linear-gradient(
-    135deg,
-    var(--endfield-ink) 0 10px,
-    var(--endfield-yellow) 10px 20px
-  );
-  height: 10px;
-  inset: 0 0 auto;
-  opacity: 1;
-}
-[data-theme='endfield'] .boot-center {
-  position: relative;
-}
-[data-theme='endfield'] .boot-center > .endfield-schematic {
-  position: absolute;
-  width: min(680px, 95vw);
-  max-width: none;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0.13;
-  pointer-events: none;
-}
-[data-theme='endfield'] .boot-emblem {
-  background: var(--endfield-yellow);
-  border-color: var(--text);
-}
-[data-theme='endfield'] .boot-emblem > .brand-symbol {
-  width: 84px;
-  height: 50px;
-  filter: none;
-}
-[data-theme='endfield'] .boot-wordmark {
-  font-size: clamp(38px, 7vw, 70px);
-  color: var(--text);
-  letter-spacing: -2px;
-}
-[data-theme='endfield'] .boot-status,
-[data-theme='endfield'] .boot-subtitle,
-[data-theme='endfield'] .boot-topline,
-[data-theme='endfield'] .boot-bottomline {
-  color: var(--muted);
-}
-[data-theme='endfield'] .boot-skip {
-  color: var(--text);
-  background: var(--endfield-yellow);
-  border-color: var(--text);
-}
 
 @media (max-width: 1250px) {
   [data-theme='endfield'] .brand {
@@ -606,9 +550,5 @@
   .auth-identity--endfield h2 {
     font-size: 44px;
     letter-spacing: -2px;
-  }
-  [data-theme='endfield'] .boot-subtitle {
-    letter-spacing: 0.4px;
-    font-size: 9px;
   }
 }

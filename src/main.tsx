@@ -13,6 +13,7 @@ import './styles/pwa.css'
 import './styles/rhine-theme.css'
 import './styles/endfield-theme.css'
 import './styles/endfield-surfaces.css'
+import './styles/endfield-boot.css'
 import './styles/interface-motion.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
