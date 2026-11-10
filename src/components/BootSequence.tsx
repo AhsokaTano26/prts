@@ -3,6 +3,7 @@ import { Logo } from './UI'
 import { useAppearance } from '../lib/appearance'
 import RhineInstrument from './RhineInstrument'
 import EndfieldBootVisual from './EndfieldBootVisual'
+import { attachEndfieldOpeningMotion } from '../lib/endfieldOpening'
 
 interface BootSequenceProps {
   onComplete: () => void
@@ -97,12 +98,14 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
       }
       film.muted = true
       film.playbackRate = 1.5
+      const stopOpeningMotion = attachEndfieldOpeningMotion(film)
       film.addEventListener('playing', onPlaying)
       film.addEventListener('timeupdate', onTimeUpdate)
       film.addEventListener('ended', onEnded)
       film.addEventListener('error', onError)
       void film.play().catch(onError)
       stopFilm = () => {
+        stopOpeningMotion()
         film.removeEventListener('playing', onPlaying)
         film.removeEventListener('timeupdate', onTimeUpdate)
         film.removeEventListener('ended', onEnded)

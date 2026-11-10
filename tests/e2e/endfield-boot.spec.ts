@@ -61,7 +61,7 @@ for (const width of [1440, 320]) {
     const errors: string[] = []
     page.on('pageerror', (error) => errors.push(error.message))
     await prepare(page)
-    await page.getByRole('button', { name: '重播启动动画', exact: true }).click()
+    await page.getByRole('button', { name: '重播启动动画', exact: true }).press('Enter')
     const boot = page.locator('.boot-sequence--endfield')
     const film = boot.locator('video')
     await expect(film).toHaveAttribute('src', '/branding/endfield-opening.mp4')
@@ -84,6 +84,8 @@ for (const width of [1440, 320]) {
     await expect(boot.locator('.endfield-boot-contours')).toBeVisible()
     for (const [name, seconds] of [
       ['company', 0.2],
+      ['defocus', 0.55],
+      ['jitter', 0.66],
       ['assembly', 1.1],
       ['title', 2.1],
     ] as const) {
@@ -92,6 +94,26 @@ for (const width of [1440, 320]) {
         seconds,
         2,
       )
+      const opening = name === 'defocus' || name === 'jitter'
+      const frame = await film.evaluate((video: HTMLVideoElement) => ({
+        filter: getComputedStyle(video).filter,
+        translate: getComputedStyle(video).translate,
+        rate: video.playbackRate,
+        width: video.getBoundingClientRect().width,
+      }))
+      if (opening) {
+        expect(Number.parseFloat(frame.filter.match(/blur\(([^)]+)/)?.[1] ?? '0')).toBeGreaterThan(
+          0,
+        )
+        expect(frame.translate).not.toBe('none')
+        expect(frame.translate).not.toBe('0px')
+        expect(frame.rate).toBe(1)
+      } else {
+        expect(frame.filter).toBe('none')
+        expect(frame.translate).toBe('none')
+        expect(frame.rate).toBe(1.5)
+      }
+      expect(frame.width).toBeCloseTo(bounds!.width, 2)
       await page.screenshot({ path: `/tmp/prts-endfield-opening-${name}-${width}.png` })
     }
     expect(await boot.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(false)
@@ -108,17 +130,33 @@ test('Endfield completes actual playback, restores focus and respects reduced mo
 }) => {
   await prepare(page, false)
   const replay = page.getByRole('button', { name: '重播启动动画', exact: true })
-  await replay.click()
+  await page.evaluate(() => {
+    document.addEventListener('playing', () => performance.mark('endfield-film-started'), {
+      capture: true,
+      once: true,
+    })
+    document.addEventListener('ended', () => performance.mark('endfield-film-ended'), {
+      capture: true,
+      once: true,
+    })
+  })
+  await replay.press('Enter')
   const boot = page.locator('.boot-sequence--endfield')
   await expect(boot).toHaveAttribute('data-artwork', 'ready')
-  const started = Date.now()
   await expect(boot.getByRole('button', { name: '跳过启动', exact: true })).toBeFocused()
   await expect(boot).toHaveAttribute('data-phase', 'prepare')
   await expect(boot).toHaveAttribute('data-phase', 'ready')
   await expect(boot).toHaveCount(0)
-  expect(Date.now() - started).toBeLessThan(2300)
+  // Measure the media event, excluding Playwright's assertion polling intervals.
+  const elapsed = await page.evaluate(
+    () =>
+      performance.measure('endfield-film-playback', 'endfield-film-started', 'endfield-film-ended')
+        .duration,
+  )
+  expect(elapsed).toBeGreaterThan(1800)
+  expect(elapsed).toBeLessThan(2300)
   await expect(replay).toBeFocused()
-  await replay.click()
+  await replay.press('Enter')
   await expect(boot).toBeVisible()
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await expect(boot).toHaveCount(0)
@@ -143,12 +181,18 @@ test('Endfield waits for a cold film and starts from the beginning when it arriv
     await route.continue().catch(() => {})
   })
   try {
-    await page.getByRole('button', { name: '重播启动动画', exact: true }).click()
+    await page.getByRole('button', { name: '重播启动动画', exact: true }).press('Enter')
     await received
     const boot = page.locator('.boot-sequence--endfield')
     await page.clock.runFor(700)
     await expect(boot).toHaveAttribute('data-phase', 'load')
     await expect(boot).toHaveAttribute('data-artwork', 'waiting')
+    await page.evaluate(() => {
+      document.addEventListener('playing', (event) => (event.target as HTMLVideoElement).pause(), {
+        capture: true,
+        once: true,
+      })
+    })
     release()
     await expect(boot).toHaveAttribute('data-artwork', 'ready')
     const time = await boot.locator('video').evaluate((video: HTMLVideoElement) => {
@@ -181,7 +225,7 @@ for (const exit of ['timeout', 'skip'] as const) {
     })
     const replay = page.getByRole('button', { name: '重播启动动画', exact: true })
     try {
-      await replay.click()
+      await replay.press('Enter')
       await received
       const boot = page.locator('.boot-sequence--endfield')
       if (exit === 'skip') await boot.getByRole('button', { name: '跳过启动', exact: true }).click()
@@ -208,13 +252,13 @@ test('Endfield falls through when playback is rejected or stalls mid-sequence', 
       Promise.reject(new DOMException('blocked', 'NotAllowedError'))
   })
   const replay = page.getByRole('button', { name: '重播启动动画', exact: true })
-  await replay.click()
+  await replay.press('Enter')
   await expect(page.locator('.boot-sequence--endfield')).toHaveCount(0)
   await page.clock.runFor(32)
   await expect(replay).toBeFocused()
   await page.reload()
   await expect(replay).toBeVisible()
-  await replay.click()
+  await replay.press('Enter')
   const boot = page.locator('.boot-sequence--endfield')
   await expect(boot).toHaveAttribute('data-artwork', 'ready')
   await boot.locator('video').evaluate((video: HTMLVideoElement) => video.pause())
