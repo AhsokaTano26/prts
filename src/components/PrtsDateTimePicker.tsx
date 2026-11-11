@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsInput } from './PrtsFormControls'
 import {
   useCallback,
   useEffect,
@@ -138,7 +139,7 @@ function PickerField({
       }}
     >
       <div className={`prts-picker-field${open ? ' is-open' : ''}`}>
-        <input
+        <PrtsInput
           ref={input}
           id={id}
           type="text"
@@ -168,7 +169,7 @@ function PickerField({
             }
           }}
         />
-        <button
+        <PrtsButton
           ref={trigger}
           type="button"
           className="prts-picker-trigger"
@@ -184,7 +185,7 @@ function PickerField({
           ) : (
             <Clock3 size={17} aria-hidden="true" />
           )}
-        </button>
+        </PrtsButton>
       </div>
       {touched && invalid && (
         <span id={`${panelId}-error`} className="prts-picker-error">
@@ -297,7 +298,7 @@ function DatePanel({
   return (
     <>
       <div className="prts-date-header">
-        <button
+        <PrtsButton
           type="button"
           className="prts-picker-icon"
           aria-label="上个月"
@@ -305,9 +306,9 @@ function DatePanel({
           onClick={() => move(shiftMonth(month, -1))}
         >
           <ChevronLeft size={17} />
-        </button>
+        </PrtsButton>
         <div className="prts-date-heading">
-          <input
+          <PrtsInput
             type="text"
             inputMode="numeric"
             aria-label="年份"
@@ -326,7 +327,7 @@ function DatePanel({
             年 {Number(month.slice(5, 7))} 月
           </span>
         </div>
-        <button
+        <PrtsButton
           type="button"
           className="prts-picker-icon"
           aria-label="下个月"
@@ -334,7 +335,7 @@ function DatePanel({
           onClick={() => move(shiftMonth(month, 1))}
         >
           <ChevronRight size={17} />
-        </button>
+        </PrtsButton>
       </div>
       <div
         ref={grid}
@@ -353,7 +354,7 @@ function DatePanel({
           <div role="row" key={week} className="prts-date-week">
             {days.slice(week * 7, week * 7 + 7).map((day) =>
               validDate(day) ? (
-                <button
+                <PrtsButton
                   key={day}
                   type="button"
                   role="gridcell"
@@ -369,7 +370,7 @@ function DatePanel({
                   onClick={() => choose(day)}
                 >
                   {Number(day.slice(8, 10))}
-                </button>
+                </PrtsButton>
               ) : (
                 <span key={day} role="gridcell" />
               ),
@@ -380,18 +381,18 @@ function DatePanel({
       <div className="prts-picker-footer">
         <span className="prts-picker-hint">YYYY-MM-DD</span>
         {!required && (
-          <button type="button" className="text-button" onClick={() => choose('')}>
+          <PrtsButton type="button" className="text-button" onClick={() => choose('')}>
             清除日期
-          </button>
+          </PrtsButton>
         )}
-        <button
+        <PrtsButton
           type="button"
           className="text-button"
           disabled={today < min}
           onClick={() => choose(today)}
         >
           今天
-        </button>
+        </PrtsButton>
       </div>
     </>
   )
@@ -434,7 +435,7 @@ function TimePanel({ value, required, onValueChange, close }: PickerProps & { cl
             <span className="prts-time-label">{label}</span>
             <div role="listbox" aria-label={label} className="prts-time-list">
               {Array.from({ length: column === 0 ? 24 : 60 }, (_, number) => (
-                <button
+                <PrtsButton
                   type="button"
                   role="option"
                   key={number}
@@ -464,7 +465,7 @@ function TimePanel({ value, required, onValueChange, close }: PickerProps & { cl
                   }}
                 >
                   {pad(number)}
-                </button>
+                </PrtsButton>
               ))}
             </div>
           </div>
@@ -473,7 +474,7 @@ function TimePanel({ value, required, onValueChange, close }: PickerProps & { cl
       <div className="prts-picker-footer">
         <span className="prts-picker-hint">HH:mm</span>
         {!required && (
-          <button
+          <PrtsButton
             type="button"
             className="text-button"
             onClick={() => {
@@ -482,9 +483,9 @@ function TimePanel({ value, required, onValueChange, close }: PickerProps & { cl
             }}
           >
             清除时间
-          </button>
+          </PrtsButton>
         )}
-        <button
+        <PrtsButton
           type="button"
           className="button button-primary prts-picker-done"
           onClick={() => {
@@ -493,7 +494,7 @@ function TimePanel({ value, required, onValueChange, close }: PickerProps & { cl
           }}
         >
           完成
-        </button>
+        </PrtsButton>
       </div>
     </>
   )

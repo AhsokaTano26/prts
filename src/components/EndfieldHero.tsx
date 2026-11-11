@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import { ArrowUpRight } from 'lucide-react'
 import type { PortraitId } from '../lib/appearance'
 import CharacterPortrait from './CharacterPortrait'
@@ -25,9 +26,9 @@ export default function EndfieldHero({
         </h2>
         <div className="endfield-hero-caption">
           <p>开拓前路，从此刻开始。</p>
-          <button onClick={onAppearance}>
+          <PrtsButton onClick={onAppearance}>
             自定义外观 <ArrowUpRight size={14} />
-          </button>
+          </PrtsButton>
         </div>
       </div>
       <EndfieldSchematic />

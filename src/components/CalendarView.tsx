@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import {
   Plus,
@@ -178,14 +179,14 @@ export default function CalendarView({
           <p>为重要的事，留出时间。</p>
         </div>
         <div className="calendar-heading-actions">
-          <button className="button button-ghost" onClick={() => setSubscriptionOpen(true)}>
+          <PrtsButton className="button button-ghost" onClick={() => setSubscriptionOpen(true)}>
             <Rss size={16} />
             订阅日历
-          </button>
-          <button className="button button-primary" onClick={() => onNew(selected)}>
+          </PrtsButton>
+          <PrtsButton className="button button-primary" onClick={() => onNew(selected)}>
             <Plus size={17} />
             新建日程
-          </button>
+          </PrtsButton>
         </div>
       </div>
       <div
@@ -212,58 +213,58 @@ export default function CalendarView({
             </div>
             <div className="calendar-view-switch" role="group" aria-label="日历视图">
               {(['month', 'week', 'day'] as const).map((mode) => (
-                <button
+                <PrtsButton
                   key={mode}
                   aria-label={`${mode === 'month' ? '月' : mode === 'week' ? '周' : '日'}视图`}
                   aria-pressed={view === mode}
                   onClick={() => setView(mode)}
                 >
                   {mode === 'month' ? '月' : mode === 'week' ? '周' : '日'}
-                </button>
+                </PrtsButton>
               ))}
             </div>
             <div className="calendar-month-controls">
-              <button
+              <PrtsButton
                 className="button button-ghost calendar-today"
                 onClick={() => setSelected(today)}
               >
                 今天
-              </button>
-              <button
+              </PrtsButton>
+              <PrtsButton
                 className="icon-button"
                 aria-label={view === 'month' ? '上个月' : view === 'week' ? '上一周' : '前一天'}
                 disabled={view === 'month' ? month === '0001-01' : selected === '0001-01-01'}
                 onClick={() => movePeriod(-1)}
               >
                 <ChevronLeft size={18} />
-              </button>
-              <button
+              </PrtsButton>
+              <PrtsButton
                 className="icon-button"
                 aria-label={view === 'month' ? '下个月' : view === 'week' ? '下一周' : '后一天'}
                 disabled={view === 'month' ? month === '9999-12' : selected === '9999-12-31'}
                 onClick={() => movePeriod(1)}
               >
                 <ChevronRight size={18} />
-              </button>
+              </PrtsButton>
             </div>
           </header>
           {view === 'month' && (
             <div className="calendar-month-layout-toolbar">
               <div className="calendar-month-layout-switch" role="group" aria-label="月视图布局">
-                <button
+                <PrtsButton
                   aria-label="月历模式"
                   aria-pressed={monthLayout === 'calendar'}
                   onClick={() => setMonthLayout('calendar')}
                 >
                   月历
-                </button>
-                <button
+                </PrtsButton>
+                <PrtsButton
                   aria-label="月时间线模式"
                   aria-pressed={monthLayout === 'timeline'}
                   onClick={() => setMonthLayout('timeline')}
                 >
                   时间线
-                </button>
+                </PrtsButton>
               </div>
               <p>
                 {monthLayout === 'timeline'
@@ -293,7 +294,7 @@ export default function CalendarView({
                         key={day}
                         className="calendar-cell"
                       >
-                        <button
+                        <PrtsButton
                           ref={(el) => {
                             if (el) buttons.current.set(day, el)
                             else buttons.current.delete(day)
@@ -340,7 +341,7 @@ export default function CalendarView({
                             {items.tasks.length > 0 && <i className="is-task" />}
                             {count > 0 && <small>{count}</small>}
                           </span>
-                        </button>
+                        </PrtsButton>
                       </div>
                     )
                   })}
@@ -396,14 +397,14 @@ export default function CalendarView({
               <div className="calendar-empty">
                 <CalendarDays size={28} strokeWidth={1} />
                 <p>这一天，还留有空白。</p>
-                <button className="text-button" onClick={() => onNew(selected)}>
+                <PrtsButton className="text-button" onClick={() => onNew(selected)}>
                   安排一项日程
                   <Plus size={14} />
-                </button>
+                </PrtsButton>
               </div>
             ) : (
               current.events.map((event) => (
-                <button
+                <PrtsButton
                   className="calendar-event-card"
                   onClick={() => onEdit(event)}
                   key={event.id}
@@ -422,7 +423,7 @@ export default function CalendarView({
                   {event.description && (
                     <span className="calendar-event-description">{event.description}</span>
                   )}
-                </button>
+                </PrtsButton>
               ))
             )}
           </section>
@@ -449,7 +450,7 @@ export default function CalendarView({
                     completing={task.done && completingIds.has(task.id)}
                     onToggle={toggleWithFeedback}
                   />
-                  <button
+                  <PrtsButton
                     className="calendar-task-title"
                     onClick={() => onEditTask(task)}
                     aria-label={task.title}
@@ -459,7 +460,7 @@ export default function CalendarView({
                       {task.dueAt ? timeText(new Date(task.dueAt)) : '当天截止'}
                       {task.done ? ' · 已完成' : ''}
                     </small>
-                  </button>
+                  </PrtsButton>
                   <ArrowUpRight size={14} aria-hidden="true" />
                 </div>
               ))

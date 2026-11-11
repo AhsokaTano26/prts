@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import { useEffect, useRef, useState } from 'react'
 import { Bell, ArrowUpRight } from 'lucide-react'
 import { apiFetch, WORKSPACE_UPDATED_EVENT } from '../lib/api'
@@ -166,10 +167,10 @@ export default function TaskReminders({
         <Bell size={17} />
         <strong>任务即将截止</strong>
         <span>{reminders.length} 项</span>
-        <button className="button button-ghost" onClick={onTasks}>
+        <PrtsButton className="button button-ghost" onClick={onTasks}>
           查看任务
           <ArrowUpRight size={13} />
-        </button>
+        </PrtsButton>
       </div>
       <ul>
         {reminders.map((reminder) => (
@@ -187,14 +188,14 @@ export default function TaskReminders({
                 })}
               </time>
             </div>
-            <button
+            <PrtsButton
               className="button button-ghost"
               disabled={!!reading}
               aria-label={`知道了：${reminder.title}`}
               onClick={() => void dismiss(reminder)}
             >
               知道了
-            </button>
+            </PrtsButton>
           </li>
         ))}
       </ul>

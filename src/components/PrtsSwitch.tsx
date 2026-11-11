@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import '../styles/prts-picker.css'
 
 export default function PrtsSwitch({
@@ -14,7 +15,7 @@ export default function PrtsSwitch({
   disabled?: boolean
 }) {
   return (
-    <button
+    <PrtsButton
       type="button"
       role="switch"
       aria-label={label}
@@ -30,6 +31,6 @@ export default function PrtsSwitch({
       <span className="prts-switch-track" aria-hidden="true">
         <span />
       </span>
-    </button>
+    </PrtsButton>
   )
 }

@@ -1,6 +1,9 @@
+import { sameAssistantPlace } from './assistant-places.mjs'
+
 const titleKey = (value) => value.trim().replace(/\s+/g, ' ').toLocaleLowerCase()
 
 export function sameCapture(operation, candidate, existing) {
+  if (operation === 'create_place') return sameAssistantPlace(candidate, existing)
   if (titleKey(candidate.title) !== titleKey(existing.title)) return false
   if (operation === 'create_task')
     return (
@@ -18,6 +21,17 @@ export function sameCapture(operation, candidate, existing) {
     ? candidate.startDate === existing.startDate && candidate.endDate === existing.endDate
     : Date.parse(candidate.startAt) === Date.parse(existing.startAt) &&
         Date.parse(candidate.endAt) === Date.parse(existing.endAt)
+}
+
+export function captureCollection(operation) {
+  if (operation === 'create_task') return 'tasks'
+  if (operation === 'create_calendar_event') return 'calendarEvents'
+  if (operation === 'create_place') return 'places'
+  return null
+}
+
+export function captureTitle(record) {
+  return record.name ?? record.title
 }
 
 function overlaps(a, b, day) {

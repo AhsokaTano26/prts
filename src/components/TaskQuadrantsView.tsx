@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsInput } from './PrtsFormControls'
 import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { ArrowRight, Grid2X2, Plus, Search, SlidersHorizontal, TriangleAlert } from 'lucide-react'
 import type { Priority, Task, TaskCategory } from '../lib/workspace'
@@ -182,12 +183,12 @@ export default function TaskQuadrantsView({
           </h1>
           <p>把截止时间和优先级放在一起，找到眼下值得先做的事。</p>
         </div>
-        <button className="button button-primary" onClick={onNew}>
+        <PrtsButton className="button button-primary" onClick={onNew}>
           <Plus size={17} />
           新建任务
-        </button>
+        </PrtsButton>
       </div>
-      <button
+      <PrtsButton
         type="button"
         className="matrix-filter-toggle"
         aria-expanded={filtersOpen}
@@ -197,7 +198,7 @@ export default function TaskQuadrantsView({
         <SlidersHorizontal size={16} aria-hidden="true" />
         筛选与界线
         <span>{filtersOpen ? '收起' : '展开'}</span>
-      </button>
+      </PrtsButton>
       <section
         id="matrix-controls"
         className={`matrix-controls panel${filtersOpen ? ' is-open' : ''}`}
@@ -206,7 +207,7 @@ export default function TaskQuadrantsView({
         <label className="matrix-search">
           <Search size={16} aria-hidden="true" />
           <span className="sr-only">搜索四象限任务</span>
-          <input
+          <PrtsInput
             type="search"
             value={query}
             placeholder="搜索任务…"
@@ -285,7 +286,7 @@ export default function TaskQuadrantsView({
               <div className="matrix-zones">
                 {QUADRANTS.map((quadrant, index) => (
                   <div key={quadrant.id} className={`matrix-zone matrix-zone-${quadrant.id}`}>
-                    <button
+                    <PrtsButton
                       type="button"
                       className="matrix-zone-heading"
                       aria-label={`查看${quadrant.title}任务，${model.counts[quadrant.id]} 项`}
@@ -295,7 +296,7 @@ export default function TaskQuadrantsView({
                       <strong>{quadrant.title}</strong>
                       <span>{model.counts[quadrant.id]}</span>
                       <small>{quadrant.description}</small>
-                    </button>
+                    </PrtsButton>
                   </div>
                 ))}
               </div>
@@ -312,7 +313,7 @@ export default function TaskQuadrantsView({
                       }}
                     />
                   )}
-                  <button
+                  <PrtsButton
                     type="button"
                     className={`matrix-point${point.tasks.length > 1 ? ' matrix-point-group' : ''}${point.overdueCount ? ' matrix-point-overdue' : ''}`}
                     style={{ left: `${point.x}%`, top: `${point.labelY}%` }}
@@ -337,7 +338,7 @@ export default function TaskQuadrantsView({
                         !
                       </span>
                     )}
-                  </button>
+                  </PrtsButton>
                 </Fragment>
               ))}
               {!model.points.length && (
@@ -391,14 +392,14 @@ export default function TaskQuadrantsView({
               {(['high', 'medium', 'low'] as Priority[]).map((priority) => {
                 const items = undated.filter((task) => task.priority === priority)
                 return (
-                  <button
+                  <PrtsButton
                     key={priority}
                     type="button"
                     disabled={!items.length}
                     onClick={() => select({ kind: 'undated', priority })}
                   >
                     {priorityNames[priority]} <span>{items.length}</span>
-                  </button>
+                  </PrtsButton>
                 )
               })}
             </div>
@@ -418,28 +419,28 @@ export default function TaskQuadrantsView({
               </h2>
             </div>
             {selection && (
-              <button className="matrix-reset" onClick={reset}>
+              <PrtsButton className="matrix-reset" onClick={reset}>
                 查看全部
-              </button>
+              </PrtsButton>
             )}
           </div>
           <p className="matrix-selection" role="status">
             {selectionLabel}
           </p>
-          <button
+          <PrtsButton
             className="matrix-return"
             type="button"
             onClick={() => plot.current?.scrollIntoView({ block: 'center' })}
           >
             返回坐标图 ↑
-          </button>
+          </PrtsButton>
           <ul className="matrix-task-list" aria-label="四象限任务明细">
             {shown.map((task) => {
               const deadline = taskDeadline(task, timeZone)
               const overdue = model.overdueIds.has(task.id)
               return (
                 <li key={task.id} className={overdue ? 'matrix-task-overdue' : ''}>
-                  <button
+                  <PrtsButton
                     className="matrix-task-check"
                     type="button"
                     role="checkbox"
@@ -448,7 +449,7 @@ export default function TaskQuadrantsView({
                     onClick={() => onToggle(task.id)}
                   />
                   <div>
-                    <button
+                    <PrtsButton
                       type="button"
                       className="matrix-task-title"
                       aria-label={`编辑任务：${task.title}`}
@@ -456,7 +457,7 @@ export default function TaskQuadrantsView({
                     >
                       <TaskDot task={task} overdue={overdue} />
                       <span>{task.title}</span>
-                    </button>
+                    </PrtsButton>
                     <div className="matrix-task-meta">
                       <span className={`matrix-priority matrix-priority-${task.priority}`}>
                         {priorityNames[task.priority]}
@@ -492,15 +493,15 @@ export default function TaskQuadrantsView({
           )}
           {details.length > 20 && (
             <div className="matrix-pagination">
-              <button disabled={!page} onClick={() => setListPage(page - 1)}>
+              <PrtsButton disabled={!page} onClick={() => setListPage(page - 1)}>
                 上一页
-              </button>
+              </PrtsButton>
               <span>
                 {page + 1} / {lastPage + 1}
               </span>
-              <button disabled={page === lastPage} onClick={() => setListPage(page + 1)}>
+              <PrtsButton disabled={page === lastPage} onClick={() => setListPage(page + 1)}>
                 下一页
-              </button>
+              </PrtsButton>
             </div>
           )}
         </section>

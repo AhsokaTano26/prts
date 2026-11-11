@@ -20,6 +20,7 @@ import { parseAssistantActions, parseToolUsage } from '../src/lib/assistantTools
 import { validateWorkspace } from '../src/lib/workspace.ts'
 import { parseKnowledgeResults } from '../src/lib/assistant.ts'
 import { focusElapsed, focusMode } from '../src/lib/focusTimer.ts'
+import { validateMapConfig } from '../src/lib/placeMaps.ts'
 
 export const MAX_FILE_BYTES = 20 * 1024 * 1024
 export const MAX_TOTAL_FILE_BYTES = 100 * 1024 * 1024
@@ -66,13 +67,17 @@ function isoDate(value) {
 function hash(value) {
   return createHash('sha256').update(value).digest('hex')
 }
-function jsonDocument(row) {
-  return row ? { value: JSON.parse(row.data), revision: row.revision } : null
+function jsonDocument(row, key) {
+  if (!row) return null
+  const value = JSON.parse(row.data)
+  // Normalize additive workspace fields on read without rewriting an old database.
+  if (key === 'workspace' && value.places === undefined) value.places = []
+  return { value, revision: row.revision }
 }
 function preservePreferences(key, value, current) {
   if (key !== 'preferences') return value
   const result = { ...value }
-  for (const field of ['appearance', 'assistantAutoConfirm'])
+  for (const field of ['appearance', 'assistantAutoConfirm', 'map'])
     if (result[field] === undefined && current?.[field] !== undefined)
       result[field] = current[field]
   return result
@@ -114,6 +119,13 @@ function validateDocument(key, value) {
       )
         invalid('主题或首页立绘选择无效。')
       result.appearance = { theme: appearance.theme, portrait: appearance.portrait }
+    }
+    if (value.map !== undefined) {
+      try {
+        result.map = validateMapConfig(value.map)
+      } catch (error) {
+        invalid(error instanceof Error ? error.message : '地图配置格式无效。')
+      }
     }
     if (value.migratedBrowserIds !== undefined) {
       if (!Array.isArray(value.migratedBrowserIds) || value.migratedBrowserIds.length > 100)
@@ -353,12 +365,12 @@ export function createStorage(
   cleanupDeletedFiles()
   const selectDocument = db.prepare('SELECT data, revision FROM prts_documents WHERE key = ?')
   function getDocument(key) {
-    return jsonDocument(selectDocument.get(key))
+    return jsonDocument(selectDocument.get(key), key)
   }
   function getState() {
     const documents = Object.fromEntries(DOCUMENT_KEYS.map((key) => [key, null]))
     for (const row of db.prepare('SELECT key, data, revision FROM prts_documents').all())
-      documents[row.key] = jsonDocument(row)
+      documents[row.key] = jsonDocument(row, row.key)
     return { documents }
   }
   function writeDocument(key, value, revision) {
@@ -384,7 +396,9 @@ export function createStorage(
       if (previous) {
         if (previous.request_hash !== requestHash)
           throw new HttpError(409, '此保存操作已用于其他内容，请重新加载后重试。')
-        return { value, revision: previous.revision }
+        const saved = getDocument(key)
+        if (saved?.revision === previous.revision) return saved
+        throw new HttpError(409, '此保存操作已完成，但服务器数据随后发生变化。请重新加载后继续。')
       }
       const current = getDocument(key)
       if ((current?.revision ?? 0) !== payload.expectedRevision)
@@ -398,6 +412,8 @@ export function createStorage(
       // Older tabs do not know this field; only an explicit array may replace it.
       if (key === 'workspace' && payload.value.calendarEvents === undefined)
         next = { ...next, calendarEvents: current?.value.calendarEvents || [] }
+      if (key === 'workspace' && payload.value.places === undefined)
+        next = { ...next, places: current?.value.places || [] }
       if (key === 'workspace' && current) {
         const remarks = new Map(
           current.value.tasks
@@ -413,6 +429,7 @@ export function createStorage(
           ),
         }
       }
+      next = validateDocument(key, next)
       if (Buffer.byteLength(JSON.stringify(next)) > MAX_DOCUMENT_BYTES)
         throw new HttpError(413, '单个存储项目不能超过 10 MB。')
       const result = writeDocument(key, next, revision)

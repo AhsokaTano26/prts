@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import { Check } from 'lucide-react'
 import type { Task } from '../lib/workspace'
 import '../styles/task-completion.css'
@@ -12,7 +13,7 @@ export default function TaskCompletionCheck({
   onToggle: (id: string) => void
 }) {
   return (
-    <button
+    <PrtsButton
       type="button"
       className="task-check"
       role="checkbox"
@@ -32,6 +33,6 @@ export default function TaskCompletionCheck({
           <i />
         </span>
       )}
-    </button>
+    </PrtsButton>
   )
 }

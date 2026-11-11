@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsForm, PrtsInput, PrtsTextarea } from './PrtsFormControls'
 import { useState, type FormEvent } from 'react'
 import { CalendarDays, LoaderCircle, Trash2 } from 'lucide-react'
 import { makeId, type CalendarEvent } from '../lib/workspace'
@@ -11,6 +12,7 @@ export default function CalendarEventDialog({
   event,
   defaultDate,
   defaultRange,
+  initialValues,
   onSave,
   onDelete,
   onClose,
@@ -18,6 +20,7 @@ export default function CalendarEventDialog({
   event: CalendarEvent | null
   defaultDate: string
   defaultRange?: TimeRange
+  initialValues?: { title: string; location: string; description: string }
   onSave: (event: CalendarEvent) => Promise<boolean>
   onDelete?: () => Promise<boolean>
   onClose: () => void
@@ -38,7 +41,11 @@ export default function CalendarEventDialog({
           }
         : null),
   )
-  const [draft, setDraft] = useState(() => calendarDraft(reference, defaultDate))
+  const [draft, setDraft] = useState(() => ({
+    ...calendarDraft(reference, defaultDate),
+    ...(!event ? initialValues : undefined),
+    ...(initialValues && !event ? { allDay: true } : {}),
+  }))
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -89,7 +96,7 @@ export default function CalendarEventDialog({
       }}
       className="calendar-editor-dialog"
     >
-      <form onSubmit={submit}>
+      <PrtsForm onSubmit={submit}>
         <p className="form-intro mono">
           <CalendarDays size={14} aria-hidden="true" /> SCHEDULE /{' '}
           {event ? 'UPDATE' : 'REGISTRATION'}
@@ -97,7 +104,7 @@ export default function CalendarEventDialog({
         <label className="form-label" htmlFor="event-title">
           日程标题
         </label>
-        <input
+        <PrtsInput
           autoFocus
           id="event-title"
           className="field"
@@ -181,7 +188,7 @@ export default function CalendarEventDialog({
         <label className="form-label" htmlFor="event-location">
           地点
         </label>
-        <input
+        <PrtsInput
           id="event-location"
           className="field"
           maxLength={200}
@@ -192,7 +199,7 @@ export default function CalendarEventDialog({
         <label className="form-label" htmlFor="event-description">
           备注
         </label>
-        <textarea
+        <PrtsTextarea
           id="event-description"
           className="field"
           maxLength={5000}
@@ -208,7 +215,7 @@ export default function CalendarEventDialog({
         )}
         <div className="modal-actions">
           {event && onDelete && (
-            <button
+            <PrtsButton
               type="button"
               className="button button-ghost danger"
               disabled={busy}
@@ -216,13 +223,18 @@ export default function CalendarEventDialog({
             >
               <Trash2 size={15} />
               {confirmDelete ? '确认删除' : '删除日程'}
-            </button>
+            </PrtsButton>
           )}
           <div className="action-spacer" />
-          <button type="button" className="button button-ghost" disabled={busy} onClick={onClose}>
+          <PrtsButton
+            type="button"
+            className="button button-ghost"
+            disabled={busy}
+            onClick={onClose}
+          >
             取消
-          </button>
-          <button
+          </PrtsButton>
+          <PrtsButton
             type="submit"
             className="button button-primary"
             disabled={busy || !draft.title.trim()}
@@ -237,9 +249,9 @@ export default function CalendarEventDialog({
             ) : (
               '创建日程'
             )}
-          </button>
+          </PrtsButton>
         </div>
-      </form>
+      </PrtsForm>
     </Modal>
   )
 }

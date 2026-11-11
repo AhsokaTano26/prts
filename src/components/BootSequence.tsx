@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Logo } from './UI'
 import { useAppearance } from '../lib/appearance'
@@ -176,10 +177,10 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
         <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
           {phaseLabels[phase]}
         </span>
-        <button ref={skipRef} className="boot-skip mono" type="button" onClick={complete}>
+        <PrtsButton ref={skipRef} className="boot-skip mono" type="button" onClick={complete}>
           <span>跳过启动</span>
           <span aria-hidden="true">↗</span>
-        </button>
+        </PrtsButton>
       </div>
     )
 
@@ -249,10 +250,10 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
           <span>IDEAS BECOME DISCOVERIES.</span>
           <span>RHINE LAB / PRTS</span>
         </div>
-        <button ref={skipRef} className="boot-skip mono" type="button" onClick={complete}>
+        <PrtsButton ref={skipRef} className="boot-skip mono" type="button" onClick={complete}>
           <span>跳过启动</span>
           <span aria-hidden="true">↗</span>
-        </button>
+        </PrtsButton>
       </div>
     )
 
@@ -305,10 +306,10 @@ export default function BootSequence({ onComplete, onReplay = false }: BootSeque
         <span>PRTS / PERSONAL TERMINAL</span>
         <span>LOCAL WORKSPACE</span>
       </div>
-      <button ref={skipRef} className="boot-skip mono" type="button" onClick={complete}>
+      <PrtsButton ref={skipRef} className="boot-skip mono" type="button" onClick={complete}>
         <span>跳过启动</span>
         <span aria-hidden="true">↗</span>
-      </button>
+      </PrtsButton>
     </div>
   )
 }

@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsInput } from './PrtsFormControls'
 import { useEffect, useRef, useState } from 'react'
 import {
   Search,
@@ -11,10 +12,12 @@ import {
   Sparkles,
   CalendarDays,
   Grid2X2,
+  MapPin,
 } from 'lucide-react'
 import { Modal } from './UI'
 import type { Workspace } from '../lib/workspace'
 import type { WorkspaceFile } from '../lib/files'
+import { placeMatchesQuery, placeStatus, PLACE_TYPES } from '../lib/places'
 export default function CommandPalette({
   workspace,
   files,
@@ -26,6 +29,8 @@ export default function CommandPalette({
   onNewNote,
   onEvent,
   onNewEvent,
+  onPlace,
+  onNewPlace,
 }: {
   workspace: Workspace
   files: WorkspaceFile[]
@@ -37,6 +42,8 @@ export default function CommandPalette({
   onNewNote: () => void
   onEvent: (id: string) => void
   onNewEvent: () => void
+  onPlace: (id: string) => void
+  onNewPlace: () => void
 }) {
   const [query, setQuery] = useState(''),
     [selected, setSelected] = useState(0),
@@ -45,11 +52,19 @@ export default function CommandPalette({
     { id: 'new-task', title: '新建任务', hint: '快捷操作', icon: Plus, action: onNewTask },
     { id: 'new-note', title: '新建笔记', hint: '快捷操作', icon: Plus, action: onNewNote },
     { id: 'new-event', title: '新建日程', hint: '快捷操作', icon: Plus, action: onNewEvent },
+    {
+      id: 'new-place',
+      title: '添加想去的地点',
+      hint: '快捷操作',
+      icon: MapPin,
+      action: onNewPlace,
+    },
     ...[
       { id: 'overview', title: '总览', icon: LayoutDashboard },
       { id: 'tasks', title: '任务中枢', icon: ListTodo },
       { id: 'quadrants', title: '四象限法', icon: Grid2X2 },
       { id: 'calendar', title: '日历日程', icon: CalendarDays },
+      { id: 'places', title: '想去', icon: MapPin },
       { id: 'notes', title: '个人思考', icon: FileText },
       { id: 'files', title: '文件资料库', icon: FolderOpen },
       { id: 'assistant', title: 'PRTS 助手', icon: Sparkles },
@@ -59,6 +74,18 @@ export default function CommandPalette({
   const q = query.trim().toLowerCase()
   const results = [
     ...actions.filter((a) => !q || a.title.toLowerCase().includes(q)),
+    ...(q
+      ? workspace.places
+          .filter((place) => placeMatchesQuery(place, q))
+          .sort((a, b) => Number(Boolean(a.archivedAt)) - Number(Boolean(b.archivedAt)))
+          .map((place) => ({
+            id: `place-${place.id}`,
+            title: place.name,
+            hint: `${placeStatus(place)} · ${PLACE_TYPES[place.type]}${place.city ? ` · ${place.city}` : ''}`,
+            icon: MapPin,
+            action: () => onPlace(place.id),
+          }))
+      : []),
     ...(q
       ? workspace.calendarEvents
           .filter((event) =>
@@ -123,7 +150,7 @@ export default function CommandPalette({
     <Modal title="终端快速检索" className="command-modal" onClose={onClose}>
       <div className="command-search">
         <Search size={20} />
-        <input
+        <PrtsInput
           ref={input}
           autoFocus
           role="combobox"
@@ -131,8 +158,8 @@ export default function CommandPalette({
           aria-controls="command-results"
           aria-autocomplete="list"
           aria-activedescendant={results[selected] ? `command-${selected}` : undefined}
-          aria-label="搜索任务、日程、笔记、文件或模块"
-          placeholder="搜索任务、日程、笔记、文件或模块…"
+          aria-label="搜索任务、日程、地点、笔记、文件或模块"
+          placeholder="搜索任务、日程、地点、笔记、文件或模块…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
@@ -154,7 +181,7 @@ export default function CommandPalette({
       </div>
       <div className="command-results" id="command-results" role="listbox">
         {results.map((r, i) => (
-          <button
+          <PrtsButton
             id={`command-${i}`}
             role="option"
             aria-selected={i === selected}
@@ -168,7 +195,7 @@ export default function CommandPalette({
             <span>{r.title}</span>
             <small>{r.hint}</small>
             <CornerDownLeft size={13} />
-          </button>
+          </PrtsButton>
         ))}
         {!results.length && (
           <div className="empty-state">

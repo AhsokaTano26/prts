@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsInput } from './PrtsFormControls'
 import { useCallback, useEffect, useRef, useState, type DragEvent, type MouseEvent } from 'react'
 import {
   AlertCircle,
@@ -314,17 +315,17 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
           <h1 id="files-heading">文件资料库</h1>
           <p className="muted">将重要资料归档，随时调用你的知识储备。</p>
         </div>
-        <button
+        <PrtsButton
           className="button button-primary"
           disabled={busy || loading || !loaded}
           onClick={openPicker}
         >
           <Upload size={17} aria-hidden="true" />
           {busy ? '处理中…' : '上传文件'}
-        </button>
+        </PrtsButton>
       </div>
 
-      <input
+      <PrtsInput
         ref={inputRef}
         className="workspace-sr-only"
         type="file"
@@ -348,7 +349,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
         }}
         onDrop={handleDrop}
       >
-        <button
+        <PrtsButton
           className="files-dropzone"
           disabled={busy || loading || !loaded}
           onClick={openPicker}
@@ -373,7 +374,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
           <span className="files-upload-label mono">
             LOCAL STORAGE <span>↗</span>
           </span>
-        </button>
+        </PrtsButton>
       </div>
 
       {error ? (
@@ -381,17 +382,21 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
           <AlertCircle size={18} aria-hidden="true" />
           <span>{error}</span>
           {!loaded ? (
-            <button
+            <PrtsButton
               className="button button-ghost"
               disabled={loading}
               onClick={() => void reload()}
             >
               重新加载
-            </button>
+            </PrtsButton>
           ) : (
-            <button className="icon-button" aria-label="关闭错误提示" onClick={() => setError('')}>
+            <PrtsButton
+              className="icon-button"
+              aria-label="关闭错误提示"
+              onClick={() => setError('')}
+            >
               <X size={16} />
-            </button>
+            </PrtsButton>
           )}
         </div>
       ) : null}
@@ -400,7 +405,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
         <div className="files-library-toolbar">
           <div className="files-filter-group" role="group" aria-label="按文件类型筛选">
             {FILTERS.map((item) => (
-              <button
+              <PrtsButton
                 key={item.value}
                 className={`files-filter${filter === item.value ? ' is-active' : ''}`}
                 aria-pressed={filter === item.value}
@@ -408,13 +413,13 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
               >
                 {item.label}
                 {item.value === 'all' ? <span>{files.length}</span> : null}
-              </button>
+              </PrtsButton>
             ))}
           </div>
           <label className="workspace-search files-search">
             <Search size={16} aria-hidden="true" />
             <span className="workspace-sr-only">搜索文件</span>
-            <input
+            <PrtsInput
               type="search"
               value={query}
               onChange={(event) => {
@@ -435,9 +440,9 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
             <AlertCircle size={30} aria-hidden="true" />
             <h2>暂时无法打开资料库</h2>
             <p>本地存储连接失败，请重新加载。</p>
-            <button className="button button-ghost" onClick={() => void reload()}>
+            <PrtsButton className="button button-ghost" onClick={() => void reload()}>
               重试
-            </button>
+            </PrtsButton>
           </div>
         ) : !visibleFiles.length ? (
           <div className="files-empty empty-state">
@@ -458,7 +463,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
                 : '上传文档、图片与项目资料，让它们井然有序。'}
             </p>
             {query || filter !== 'all' ? (
-              <button
+              <PrtsButton
                 className="button button-ghost"
                 onClick={() => {
                   setQuery('')
@@ -466,12 +471,12 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
                 }}
               >
                 清除筛选
-              </button>
+              </PrtsButton>
             ) : (
-              <button className="button button-ghost" onClick={openPicker} disabled={busy}>
+              <PrtsButton className="button button-ghost" onClick={openPicker} disabled={busy}>
                 <PlusUpload />
                 上传第一个文件
-              </button>
+              </PrtsButton>
             )}
           </div>
         ) : (
@@ -504,7 +509,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
                     className={`${enteringIds.includes(file.id) ? 'files-row-entering' : ''}${removingId === file.id ? ' files-row-leaving' : ''}`}
                   >
                     <td>
-                      <button
+                      <PrtsButton
                         className="files-name-button"
                         onClick={(event) => openFile(file, event.detail > 0)}
                         disabled={removingId === file.id}
@@ -523,7 +528,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
                             {formatBytes(file.size)} · {relativeTime(file.createdAt)}
                           </span>
                         </span>
-                      </button>
+                      </PrtsButton>
                     </td>
                     <td className="files-type-column">
                       <span className="files-extension mono">
@@ -539,7 +544,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
                     <td className="files-actions-column">
                       {confirmDelete === file.id ? (
                         <div className="files-row-actions files-confirm-actions">
-                          <button
+                          <PrtsButton
                             className="files-confirm-delete"
                             aria-label={`确认删除 ${file.name}`}
                             title="确认删除，此操作无法撤销"
@@ -548,27 +553,27 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
                           >
                             <Check size={13} aria-hidden="true" />
                             <span>删除</span>
-                          </button>
-                          <button
+                          </PrtsButton>
+                          <PrtsButton
                             className="icon-button"
                             aria-label={`取消删除 ${file.name}`}
                             onClick={() => setConfirmDelete(null)}
                             disabled={busy}
                           >
                             <X size={15} />
-                          </button>
+                          </PrtsButton>
                         </div>
                       ) : (
                         <div className="files-row-actions">
-                          <button
+                          <PrtsButton
                             className="icon-button"
                             aria-label={`下载 ${file.name}`}
                             title="下载文件"
                             onClick={() => downloadFile(file)}
                           >
                             <Download size={16} />
-                          </button>
-                          <button
+                          </PrtsButton>
+                          <PrtsButton
                             className="icon-button"
                             aria-label={`删除 ${file.name}`}
                             title="删除文件"
@@ -576,7 +581,7 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
                             onClick={() => setConfirmDelete(file.id)}
                           >
                             <Trash2 size={16} />
-                          </button>
+                          </PrtsButton>
                         </div>
                       )}
                     </td>
@@ -625,24 +630,24 @@ export default function FilesView({ onNotify, onActivity, onCountChange }: Files
         >
           <div className="files-preview-header">
             <h2 id="file-preview-title">{preview.file.name}</h2>
-            <button
+            <PrtsButton
               className="icon-button"
               aria-label="关闭图片预览"
               onClick={(event) => void closePreview(event.detail > 0)}
               autoFocus
             >
               <X size={20} />
-            </button>
+            </PrtsButton>
           </div>
           <div className="files-preview-image">
             <img src={preview.url} alt={preview.file.name} />
           </div>
           <div className="files-preview-footer">
             <span className="mono">{formatBytes(preview.file.size)}</span>
-            <button className="button button-ghost" onClick={() => downloadFile(preview.file)}>
+            <PrtsButton className="button button-ghost" onClick={() => downloadFile(preview.file)}>
               <Download size={16} aria-hidden="true" />
               下载原图
-            </button>
+            </PrtsButton>
           </div>
         </dialog>
       ) : null}

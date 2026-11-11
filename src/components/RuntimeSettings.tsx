@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsForm, PrtsInput } from './PrtsFormControls'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { LockKeyhole, RefreshCw, Save, ShieldCheck } from 'lucide-react'
 import { apiFetch, SESSION_EXPIRED_EVENT } from '../lib/api'
@@ -147,7 +148,7 @@ export function AIConnectionSettings({
           <strong>{configured ? 'AI 服务已配置' : '等待配置 AI 服务'}</strong>
           <p>{configured ? health.model : '本地指令模式随时可用'}</p>
         </div>
-        <button
+        <PrtsButton
           type="button"
           className="icon-button"
           disabled={loading || saving}
@@ -157,14 +158,14 @@ export function AIConnectionSettings({
           }}
         >
           <RefreshCw size={16} />
-        </button>
+        </PrtsButton>
       </div>
-      <form onSubmit={submit} aria-busy={loading || saving}>
+      <PrtsForm onSubmit={submit} aria-busy={loading || saving}>
         <fieldset disabled={loading || saving || !saved}>
           <label className="form-label" htmlFor="ai-base-url">
             AI 服务地址
           </label>
-          <input
+          <PrtsInput
             id="ai-base-url"
             className="field"
             type="url"
@@ -180,7 +181,7 @@ export function AIConnectionSettings({
           <label className="form-label" htmlFor="ai-model">
             AI 模型
           </label>
-          <input
+          <PrtsInput
             id="ai-model"
             className="field"
             value={model}
@@ -193,7 +194,7 @@ export function AIConnectionSettings({
           <label className="form-label" htmlFor="ai-api-key">
             API 密钥
           </label>
-          <input
+          <PrtsInput
             id="ai-api-key"
             className="field"
             type="password"
@@ -211,7 +212,7 @@ export function AIConnectionSettings({
           </p>
           {saved?.hasApiKey && (
             <label className="runtime-clear-key">
-              <input
+              <PrtsInput
                 type="checkbox"
                 checked={clearApiKey}
                 onChange={(event) => {
@@ -247,7 +248,7 @@ export function AIConnectionSettings({
         )}
         <div className="runtime-actions">
           {(conflict || (!saved && !loading)) && (
-            <button
+            <PrtsButton
               type="button"
               className="button button-ghost"
               onClick={() => void reload()}
@@ -255,18 +256,18 @@ export function AIConnectionSettings({
             >
               <RefreshCw size={15} />
               重新加载 AI 配置
-            </button>
+            </PrtsButton>
           )}
-          <button
+          <PrtsButton
             type="submit"
             className="button button-primary"
             disabled={loading || saving || !saved || conflict}
           >
             <Save size={15} />
             {saving ? '正在保存…' : '保存 AI 配置'}
-          </button>
+          </PrtsButton>
         </div>
-      </form>
+      </PrtsForm>
     </section>
   )
 }
@@ -324,12 +325,12 @@ export function PasswordSettings() {
       <p className="settings-copy runtime-intro">
         修改密码后，所有设备的登录会话都会退出。请使用新密码重新登录。
       </p>
-      <form onSubmit={submit} aria-busy={saving}>
+      <PrtsForm onSubmit={submit} aria-busy={saving}>
         <fieldset disabled={saving}>
           <label className="form-label" htmlFor="current-password">
             当前密码
           </label>
-          <input
+          <PrtsInput
             id="current-password"
             className="field"
             type="password"
@@ -344,7 +345,7 @@ export function PasswordSettings() {
               <label className="form-label" htmlFor="new-password">
                 新密码
               </label>
-              <input
+              <PrtsInput
                 id="new-password"
                 className="field"
                 type="password"
@@ -359,7 +360,7 @@ export function PasswordSettings() {
               <label className="form-label" htmlFor="confirm-password">
                 确认新密码
               </label>
-              <input
+              <PrtsInput
                 id="confirm-password"
                 className="field"
                 type="password"
@@ -379,12 +380,12 @@ export function PasswordSettings() {
           </p>
         )}
         <div className="runtime-actions">
-          <button type="submit" className="button button-primary" disabled={saving}>
+          <PrtsButton type="submit" className="button button-primary" disabled={saving}>
             <LockKeyhole size={15} />
             {saving ? '正在修改…' : '修改密码并重新登录'}
-          </button>
+          </PrtsButton>
         </div>
-      </form>
+      </PrtsForm>
     </section>
   )
 }

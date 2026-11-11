@@ -15,7 +15,7 @@ test('settings show one category at a time and preserve unsaved preference and c
 }) => {
   await page.goto('/#settings')
   const nav = page.getByRole('navigation', { name: '设置分类', exact: true })
-  await expect(nav.getByRole('link')).toHaveCount(7)
+  await expect(nav.getByRole('link')).toHaveCount(8)
   await expect(nav.getByRole('link', { name: '常规偏好', exact: true })).toHaveAttribute(
     'aria-current',
     'page',

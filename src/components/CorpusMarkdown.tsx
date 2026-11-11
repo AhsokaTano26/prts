@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import { useState } from 'react'
 import { ExternalLink, ImageOff } from 'lucide-react'
 import ReactMarkdown, { type Components } from 'react-markdown'
@@ -85,14 +86,14 @@ function LocalCorpusImage({ image }: { image: CorpusAsset }) {
         <span className="corpus-image-variants" role="group" aria-label={`${image.alt}图片版本`}>
           <span>图片版本</span>
           {variants.map((variant, index) => (
-            <button
+            <PrtsButton
               type="button"
               key={variant.src}
               aria-pressed={current.src === variant.src}
               onClick={() => setSelectedIndex(index)}
             >
               {variant.label}
-            </button>
+            </PrtsButton>
           ))}
         </span>
       )}

@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsDisclosure, PrtsForm, PrtsInput } from './PrtsFormControls'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { BookOpen, Download, ExternalLink, Search } from 'lucide-react'
 import { apiFetch } from '../lib/api'
@@ -45,11 +46,11 @@ export function KnowledgeSources({
           </div>
           <CorpusMarkdown>{source.excerpt}</CorpusMarkdown>
           {compact && source.sourceRef && (
-            <details className="reference-provenance">
+            <PrtsDisclosure className="reference-provenance">
               <summary>原文定位与版本</summary>
               <code>{source.sourceRef}</code>
               {source.releaseId && <code>{source.releaseId}</code>}
-            </details>
+            </PrtsDisclosure>
           )}
         </li>
       ))}
@@ -163,7 +164,7 @@ export default function KnowledgePanel() {
           本地语料尚未就绪。可先通过上方入口下载原包。
         </p>
       )}
-      <form
+      <PrtsForm
         className="knowledge-search"
         onSubmit={(event: FormEvent) => {
           event.preventDefault()
@@ -175,7 +176,7 @@ export default function KnowledgePanel() {
         </label>
         <div className="knowledge-query">
           <Search size={17} />
-          <input
+          <PrtsInput
             id="knowledge-query"
             type="search"
             value={query}
@@ -203,17 +204,17 @@ export default function KnowledgePanel() {
             { value: 'endfield', label: '终末地' },
           ]}
         />
-        <button className="button button-primary" disabled={!query.trim() || busy}>
+        <PrtsButton className="button button-primary" disabled={!query.trim() || busy}>
           {busy ? '检索中…' : '检索'}
-        </button>
-      </form>
+        </PrtsButton>
+      </PrtsForm>
       {!submitted && !busy && !error && (
         <div className="knowledge-suggestions">
           <span>试试检索</span>
           {['阿米娅', '罗德岛', '管理员', '塔卫二'].map((text) => (
-            <button key={text} onClick={() => void search(text)}>
+            <PrtsButton key={text} onClick={() => void search(text)}>
               {text}
-            </button>
+            </PrtsButton>
           ))}
         </div>
       )}

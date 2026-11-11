@@ -143,6 +143,15 @@ p {
   position: relative;
   z-index: 30;
 }
+.sidebar > nav {
+  min-height: 0;
+  overflow-y: auto;
+}
+.sidebar > .brand,
+.sidebar > .nav-section-label,
+.sidebar-bottom {
+  flex-shrink: 0;
+}
 .brand {
   border: 0;
   background: none;

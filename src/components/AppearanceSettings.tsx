@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsForm, PrtsInput } from './PrtsFormControls'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Check, ImageOff, Save } from 'lucide-react'
 import { type AppearancePreferences, type PortraitId, type ThemeId } from '../lib/appearance'
@@ -80,7 +81,7 @@ export default function AppearanceSettings({ active }: { active: boolean }) {
   return (
     <section className="panel settings-section appearance-settings" aria-label="外观设置">
       <SectionTitle title="终端外观" english="VISUAL IDENTITY" />
-      <form onSubmit={(event) => void save(event)}>
+      <PrtsForm onSubmit={(event) => void save(event)}>
         <fieldset disabled={saving} className="appearance-fieldset">
           <legend>界面主题</legend>
           <p className="field-hint">
@@ -92,7 +93,7 @@ export default function AppearanceSettings({ active }: { active: boolean }) {
                 className={`theme-choice ${draft.theme === theme.id ? 'is-selected' : ''}`}
                 key={theme.id}
               >
-                <input
+                <PrtsInput
                   type="radio"
                   name="appearance-theme"
                   aria-label={theme.name}
@@ -138,7 +139,7 @@ export default function AppearanceSettings({ active }: { active: boolean }) {
                 className={`portrait-choice ${draft.portrait === id ? 'is-selected' : ''}`}
                 key={id}
               >
-                <input
+                <PrtsInput
                   type="radio"
                   name="appearance-portrait"
                   aria-label={portraits[id].name}
@@ -165,17 +166,17 @@ export default function AppearanceSettings({ active }: { active: boolean }) {
         </fieldset>
         <div className="appearance-save-row">
           <span>{dirty ? '有尚未保存的外观选择' : '外观设置保存在此工作台'}</span>
-          <button className="button button-primary" type="submit" disabled={saving}>
+          <PrtsButton className="button button-primary" type="submit" disabled={saving}>
             <Save size={16} />
             {saving ? '正在保存…' : '保存外观'}
-          </button>
+          </PrtsButton>
         </div>
         {notice && (
           <p className="appearance-save-notice" role="status">
             {notice}
           </p>
         )}
-      </form>
+      </PrtsForm>
     </section>
   )
 }

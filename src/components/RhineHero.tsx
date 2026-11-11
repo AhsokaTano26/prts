@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import { ArrowUpRight, ScanLine } from 'lucide-react'
 import type { PortraitId } from '../lib/appearance'
 import CharacterPortrait from './CharacterPortrait'
@@ -34,9 +35,9 @@ export default function RhineHero({
           <span>探索不止，思考不息。</span>
           <p>从一个想法开始，抵达新的可能。</p>
         </div>
-        <button className="rhine-hero-customize" onClick={onAppearance}>
+        <PrtsButton className="rhine-hero-customize" onClick={onAppearance}>
           自定义工作台 <ArrowUpRight size={15} />
-        </button>
+        </PrtsButton>
       </div>
       <div className="rhine-hero-science" aria-hidden="true">
         <div className="rhine-hero-orbit" />

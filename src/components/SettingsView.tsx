@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsForm, PrtsInput } from './PrtsFormControls'
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import {
   Save,
@@ -13,6 +14,7 @@ import {
   Database,
   ChevronRight,
   Palette,
+  MapPinned,
 } from 'lucide-react'
 import type { Workspace, Settings } from '../lib/workspace'
 import { validateWorkspace } from '../lib/workspace'
@@ -25,6 +27,7 @@ import MobileAppSettings from './MobileAppSettings'
 import NotificationSettings from './NotificationSettings'
 import PasskeySettings from './PasskeySettings'
 import AppearanceSettings from './AppearanceSettings'
+import MapSettings from './MapSettings'
 import { transitionView } from '../lib/motion'
 import '../styles/settings-navigation.css'
 
@@ -60,6 +63,14 @@ const categories = [
     detail: '提醒、Webhook 与邮件',
     description: '设置提醒时间，以及网页、Webhook 和邮件通知。',
     icon: Bell,
+  },
+  {
+    id: 'maps',
+    label: '地图服务',
+    english: 'MAP SERVICE',
+    detail: '天地图连接与默认视野',
+    description: '配置想去的地点总览、地图搜索与选点。',
+    icon: MapPinned,
   },
   {
     id: 'resources',
@@ -118,6 +129,7 @@ export default function SettingsView({
     [sound, setSound] = useState(workspace.settings.sound),
     [pendingImport, setPendingImport] = useState<Workspace | null>(null)
   const fileInput = useRef<HTMLInputElement>(null)
+  const [importLacksPlaces, setImportLacksPlaces] = useState(false)
   const [category, setCategory] = useState(readCategory)
   const [visited, setVisited] = useState<Set<Category>>(() => new Set([readCategory()]))
   const activeCategory = useRef(category)
@@ -191,6 +203,7 @@ export default function SettingsView({
       if (file.size > 10 * 1024 * 1024) throw new Error('备份文件不能超过 10 MB。')
       const data = JSON.parse(await file.text())
       if (version !== importVersion.current || activeCategory.current !== 'data') return
+      setImportLacksPlaces(!Object.hasOwn(data?.workspace || data, 'places'))
       setPendingImport(validateWorkspace(data?.workspace || data))
     } catch (e) {
       if (version === importVersion.current && activeCategory.current === 'data')
@@ -264,11 +277,11 @@ export default function SettingsView({
               <>
                 <section className="panel settings-section">
                   <SectionTitle title="个人偏好" english="PREFERENCES" />
-                  <form onSubmit={submit}>
+                  <PrtsForm onSubmit={submit}>
                     <label className="form-label" htmlFor="profile-name">
                       博士代号
                     </label>
-                    <input
+                    <PrtsInput
                       id="profile-name"
                       className="field"
                       value={name}
@@ -281,7 +294,7 @@ export default function SettingsView({
                       单轮专注时长
                     </label>
                     <div className="minutes-input">
-                      <input
+                      <PrtsInput
                         id="focus-minutes"
                         className="field"
                         type="number"
@@ -299,7 +312,7 @@ export default function SettingsView({
                         <strong>专注结束提示音</strong>
                         <span>完成一轮专注时，播放轻柔的提示音</span>
                       </div>
-                      <input
+                      <PrtsInput
                         type="checkbox"
                         checked={sound}
                         onChange={(e) => setSound(e.target.checked)}
@@ -311,11 +324,15 @@ export default function SettingsView({
                         <strong>终端动态效果</strong>
                         <span>启用页面切换、几何核心与状态动画</span>
                       </div>
-                      <input type="checkbox" checked={motionEnabled} onChange={onMotionToggle} />
+                      <PrtsInput
+                        type="checkbox"
+                        checked={motionEnabled}
+                        onChange={onMotionToggle}
+                      />
                       <span className="switch" aria-hidden="true" />
                     </label>
                     <div className="preference-actions">
-                      <button
+                      <PrtsButton
                         type="button"
                         className="button button-ghost"
                         onClick={onReplay}
@@ -323,13 +340,13 @@ export default function SettingsView({
                       >
                         <RefreshCw size={15} />
                         重播启动动画
-                      </button>
-                      <button type="submit" className="button button-primary">
+                      </PrtsButton>
+                      <PrtsButton type="submit" className="button button-primary">
                         <Save size={15} />
                         保存偏好
-                      </button>
+                      </PrtsButton>
                     </div>
-                  </form>
+                  </PrtsForm>
                 </section>
                 <MobileAppSettings />
               </>
@@ -354,6 +371,9 @@ export default function SettingsView({
               </>
             )}
           </div>
+          <div className="settings-category-panel" hidden={category !== 'maps'}>
+            {visited.has('maps') && <MapSettings active={category === 'maps'} />}
+          </div>
           <div className="settings-category-panel" hidden={category !== 'security'}>
             {category === 'security' && (
               <>
@@ -370,27 +390,29 @@ export default function SettingsView({
                   <div>
                     <h3>你的工作，留在你手中。</h3>
                     <p>
-                      任务、分类、日程、笔记和设置保存在服务器
+                      任务、分类、日程、笔记、地点及到访记录保存在服务器
                       SQLite。登录同一终端即可在其他设备访问，也可导出工作台 JSON 备份。
                     </p>
                     <span className="data-count mono">
                       {workspace.tasks.length} TASKS · {workspace.calendarEvents.length} EVENTS ·{' '}
-                      {workspace.notes.length} NOTES · SQLITE
+                      {workspace.notes.length} NOTES · {workspace.places.length} PLACES ·{' '}
+                      {workspace.places.reduce((total, place) => total + place.visits.length, 0)}{' '}
+                      VISITS · SQLITE
                     </span>
                   </div>
                   <div className="backup-actions">
-                    <button className="button button-ghost" onClick={backup}>
+                    <PrtsButton className="button button-ghost" onClick={backup}>
                       <Download size={16} />
                       导出备份
-                    </button>
-                    <button
+                    </PrtsButton>
+                    <PrtsButton
                       className="button button-ghost"
                       onClick={() => fileInput.current?.click()}
                     >
                       <Upload size={16} />
                       导入备份
-                    </button>
-                    <input
+                    </PrtsButton>
+                    <PrtsInput
                       ref={fileInput}
                       type="file"
                       accept=".json,application/json"
@@ -402,7 +424,7 @@ export default function SettingsView({
                 </div>
                 <p className="backup-note">
                   <Check size={13} />此 JSON
-                  包含任务、分类、日程、笔记、工作台设置与活动记录，不含文件、聊天和助手偏好。完整数据库由服务器备份。
+                  包含任务、分类、日程、笔记、地点、到访记录、工作台设置与活动记录，不含文件、聊天、地图配置和助手偏好。地图配置及完整数据库由服务器备份。
                 </p>
               </section>
             )}
@@ -418,15 +440,23 @@ export default function SettingsView({
         <Modal title="确认导入工作台备份" onClose={() => setPendingImport(null)}>
           <p className="modal-copy">
             备份包含 {pendingImport.tasks.length} 项任务、{pendingImport.notes.length} 篇笔记、
-            {pendingImport.calendarEvents.length}{' '}
-            项日程。导入后将替换当前工作台数据。建议先导出当前备份。
+            {pendingImport.calendarEvents.length} 项日程、{pendingImport.places.length} 个地点及{' '}
+            {pendingImport.places.reduce((total, place) => total + place.visits.length, 0)}{' '}
+            条到访记录。导入后将替换当前工作台数据。建议先导出当前备份。
           </p>
-          <p className="field-hint">文件库和数据库中的对话记录不受影响。</p>
+          {importLacksPlaces && workspace.places.length > 0 && (
+            <p className="modal-copy" role="alert">
+              此备份没有地点记录，恢复后当前 {workspace.places.length} 个地点及{' '}
+              {workspace.places.reduce((total, place) => total + place.visits.length, 0)}{' '}
+              条到访记录将被清空。
+            </p>
+          )}
+          <p className="field-hint">文件库、对话记录和地图配置不受影响。</p>
           <div className="modal-actions">
-            <button className="button button-ghost" onClick={() => setPendingImport(null)}>
+            <PrtsButton className="button button-ghost" onClick={() => setPendingImport(null)}>
               取消
-            </button>
-            <button
+            </PrtsButton>
+            <PrtsButton
               className="button button-primary"
               onClick={() => {
                 onImport(pendingImport)
@@ -437,7 +467,7 @@ export default function SettingsView({
               }}
             >
               确认替换并导入
-            </button>
+            </PrtsButton>
           </div>
         </Modal>
       )}

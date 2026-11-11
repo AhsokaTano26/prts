@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsForm, PrtsInput, PrtsTextarea } from './PrtsFormControls'
 import { useCallback, useRef, useState, type FormEvent } from 'react'
 import {
   Plus,
@@ -42,7 +43,7 @@ export function TaskRow({
     (task.dueAt ? Date.parse(task.dueAt) < Date.now() : Boolean(dueDate && dueDate < localToday))
   return (
     <div className={`task-row ${task.done ? 'is-done' : ''} ${compact ? 'compact' : ''}`}>
-      <button
+      <PrtsButton
         className="task-check"
         role="checkbox"
         aria-checked={task.done}
@@ -50,10 +51,10 @@ export function TaskRow({
         onClick={() => onToggle(task.id)}
       >
         {task.done && <Check size={13} strokeWidth={2.5} />}
-      </button>
-      <button className="task-title" onClick={() => onEdit(task)}>
+      </PrtsButton>
+      <PrtsButton className="task-title" onClick={() => onEdit(task)}>
         {task.title}
-      </button>
+      </PrtsButton>
       <span className={`priority ${task.priority}`}>
         <i />
         {priorityNames[task.priority]}
@@ -65,13 +66,13 @@ export function TaskRow({
           {task.dueAt ? ` ${taskLocalTime(task)}` : ''}
         </span>
       </span>
-      <button
+      <PrtsButton
         className="icon-button task-edit"
         aria-label={`编辑任务：${task.title}`}
         onClick={() => onEdit(task)}
       >
         <Pencil size={14} />
-      </button>
+      </PrtsButton>
     </div>
   )
 }
@@ -126,12 +127,12 @@ export function TaskDialog({
   }
   return (
     <Modal title={task ? '编辑任务' : '新建任务'} onClose={onClose} className="task-editor-dialog">
-      <form onSubmit={submit}>
+      <PrtsForm onSubmit={submit}>
         <p className="form-intro mono">MISSION {task ? 'UPDATE' : 'REGISTRATION'} // TASK CENTER</p>
         <label className="form-label" htmlFor="task-title">
           任务内容
         </label>
-        <input
+        <PrtsInput
           autoFocus
           id="task-title"
           className="field"
@@ -144,7 +145,7 @@ export function TaskDialog({
         <label className="form-label" htmlFor="task-description">
           任务备注（可选）
         </label>
-        <textarea
+        <PrtsTextarea
           id="task-description"
           className="field task-description-input"
           rows={3}
@@ -224,24 +225,24 @@ export function TaskDialog({
         )}
         <div className="modal-actions">
           {task && onDelete && (
-            <button
+            <PrtsButton
               type="button"
               className={`button button-ghost danger ${confirmDelete ? 'confirming' : ''}`}
               onClick={() => (confirmDelete ? onDelete() : setConfirmDelete(true))}
             >
               <Trash2 size={15} />
               {confirmDelete ? '确认删除' : '删除任务'}
-            </button>
+            </PrtsButton>
           )}
           <div className="action-spacer" />
-          <button type="button" className="button button-ghost" onClick={onClose}>
+          <PrtsButton type="button" className="button button-ghost" onClick={onClose}>
             取消
-          </button>
-          <button className="button button-primary" disabled={!title.trim()} type="submit">
+          </PrtsButton>
+          <PrtsButton className="button button-primary" disabled={!title.trim()} type="submit">
             {task ? '保存修改' : '创建任务'}
-          </button>
+          </PrtsButton>
         </div>
-      </form>
+      </PrtsForm>
     </Modal>
   )
 }
@@ -273,17 +274,17 @@ function TaskCard({
     >
       <div className="task-card-main">
         <TaskCompletionCheck task={task} completing={completing} onToggle={onToggle} />
-        <button type="button" className="task-card-title" onClick={() => onEdit(task)}>
+        <PrtsButton type="button" className="task-card-title" onClick={() => onEdit(task)}>
           {task.title}
-        </button>
-        <button
+        </PrtsButton>
+        <PrtsButton
           type="button"
           className="icon-button task-card-edit"
           aria-label={`编辑任务：${task.title}`}
           onClick={() => onEdit(task)}
         >
           <Pencil size={14} />
-        </button>
+        </PrtsButton>
       </div>
       {task.description && <p className="task-card-description">{task.description}</p>}
       <div className="task-card-meta">
@@ -424,22 +425,22 @@ export default function TasksView({
           <p>把目标分解，让每一步都有方向。</p>
         </div>
         <div className="task-heading-actions">
-          <button
+          <PrtsButton
             type="button"
             className="button button-ghost"
             onClick={() => setManageCategories(true)}
           >
             <FolderOpen size={16} />
             管理分类
-          </button>
-          <button
+          </PrtsButton>
+          <PrtsButton
             type="button"
             className="button button-primary"
             onClick={() => onNew(currentCategory ?? '')}
           >
             <Plus size={17} />
             新建任务
-          </button>
+          </PrtsButton>
         </div>
       </div>
       <div className="task-summary">
@@ -458,7 +459,7 @@ export default function TasksView({
       </div>
       <nav className="task-category-navigation" aria-label="任务分类视图">
         <div className="task-category-chips" role="group" aria-label="选择任务分类">
-          <button
+          <PrtsButton
             type="button"
             className="task-category-chip"
             aria-pressed={currentCategory === null}
@@ -468,9 +469,9 @@ export default function TasksView({
             <span className="task-category-chip-count mono" aria-hidden="true">
               {tasks.length}
             </span>
-          </button>
+          </PrtsButton>
           {allCategories.map((category) => (
-            <button
+            <PrtsButton
               type="button"
               key={category.id}
               className="task-category-chip"
@@ -481,7 +482,7 @@ export default function TasksView({
               <span className="task-category-chip-count mono" aria-hidden="true">
                 {categoryCounts.get(category.id) || 0}
               </span>
-            </button>
+            </PrtsButton>
           ))}
         </div>
       </nav>
@@ -492,7 +493,7 @@ export default function TasksView({
             ['pending', '进行中'],
             ['done', '已完成'],
           ].map(([id, label]) => (
-            <button
+            <PrtsButton
               key={id}
               ref={id === 'pending' ? pendingFilter : undefined}
               aria-pressed={filter === id}
@@ -506,13 +507,13 @@ export default function TasksView({
                     .length
                 }
               </span>
-            </button>
+            </PrtsButton>
           ))}
         </div>
         <div className="toolbar-controls">
           <label className="search-field">
             <Search size={16} />
-            <input
+            <PrtsInput
               aria-label="搜索任务"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -560,14 +561,14 @@ export default function TasksView({
                   <h2>{category.name}</h2>
                   <span>{columnTasks.length} 项任务</span>
                 </div>
-                <button
+                <PrtsButton
                   type="button"
                   className="icon-button"
                   aria-label={`新建${category.name}任务`}
                   onClick={() => onNew(category.id)}
                 >
                   <Plus size={17} />
-                </button>
+                </PrtsButton>
               </header>
               <div className="task-category-cards">
                 {columnTasks.map((task) => (
@@ -591,7 +592,7 @@ export default function TasksView({
                   </div>
                 )}
               </div>
-              <button
+              <PrtsButton
                 type="button"
                 className="task-category-add"
                 aria-label={`在${category.name}中添加任务`}
@@ -599,7 +600,7 @@ export default function TasksView({
               >
                 <Plus size={15} />
                 添加任务
-              </button>
+              </PrtsButton>
             </section>
           )
         })}

@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import { useState } from 'react'
 import { Smartphone, Download, RefreshCw, Share2 } from 'lucide-react'
 import { usePwa } from '../lib/pwa'
@@ -49,19 +50,19 @@ export default function MobileAppSettings() {
       ) : (
         <div className="pwa-actions">
           {pwa.canInstall && (
-            <button className="button button-primary" onClick={() => void pwa.install()}>
+            <PrtsButton className="button button-primary" onClick={() => void pwa.install()}>
               <Download size={15} />
               安装 PRTS
-            </button>
+            </PrtsButton>
           )}
-          <button
+          <PrtsButton
             className="button button-ghost"
             aria-expanded={showGuide}
             onClick={() => setShowGuide((value) => !value)}
           >
             <Share2 size={15} />
             查看添加方法
-          </button>
+          </PrtsButton>
         </div>
       )}
       {showGuide && (
@@ -94,14 +95,14 @@ export default function MobileAppSettings() {
               : '联网打开时会检查新版本，更新前会提示。'}
           </p>
         </div>
-        <button
+        <PrtsButton
           className="button button-ghost"
           disabled={pwa.checking || !pwa.online}
           onClick={() => (pwa.updateReady ? pwa.applyUpdate() : void pwa.checkUpdate())}
         >
           <RefreshCw size={15} />
           {pwa.updateReady ? '更新应用' : pwa.checking ? '正在检查…' : '检查更新'}
-        </button>
+        </PrtsButton>
       </div>
       {pwa.error && (
         <p role="alert" className="pwa-feedback error">
@@ -133,12 +134,12 @@ export function PwaNotices() {
         <strong>PRTS 有新版本</strong>
         <p>更新将刷新页面，请先确认改动已保存。</p>
       </div>
-      <button className="button button-primary" onClick={pwa.applyUpdate}>
+      <PrtsButton className="button button-primary" onClick={pwa.applyUpdate}>
         更新应用
-      </button>
-      <button className="button button-ghost" onClick={() => setDismissed(true)}>
+      </PrtsButton>
+      <PrtsButton className="button button-ghost" onClick={() => setDismissed(true)}>
         稍后
-      </button>
+      </PrtsButton>
     </div>
   )
 }

@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import { useState } from 'react'
 import { ImageOff } from 'lucide-react'
 import type { PortraitId } from '../lib/appearance'
@@ -27,9 +28,9 @@ function Portrait({ portrait, onResources }: { portrait: PortraitId; onResources
           <ImageOff size={30} aria-hidden="true" />
           <strong>{character.name}立绘尚未就绪</strong>
           <p>可在系统设置下载或更新图片资源。</p>
-          <button className="button button-ghost" onClick={onResources}>
+          <PrtsButton className="button button-ghost" onClick={onResources}>
             前往资源管理
-          </button>
+          </PrtsButton>
         </div>
       ) : (
         <img

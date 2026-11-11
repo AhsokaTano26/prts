@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsForm, PrtsInput } from './PrtsFormControls'
 import { useEffect, useState } from 'react'
 import { Play, Pause, RotateCcw, Square } from 'lucide-react'
 import { SectionTitle } from './UI'
@@ -15,7 +16,7 @@ export default function FocusPanel({ timer }: { timer: FocusTimer }) {
       <SectionTitle title="专注协议" english="FOCUS PROTOCOL" />
       <div className="segmented focus-modes" role="group" aria-label="计时模式">
         {(['countdown', 'countup'] as const).map((mode) => (
-          <button
+          <PrtsButton
             key={mode}
             type="button"
             aria-pressed={timer.mode === mode}
@@ -23,11 +24,11 @@ export default function FocusPanel({ timer }: { timer: FocusTimer }) {
             onClick={() => timer.setMode(mode)}
           >
             {mode === 'countdown' ? '倒计时' : '正计时'}
-          </button>
+          </PrtsButton>
         ))}
       </div>
       {timer.mode === 'countdown' && (
-        <form
+        <PrtsForm
           className="focus-duration"
           onSubmit={(event) => {
             event.preventDefault()
@@ -35,7 +36,7 @@ export default function FocusPanel({ timer }: { timer: FocusTimer }) {
           }}
         >
           <label htmlFor="overview-focus-minutes">本轮时长</label>
-          <input
+          <PrtsInput
             id="overview-focus-minutes"
             type="number"
             min="1"
@@ -47,13 +48,13 @@ export default function FocusPanel({ timer }: { timer: FocusTimer }) {
             onChange={(event) => setMinutes(event.target.value)}
           />
           <span>分钟</span>
-          <button
+          <PrtsButton
             type="submit"
             disabled={timer.running || timer.busy || Number(minutes) === timer.minutes}
           >
             应用
-          </button>
-        </form>
+          </PrtsButton>
+        </PrtsForm>
       )}
       <p className="focus-mode-help">
         {timer.running
@@ -92,7 +93,7 @@ export default function FocusPanel({ timer }: { timer: FocusTimer }) {
         </p>
       </div>
       <div className="focus-actions">
-        <button className="button focus-start" disabled={timer.busy} onClick={timer.toggle}>
+        <PrtsButton className="button focus-start" disabled={timer.busy} onClick={timer.toggle}>
           {timer.running ? <Pause size={16} /> : <Play size={16} fill="currentColor" />}
           {timer.running
             ? '暂停专注'
@@ -101,9 +102,9 @@ export default function FocusPanel({ timer }: { timer: FocusTimer }) {
               : timer.hasSession
                 ? '继续专注'
                 : '开始专注'}
-        </button>
+        </PrtsButton>
         {timer.mode === 'countup' && (
-          <button
+          <PrtsButton
             className="icon-button focus-finish"
             disabled={timer.busy || timer.completed || timer.seconds < 1 || !timer.hasSession}
             onClick={() => void timer.finish()}
@@ -111,16 +112,16 @@ export default function FocusPanel({ timer }: { timer: FocusTimer }) {
             title="结束并记录本轮专注"
           >
             <Square size={14} />
-          </button>
+          </PrtsButton>
         )}
-        <button
+        <PrtsButton
           className="icon-button focus-reset"
           disabled={timer.busy}
           onClick={timer.reset}
           aria-label="重置专注计时"
         >
           <RotateCcw size={16} />
-        </button>
+        </PrtsButton>
       </div>
     </section>
   )

@@ -8,6 +8,7 @@ export const ASSISTANT_LIMITS = Object.freeze({
 
 export const ASSISTANT_OPERATIONS = [
   'create_task',
+  'create_place',
   'update_task',
   'delete_task',
   'create_calendar_event',
@@ -30,7 +31,7 @@ export const TOOL_LABELS: Record<string, string> = {
   search_workspace: '检索工作台',
   read_workspace_item: '读取资料',
   propose_workspace_change: '准备工作台操作',
-  propose_workspace_changes: '批量整理任务与日程',
+  propose_workspace_changes: '批量整理任务、日程与地点',
 }
 export type AssistantAction = {
   id: string

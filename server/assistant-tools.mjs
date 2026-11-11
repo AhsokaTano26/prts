@@ -8,7 +8,19 @@ import {
 } from '../src/lib/taskCategories.ts'
 import { ASSISTANT_LIMITS, ASSISTANT_OPERATIONS } from '../src/lib/assistantTools.ts'
 import { changeCalendar, searchCalendar } from './assistant-calendar.mjs'
-import { captureWarnings, sameCapture } from './assistant-capture.mjs'
+import {
+  captureWarnings,
+  sameCapture,
+  captureCollection,
+  captureTitle,
+} from './assistant-capture.mjs'
+import {
+  createAssistantPlace,
+  placeMetadata,
+  searchPlaces,
+  readPlace,
+} from './assistant-places.mjs'
+import { PLACE_TYPES, DESIRES } from '../src/lib/places.ts'
 import { focusRunning, resetFocus, toggleFocus, formatFocusTime } from '../src/lib/focusTimer.ts'
 
 const actionLifetime = 30 * 60_000
@@ -17,7 +29,7 @@ const taskMetadata = ({ description, ...task }) => ({
   ...(description ? { hasDescription: true } : {}),
 })
 const changeFieldsDescription =
-  '创建任务或日程须title；修改/删除须id。日程用create_calendar_event/update_calendar_event/delete_calendar_event；定时须startAt/endAt（带时区），全天须allDay=true及startDate/endDate；切换类型须完整新范围。分类须name；个人思考用简短贴题的title和用户口吻的content，编辑前先读原文；普通设置只支持name/focusMinutes/sound。'
+  '创建任务或日程须title；修改/删除须id。收藏地点用create_place，fields.name必填，其余地点资料可选；未提供的地址或坐标留空，不得编造；不能指定地点ID、时间戳、到访、归档或地图配置。日程用create_calendar_event/update_calendar_event/delete_calendar_event；定时须startAt/endAt（带时区），全天须allDay=true及startDate/endDate；切换类型须完整新范围。分类须name；个人思考用简短贴题的title和用户口吻的content，编辑前先读原文；普通设置只支持name/focusMinutes/sound。'
 const fieldsSchema = {
   type: 'object',
   additionalProperties: false,
@@ -40,6 +52,50 @@ const fieldsSchema = {
     done: { type: 'boolean' },
     pinned: { type: 'boolean' },
     name: { type: 'string' },
+    type: {
+      type: 'string',
+      enum: ['restaurant', 'cafe', 'attraction', 'shop', 'stay', 'other'],
+      description: '地点类型：饭馆、咖啡茶饮、景点、店铺、住宿、其他地点；未知时省略',
+    },
+    desire: {
+      type: 'string',
+      enum: ['high', 'normal', 'low'],
+      description: '地点意愿：必去、感兴趣、有空再去；未知时省略',
+    },
+    country: { type: 'string', maxLength: 80, description: '地点国家或地区，未知时省略' },
+    city: { type: 'string', maxLength: 80 },
+    district: { type: 'string', maxLength: 80 },
+    address: {
+      type: 'string',
+      maxLength: 200,
+      description: '用户或材料明确提供的地点地址，不能虚构',
+    },
+    tags: { type: 'array', maxItems: 10, items: { type: 'string', maxLength: 20 } },
+    note: {
+      type: 'string',
+      maxLength: 5000,
+      description: '想去的理由、预约提示或其他地点备注；保留原文不确定性',
+    },
+    budget: {
+      type: 'string',
+      maxLength: 100,
+      description: '预算参考原文，例如人均80元，不查询或猜测实时价格',
+    },
+    openingHours: { type: 'string', maxLength: 300, description: '用户提供的营业时间参考' },
+    phone: { type: 'string', maxLength: 80 },
+    sourceUrl: { type: 'string', maxLength: 2048 },
+    mapUrl: { type: 'string', maxLength: 2048 },
+    coordinates: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        lng: { type: 'number', minimum: -180, maximum: 180 },
+        lat: { type: 'number', minimum: -90, maximum: 90 },
+      },
+      required: ['lng', 'lat'],
+      description:
+        '可选WGS84经纬度，须来自用户明确提供的该坐标体系，不能编造或直接使用高德/百度坐标',
+    },
     focusMinutes: { type: 'integer', minimum: 1, maximum: 180 },
     sound: { type: 'boolean' },
     description: { type: 'string', maxLength: 5000, description: '日程备注' },
@@ -74,21 +130,21 @@ const changeProperties = {
   fields: fieldsSchema,
   allowDuplicate: {
     type: 'boolean',
-    description: '默认false。仅用户明确要求另建完全重复的任务或日程时设为true。',
+    description: '默认false。仅用户明确要求另建完全重复的任务、日程或地点时设为true。',
   },
 }
 export const WORKSPACE_TOOLS = [
   tool(
     'get_workspace',
-    '读取当前任务、日程、分类、笔记目录、文件目录、普通设置、客户端时区及专注状态的有界摘要。详细内容或日期范围通过其他工具读取。',
+    '读取当前任务、日程、地点收藏、分类、笔记目录、文件目录、普通设置、客户端时区及专注状态的有界摘要。地点只返回有界元数据，不包含完整备注和到访历史；详细内容或日期范围通过其他工具读取。',
     {},
   ),
   tool(
     'search_workspace',
-    '检索或分页列出任务、日程、笔记和文件。query为空列出所有；返回ID与摘要。按日期查询日程用kind=events和fromDate/toDate，可指定IANA timeZone，默认使用当前客户端时区；日期范围包含两端。',
+    '检索或分页列出任务、日程、地点、笔记和文件。地点用kind=places，query可匹配名称、城市、地址、标签或备注；query为空列出所有，含归档状态；返回ID与摘要。按日期查询日程用kind=events和fromDate/toDate，可指定IANA timeZone，默认使用当前客户端时区；日期范围包含两端。',
     {
       query: { type: 'string' },
-      kind: { type: 'string', enum: ['all', 'tasks', 'events', 'notes', 'files'] },
+      kind: { type: 'string', enum: ['all', 'tasks', 'events', 'places', 'notes', 'files'] },
       offset: { type: 'integer', minimum: 0 },
       limit: { type: 'integer', minimum: 1, maximum: 20 },
       fromDate: { type: 'string', description: '仅kind=events，查询起始日期 YYYY-MM-DD' },
@@ -102,9 +158,9 @@ export const WORKSPACE_TOOLS = [
   ),
   tool(
     'read_workspace_item',
-    '按已知ID读取任务、完整日程、笔记正文、5 MB以内的UTF-8文本附件或图片。图片支持PNG/JPEG/WebP/GIF，每轮最多4张，原图会作为视觉输入发送给模型；图片不分页。笔记与文本支持offset/limit分页。不能读取服务器路径、密码或密钥；不支持PDF及其他二进制解析。',
+    '按已知ID读取任务、完整日程、地点资料、笔记正文、5 MB以内的UTF-8文本附件或图片。地点用kind=place，备注支持offset/limit分页，最多返回5条到访摘要，不包含地图密钥。图片支持PNG/JPEG/WebP/GIF，每轮最多4张，原图会作为视觉输入发送给模型；图片不分页。笔记与文本支持offset/limit分页。不能读取服务器路径、密码或密钥；不支持PDF及其他二进制解析。',
     {
-      kind: { type: 'string', enum: ['task', 'event', 'note', 'file'] },
+      kind: { type: 'string', enum: ['task', 'event', 'place', 'note', 'file'] },
       id: { type: 'string' },
       offset: { type: 'integer', minimum: 0 },
       limit: { type: 'integer', minimum: 1, maximum: 8000 },
@@ -119,7 +175,7 @@ export const WORKSPACE_TOOLS = [
   ),
   tool(
     'propose_workspace_changes',
-    `用户要求从文字、笔记或图片记录多项安排时，优先一次准备完整批次，最多${ASSISTANT_LIMITS.maxActions}项；可混合任务与日程。任何一项无效时整批不产生操作卡片，按错误序号修正，缺少时间则先询问用户。重复记录会跳过或复用，时间重叠会提示，不能自行猜测日期、时长、地点。${changeFieldsDescription}`,
+    `用户要求从文字、笔记或图片记录多项安排或地点收藏时，优先一次准备完整批次，最多${ASSISTANT_LIMITS.maxActions}项；可混合任务、日程与create_place地点。任何一项无效时整批不产生操作卡片，按错误序号修正，日程缺少时间则先询问用户；地点只须名称。重复记录会跳过或复用，时间重叠会提示，不能自行猜测日期、时长、地点地址或坐标。${changeFieldsDescription}`,
     {
       changes: {
         type: 'array',
@@ -203,6 +259,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
         currentTime: new Date(now()).toISOString(),
         timeZone,
         calendarEvents: [],
+        places: [],
         tasks: [],
         notes: [],
         files: files.slice(0, 10),
@@ -220,6 +277,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
         tasks: value.tasks.length,
         incompleteTasks: value.tasks.filter((task) => !task.done).length,
         calendarEvents: (value.calendarEvents || []).length,
+        places: (value.places || []).length,
         notes: value.notes.length,
         files: files.length,
       },
@@ -228,6 +286,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       calendarEvents: (value.calendarEvents || [])
         .slice(0, 10)
         .map(({ description, ...event }) => event),
+      places: (value.places || []).slice(0, 10).map(placeMetadata),
       notes: value.notes
         .slice(0, 10)
         .map(({ id, title, tag, updatedAt, pinned }) => ({ id, title, tag, updatedAt, pinned })),
@@ -235,6 +294,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       truncated: {
         tasks: value.tasks.length > 20,
         calendarEvents: (value.calendarEvents || []).length > 10,
+        places: (value.places || []).length > 10,
         notes: value.notes.length > 10,
         files: files.length > 10,
       },
@@ -248,7 +308,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
     if (
       typeof query !== 'string' ||
       query.length > 200 ||
-      !['all', 'tasks', 'events', 'notes', 'files'].includes(kind)
+      !['all', 'tasks', 'events', 'places', 'notes', 'files'].includes(kind)
     )
       throw new HttpError(400, '检索条件无效。')
     if (
@@ -271,6 +331,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
         if (!needle || item.title.toLocaleLowerCase().includes(needle))
           items.push({ kind: 'task', ...taskMetadata(item) })
       }
+    if (kind === 'all' || kind === 'places') items.push(...searchPlaces(value.places || [], query))
     if (kind === 'all' || kind === 'notes')
       for (const item of value.notes) {
         const match = `${item.title}\n${item.tag}\n${item.content}`
@@ -309,6 +370,8 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       throw new HttpError(400, '记录ID无效。')
     if (args.kind === 'task') return target(workspace().value.tasks, args.id)
     if (args.kind === 'event') return target(workspace().value.calendarEvents || [], args.id)
+    if (args.kind === 'place')
+      return readPlace(target(workspace().value.places || [], args.id), offset, limit)
     let text, metadata
     if (args.kind === 'note') {
       const note = target(workspace().value.notes, args.id)
@@ -354,7 +417,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       }
       if (text.includes('\0')) throw new HttpError(400, '附件包含二进制内容。')
       metadata = file
-    } else throw new HttpError(400, '只支持读取任务、日程、笔记、文本附件和图片。')
+    } else throw new HttpError(400, '只支持读取任务、日程、地点、笔记、文本附件和图片。')
     return {
       ...metadata,
       content: text.slice(offset, offset + limit),
@@ -404,6 +467,10 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       }
       before = document?.value
       after = value
+    } else if (operation === 'create_place') {
+      after = createAssistantPlace(change, now())
+      value.places = [after, ...(value.places || [])]
+      summary = `收藏地点：${after.name}`
     } else if (operation.endsWith('_calendar_event')) {
       const result = changeCalendar(value.calendarEvents || [], change, now())
       value.calendarEvents = result.events
@@ -527,6 +594,20 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
         done: '已完成',
         pinned: '置顶',
         name: '名称',
+        type: '地点类型',
+        desire: '想去意愿',
+        country: '国家或地区',
+        city: '城市',
+        district: '区县',
+        address: '地址',
+        tags: '地点标签',
+        note: '收藏备注',
+        budget: '预算参考',
+        openingHours: '营业时间参考',
+        phone: '电话',
+        sourceUrl: '推荐来源',
+        mapUrl: '地图链接',
+        coordinates: '地图坐标',
         focusMinutes: '专注时长（分钟）',
         sound: '完成提示音',
         remaining: '剩余时间',
@@ -549,6 +630,16 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
           if (key === 'categoryId')
             val = current.taskCategories.find((category) => category.id === val)?.name || '未分类'
           if (key === 'priority') val = { high: '高', medium: '中', low: '低' }[val]
+          if (key === 'type') val = PLACE_TYPES[val] ?? val
+          if (key === 'desire') val = DESIRES[val] ?? val
+          if (key === 'tags') val = val.join('、')
+          if (key === 'coordinates') val = `经度 ${val.lng}，纬度 ${val.lat}（WGS84）`
+          if (operation === 'create_place' && typeof val === 'string') {
+            const maximum =
+              key === 'note' ? 2500 : ['sourceUrl', 'mapUrl'].includes(key) ? 1500 : 6000
+            if (val.length > maximum)
+              val = `${val.slice(0, maximum)}…（共 ${val.length} 字符，完整内容将保存）`
+          }
           if (key === 'remaining') val = `${Math.floor(val / 60)} 分 ${val % 60} 秒`
           if (key === 'mode') val = val === 'countup' ? '正计时' : '倒计时'
           if (key === 'duration' || key === 'elapsed') val = formatFocusTime(val)
@@ -574,7 +665,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
           .join('\n\n'),
         8000,
       ),
-      record: ['create_task', 'create_calendar_event'].includes(operation) ? after : null,
+      record: captureCollection(operation) ? after : null,
     }
   }
   function publicAction(row) {
@@ -592,7 +683,9 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
   function guard(change) {
     const value = workspace().value
     let relevant
-    if (change.operation.endsWith('_calendar_event'))
+    if (change.operation === 'create_place')
+      relevant = value.places?.find((item) => item.id === change.id) ?? null
+    else if (change.operation.endsWith('_calendar_event'))
       relevant = value.calendarEvents?.find((item) => item.id === change.id) ?? null
     else if (change.operation.endsWith('_task'))
       relevant = value.tasks.find((item) => item.id === change.id) ?? null
@@ -624,6 +717,8 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
     object(args)
     onlyKeys(args, ['operation', 'id', 'fields', 'allowDuplicate'])
     if (!ASSISTANT_OPERATIONS.includes(args.operation)) throw new HttpError(400, '不支持此操作。')
+    if (args.operation === 'create_place' && Object.hasOwn(args, 'id'))
+      throw new HttpError(400, '添加地点不能指定 ID；系统会为地点生成唯一 ID。')
     if (args.allowDuplicate !== undefined && typeof args.allowDuplicate !== 'boolean')
       throw new HttpError(400, '重复创建选项须为布尔值。')
     const change = {
@@ -636,8 +731,7 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
       const preview = mutation(change, plannedWorkspace)
       const planned = plannedWorkspace ?? workspace().value
       if (preview.record && !args.allowDuplicate) {
-        const existing =
-          planned[args.operation === 'create_task' ? 'tasks' : 'calendarEvents'] || []
+        const existing = planned[captureCollection(args.operation)] || []
         const duplicate = existing.find((item) => sameCapture(args.operation, preview.record, item))
         if (duplicate) {
           const pending = records.find(
@@ -650,10 +744,12 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
             duplicateRecord: { operation: args.operation, record: duplicate },
             skipped: {
               reason: pending
-                ? '本轮已准备相同安排，已复用操作卡片。'
-                : '已有相同任务或日程，未重复创建；如需修改请使用对应更新操作。',
+                ? '本轮已准备相同记录，已复用操作卡片。'
+                : args.operation === 'create_place'
+                  ? '已收藏相同地点，未重复创建；归档或再访状态可在想去页面查看。'
+                  : '已有相同任务或日程，未重复创建；如需修改请使用对应更新操作。',
               id: pending?.actionId ?? duplicate.id,
-              title: duplicate.title,
+              title: captureTitle(duplicate),
             },
           }
         }
@@ -729,11 +825,9 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
           const saved = JSON.parse(row.data).change
           const change = mutation(saved)
           if (change.record && !saved.allowDuplicate) {
-            const existing =
-              workspace().value[saved.operation === 'create_task' ? 'tasks' : 'calendarEvents'] ||
-              []
+            const existing = workspace().value[captureCollection(saved.operation)] || []
             if (existing.some((item) => sameCapture(saved.operation, change.record, item)))
-              throw new HttpError(409, '相同任务或日程已存在，本批次未写入，请重新核对。')
+              throw new HttpError(409, '相同任务、日程或地点已存在，本批次未写入，请重新核对。')
           }
           storage.putDocument(change.key, {
             value: change.value,
@@ -814,12 +908,11 @@ export function createWorkspaceTools(database, storage, { now = Date.now } = {})
         // A skipped create is safe only while its material is still represented
         // in the final preview, including changes proposed by later tool calls.
         for (const skipped of nextSkipped) {
-          const items =
-            plannedWorkspace[skipped.operation === 'create_task' ? 'tasks' : 'calendarEvents'] || []
+          const items = plannedWorkspace[captureCollection(skipped.operation)] || []
           if (!items.some((item) => sameCapture(skipped.operation, skipped.record, item)))
             throw new HttpError(
               400,
-              `本批修改会移除先前作为重复项跳过的「${skipped.record.title}」。请按先修改或删除、再新建的顺序重新整批准备，当前批次未产生操作卡片。`,
+              `本批修改会移除先前作为重复项跳过的「${captureTitle(skipped.record)}」。请按先修改或删除、再新建的顺序重新整批准备，当前批次未产生操作卡片。`,
             )
         }
       })

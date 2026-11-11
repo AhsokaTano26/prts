@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsInput } from './PrtsFormControls'
 import { useEffect, useId, useRef, useState } from 'react'
 import { Copy, ExternalLink, LoaderCircle, Rss } from 'lucide-react'
 import { apiFetch } from '../lib/api'
@@ -178,21 +179,21 @@ export default function CalendarSubscriptionDialog({ onClose }: { onClose: () =>
           </p>
         )}
         {!loading && !state && (
-          <button className="button button-ghost" onClick={() => void reload()}>
+          <PrtsButton className="button button-ghost" onClick={() => void reload()}>
             重新加载
-          </button>
+          </PrtsButton>
         )}
         {state && !state.enabled && (
           <div className="subscription-empty">
             <strong>订阅尚未启用</strong>
             <p>生成一个专属地址，添加到苹果日历后持续获取更新。</p>
-            <button
+            <PrtsButton
               className="button button-primary"
               disabled={busy}
               onClick={() => void update('enable')}
             >
               {busy ? '正在生成…' : '生成订阅地址'}
-            </button>
+            </PrtsButton>
           </div>
         )}
         {url && (
@@ -200,7 +201,7 @@ export default function CalendarSubscriptionDialog({ onClose }: { onClose: () =>
             <label className="form-label" htmlFor={id}>
               订阅地址
             </label>
-            <input
+            <PrtsInput
               ref={input}
               id={id}
               className="field mono"
@@ -209,14 +210,14 @@ export default function CalendarSubscriptionDialog({ onClose }: { onClose: () =>
               onFocus={(event) => event.currentTarget.select()}
             />
             <div className="subscription-link-actions">
-              <button
+              <PrtsButton
                 className="button button-primary"
                 disabled={busy || loading}
                 onClick={() => void useAddress('copy')}
               >
                 <Copy size={15} />
                 复制地址
-              </button>
+              </PrtsButton>
               {!busy && (
                 <a
                   className="button button-ghost"
@@ -236,20 +237,20 @@ export default function CalendarSubscriptionDialog({ onClose }: { onClose: () =>
               持有此链接的人可以读取订阅内容，请妥善保管。重置地址或停用后，旧订阅将停止更新。
             </p>
             <div className="subscription-manage-actions">
-              <button
+              <PrtsButton
                 className="button button-ghost"
                 disabled={busy}
                 onClick={() => void update('reset')}
               >
                 重置地址
-              </button>
-              <button
+              </PrtsButton>
+              <PrtsButton
                 className="button button-ghost danger"
                 disabled={busy}
                 onClick={() => void update('disable')}
               >
                 停用订阅
-              </button>
+              </PrtsButton>
             </div>
           </div>
         )}
@@ -281,9 +282,9 @@ export default function CalendarSubscriptionDialog({ onClose }: { onClose: () =>
       </div>
       <div className="modal-actions">
         <div className="action-spacer" />
-        <button className="button button-ghost" disabled={busy} onClick={onClose}>
+        <PrtsButton className="button button-ghost" disabled={busy} onClick={onClose}>
           完成
-        </button>
+        </PrtsButton>
       </div>
     </Modal>
   )

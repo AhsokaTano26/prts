@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsDisclosure, PrtsForm, PrtsInput } from './PrtsFormControls'
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Bell } from 'lucide-react'
 import { apiFetch } from '../lib/api'
@@ -163,10 +164,10 @@ export default function NotificationSettings({ active = true }: { active?: boole
       </p>
       {!config && busy && <p role="status">正在读取通知设置…</p>}
       {config && (
-        <form onSubmit={(event) => void save(event)}>
+        <PrtsForm onSubmit={(event) => void save(event)}>
           <fieldset disabled={busy} className="notification-fieldset">
             <label className="notification-toggle">
-              <input
+              <PrtsInput
                 type="checkbox"
                 checked={config.enabled}
                 onChange={(event) => change({ ...config, enabled: event.target.checked })}
@@ -178,7 +179,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
                 <label className="form-label" htmlFor="reminder-days">
                   提前天数
                 </label>
-                <input
+                <PrtsInput
                   id="reminder-days"
                   className="field"
                   value={days}
@@ -195,7 +196,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
                 <label className="form-label" htmlFor="reminder-minutes">
                   临近截止提前分钟
                 </label>
-                <input
+                <PrtsInput
                   id="reminder-minutes"
                   className="field"
                   type="number"
@@ -214,7 +215,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
             <label className="form-label" htmlFor="reminder-timezone">
               提醒时区
             </label>
-            <input
+            <PrtsInput
               id="reminder-timezone"
               className="field"
               value={config.timeZone}
@@ -226,7 +227,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
             </p>
             <div className="notification-channel">
               <label className="notification-toggle">
-                <input
+                <PrtsInput
                   type="checkbox"
                   checked={config.browserEnabled}
                   onChange={(event) => change({ ...config, browserEnabled: event.target.checked })}
@@ -236,7 +237,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
               <p className="field-hint">
                 页面内提醒无需权限。允许系统通知后，浏览器还可显示系统横幅；网页关闭后不再提醒。
               </p>
-              <button
+              <PrtsButton
                 type="button"
                 className="button button-ghost"
                 disabled={
@@ -254,11 +255,11 @@ export default function NotificationSettings({ active = true }: { active?: boole
                     : permission === 'unsupported'
                       ? '当前浏览器不支持系统通知'
                       : '开启此浏览器系统通知'}
-              </button>
+              </PrtsButton>
             </div>
             <div className="notification-channel">
               <label className="notification-toggle">
-                <input
+                <PrtsInput
                   type="checkbox"
                   checked={config.webhook.enabled}
                   onChange={(event) =>
@@ -273,7 +274,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
               <label className="form-label" htmlFor="notification-webhook">
                 Webhook 地址
               </label>
-              <input
+              <PrtsInput
                 id="notification-webhook"
                 className="field"
                 type="url"
@@ -294,7 +295,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
               </p>
               {config.webhook.hasUrl && (
                 <label className="notification-toggle">
-                  <input
+                  <PrtsInput
                     type="checkbox"
                     checked={!!config.webhook.clearUrl}
                     onChange={(event) =>
@@ -311,18 +312,18 @@ export default function NotificationSettings({ active = true }: { active?: boole
                   清除已保存的 Webhook 地址
                 </label>
               )}
-              <button
+              <PrtsButton
                 type="button"
                 className="button button-ghost"
                 disabled={dirty || !config.webhook.enabled || !config.webhook.hasUrl}
                 onClick={() => void test('webhook')}
               >
                 发送 Webhook 测试
-              </button>
+              </PrtsButton>
             </div>
             <div className="notification-channel">
               <label className="notification-toggle">
-                <input
+                <PrtsInput
                   type="checkbox"
                   checked={config.smtp.enabled}
                   onChange={(event) =>
@@ -334,7 +335,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
               <label className="form-label" htmlFor="notification-smtp-host">
                 SMTP 主机
               </label>
-              <input
+              <PrtsInput
                 id="notification-smtp-host"
                 className="field"
                 value={config.smtp.host}
@@ -348,7 +349,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
                   <label className="form-label" htmlFor="notification-smtp-port">
                     SMTP 端口
                   </label>
-                  <input
+                  <PrtsInput
                     id="notification-smtp-port"
                     className="field"
                     type="number"
@@ -387,7 +388,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
               <label className="form-label" htmlFor="notification-smtp-user">
                 SMTP 账号
               </label>
-              <input
+              <PrtsInput
                 id="notification-smtp-user"
                 className="field"
                 value={config.smtp.user}
@@ -399,7 +400,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
               <label className="form-label" htmlFor="notification-smtp-password">
                 SMTP 密码或授权码
               </label>
-              <input
+              <PrtsInput
                 id="notification-smtp-password"
                 className="field"
                 type="password"
@@ -412,7 +413,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
               />
               {config.smtp.hasPassword && (
                 <label className="notification-toggle">
-                  <input
+                  <PrtsInput
                     type="checkbox"
                     checked={!!config.smtp.clearPassword}
                     onChange={(event) =>
@@ -432,7 +433,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
               <label className="form-label" htmlFor="notification-mail-from">
                 发件邮箱
               </label>
-              <input
+              <PrtsInput
                 id="notification-mail-from"
                 className="field"
                 value={config.smtp.from}
@@ -444,7 +445,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
               <label className="form-label" htmlFor="notification-mail-to">
                 收件邮箱
               </label>
-              <input
+              <PrtsInput
                 id="notification-mail-to"
                 className="field"
                 value={config.smtp.to}
@@ -457,34 +458,34 @@ export default function NotificationSettings({ active = true }: { active?: boole
                 最多 10 个收件人，逐人发送；测试仅发送给首位收件人。密码仅保存在服务器
                 SQLite，留空保留；证书验证始终开启。
               </p>
-              <button
+              <PrtsButton
                 type="button"
                 className="button button-ghost"
                 disabled={dirty || !config.smtp.enabled}
                 onClick={() => void test('smtp')}
               >
                 发送邮件测试
-              </button>
+              </PrtsButton>
             </div>
             <div className="notification-actions">
-              <button className="button button-primary" type="submit">
+              <PrtsButton className="button button-primary" type="submit">
                 {busy ? '正在处理…' : '保存通知配置'}
-              </button>
-              <button className="button button-ghost" type="button" onClick={() => void load()}>
+              </PrtsButton>
+              <PrtsButton className="button button-ghost" type="button" onClick={() => void load()}>
                 重新加载通知配置
-              </button>
+              </PrtsButton>
             </div>
             {dirty && <p className="field-hint">有尚未保存的通知配置；保存后才能测试发送。</p>}
           </fieldset>
-        </form>
+        </PrtsForm>
       )}
       {error && (
         <p className="inline-error" role="alert">
           {error}
           {!config && (
-            <button className="button button-ghost" onClick={() => void load()}>
+            <PrtsButton className="button button-ghost" onClick={() => void load()}>
               重试读取通知配置
-            </button>
+            </PrtsButton>
           )}
         </p>
       )}
@@ -494,7 +495,7 @@ export default function NotificationSettings({ active = true }: { active?: boole
         </p>
       )}
       {!!deliveries.length && (
-        <details className="notification-history">
+        <PrtsDisclosure className="notification-history">
           <summary>最近发送记录 · {deliveries.length} 条</summary>
           <ul>
             {deliveries.map((row, index) => (
@@ -513,22 +514,22 @@ export default function NotificationSettings({ active = true }: { active?: boole
                 </span>
                 {row.error && <small>{row.error}</small>}
                 {row.status === 'failed' && (
-                  <button
+                  <PrtsButton
                     type="button"
                     className="button button-ghost"
                     disabled={busy || dirty}
                     onClick={() => void retry(row)}
                   >
                     重试此通知
-                  </button>
+                  </PrtsButton>
                 )}
               </li>
             ))}
           </ul>
-          <button className="button button-ghost" onClick={() => void logs()}>
+          <PrtsButton className="button button-ghost" onClick={() => void logs()}>
             刷新发送记录
-          </button>
-        </details>
+          </PrtsButton>
+        </PrtsDisclosure>
       )}
     </section>
   )

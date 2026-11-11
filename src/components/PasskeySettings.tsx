@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsForm, PrtsInput } from './PrtsFormControls'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Fingerprint, KeyRound, Plus, Trash2, X } from 'lucide-react'
 import { SESSION_EXPIRED_EVENT } from '../lib/api'
@@ -159,7 +160,7 @@ export default function PasskeySettings() {
                       : ''}
                   </small>
                 </div>
-                <button
+                <PrtsButton
                   type="button"
                   className={`icon-button${confirm === key.id ? ' danger' : ''}`}
                   disabled={busy || !password}
@@ -167,19 +168,19 @@ export default function PasskeySettings() {
                   onClick={() => void remove(key.id)}
                 >
                   <Trash2 size={16} />
-                </button>
+                </PrtsButton>
               </li>
             ))}
           </ul>
           {!settings.credentials.length && (
             <p className="passkey-empty">尚未添加 Passkey。添加后可以直接使用设备验证登录。</p>
           )}
-          <form onSubmit={(event) => void add(event)}>
+          <PrtsForm onSubmit={(event) => void add(event)}>
             <fieldset disabled={busy} className="passkey-fields">
               <label className="form-label" htmlFor="passkey-name">
                 Passkey 名称
               </label>
-              <input
+              <PrtsInput
                 id="passkey-name"
                 className="field"
                 maxLength={80}
@@ -190,7 +191,7 @@ export default function PasskeySettings() {
               <label className="form-label" htmlFor="passkey-password">
                 管理 Passkey 的当前密码
               </label>
-              <input
+              <PrtsInput
                 id="passkey-password"
                 className="field"
                 type="password"
@@ -209,7 +210,7 @@ export default function PasskeySettings() {
                   再次点击对应移除按钮确认。当前设备也会退出登录。
                 </p>
               )}
-              <button
+              <PrtsButton
                 className="button button-primary"
                 type="submit"
                 disabled={
@@ -218,18 +219,18 @@ export default function PasskeySettings() {
               >
                 <Plus size={15} />
                 {busy ? (verifying ? '正在保存 Passkey…' : '等待设备创建…') : '添加 Passkey'}
-              </button>
+              </PrtsButton>
             </fieldset>
-          </form>
+          </PrtsForm>
           {busy && !verifying && (
-            <button
+            <PrtsButton
               className="button button-ghost passkey-cancel"
               type="button"
               onClick={() => controller.current?.abort()}
             >
               <X size={14} />
               取消创建
-            </button>
+            </PrtsButton>
           )}
         </>
       )}
@@ -237,9 +238,9 @@ export default function PasskeySettings() {
         <p className="inline-error" role="alert">
           {error}
           {!settings && (
-            <button className="button button-ghost" onClick={() => void load()}>
+            <PrtsButton className="button button-ghost" onClick={() => void load()}>
               重试读取 Passkey
-            </button>
+            </PrtsButton>
           )}
         </p>
       )}

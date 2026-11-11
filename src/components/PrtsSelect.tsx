@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import {
   useCallback,
   useEffect,
@@ -168,7 +169,7 @@ export default function PrtsSelect({
 
   return (
     <span ref={root} className={`prts-select ${className}`.trim()}>
-      <button
+      <PrtsButton
         ref={trigger}
         id={controlId}
         type="button"
@@ -190,7 +191,7 @@ export default function PrtsSelect({
       >
         <span className="prts-select-value">{options[selectedIndex]?.label || '请选择'}</span>
         <ChevronDown className="prts-select-chevron" aria-hidden="true" size={14} />
-      </button>
+      </PrtsButton>
       <div
         ref={popup}
         id={listId}
@@ -211,7 +212,7 @@ export default function PrtsSelect({
         onKeyDown={onKeyDown}
       >
         {options.map((option, index) => (
-          <button
+          <PrtsButton
             id={`${listId}-option-${index}`}
             key={option.value}
             type="button"
@@ -238,7 +239,7 @@ export default function PrtsSelect({
               )}
             </span>
             <Check className="prts-select-check" aria-hidden="true" size={14} />
-          </button>
+          </PrtsButton>
         ))}
       </div>
     </span>

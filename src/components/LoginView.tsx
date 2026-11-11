@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsForm, PrtsInput } from './PrtsFormControls'
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import {
   AlertCircle,
@@ -275,7 +276,7 @@ export default function LoginView({
                   <>
                     {passkeyAvailable && (
                       <div className="auth-passkey">
-                        <button
+                        <PrtsButton
                           className="auth-submit"
                           type="button"
                           disabled={pending}
@@ -283,8 +284,8 @@ export default function LoginView({
                         >
                           <Fingerprint size={20} />
                           {passkeyBusy ? '等待设备认证…' : '使用 Passkey 登录'}
-                        </button>
-                        <button
+                        </PrtsButton>
+                        <PrtsButton
                           className="button button-ghost auth-passkey-cancel"
                           type="button"
                           disabled={busy && !passkeyBusy}
@@ -296,7 +297,7 @@ export default function LoginView({
                           }}
                         >
                           改用密码登录
-                        </button>
+                        </PrtsButton>
                         {passkeyNote && (
                           <p className="auth-passkey-note" role="status">
                             {passkeyNote}
@@ -304,13 +305,13 @@ export default function LoginView({
                         )}
                       </div>
                     )}
-                    <form className="auth-form" onSubmit={submit} aria-busy={pending}>
+                    <PrtsForm className="auth-form" onSubmit={submit} aria-busy={pending}>
                       <label htmlFor={passwordId}>
                         访问密码<span aria-hidden="true">PASSWORD</span>
                       </label>
                       <div className={`auth-password-field${errorMessage ? ' has-error' : ''}`}>
                         <LockKeyhole size={16} aria-hidden="true" />
-                        <input
+                        <PrtsInput
                           ref={passwordInput}
                           id={passwordId}
                           name="password"
@@ -331,7 +332,7 @@ export default function LoginView({
                           aria-invalid={Boolean(errorMessage)}
                           aria-describedby={`${hintId}${errorMessage ? ` ${errorId}` : ''}`}
                         />
-                        <button
+                        <PrtsButton
                           type="button"
                           className="auth-password-toggle"
                           aria-label={revealed ? '隐藏密码' : '显示密码'}
@@ -345,12 +346,12 @@ export default function LoginView({
                           ) : (
                             <Eye size={17} aria-hidden="true" />
                           )}
-                        </button>
+                        </PrtsButton>
                       </div>
                       <p id={hintId} className="auth-field-hint">
                         首次使用随机密码时，请查看服务启动日志。
                       </p>
-                      <button type="submit" className="auth-submit" disabled={pending}>
+                      <PrtsButton type="submit" className="auth-submit" disabled={pending}>
                         {pending ? (
                           <>
                             <LoaderCircle size={16} className="auth-spinner" aria-hidden="true" />
@@ -362,8 +363,8 @@ export default function LoginView({
                             <ArrowRight size={17} aria-hidden="true" />
                           </>
                         )}
-                      </button>
-                    </form>
+                      </PrtsButton>
+                    </PrtsForm>
                   </>
                 ) : status === 'checking' ? (
                   <div className="auth-checking" role="status">
@@ -379,7 +380,7 @@ export default function LoginView({
                         <p>请检查服务器数据库和服务启动日志，恢复后重新检查连接。</p>
                       </div>
                     ) : null}
-                    <button
+                    <PrtsButton
                       type="button"
                       className="auth-submit auth-submit--secondary"
                       disabled={pending}
@@ -391,7 +392,7 @@ export default function LoginView({
                         <RefreshCw size={16} aria-hidden="true" />
                       )}
                       {status === 'unconfigured' ? '重新检查' : '重新连接'}
-                    </button>
+                    </PrtsButton>
                   </div>
                 )}
               </div>

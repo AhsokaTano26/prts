@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import {
   ArrowUpRight,
   Plus,
@@ -96,10 +97,10 @@ export default function Overview({
             </span>
           </p>
         </div>
-        <button className="button button-primary" onClick={onNewTask}>
+        <PrtsButton className="button button-primary" onClick={onNewTask}>
           <Plus size={17} />
           新建任务
-        </button>
+        </PrtsButton>
       </div>
       {endfield ? (
         <EndfieldHero
@@ -152,7 +153,7 @@ export default function Overview({
       )}
       <div className="stat-strip">
         {stats.map((s) => (
-          <button key={s.label} className="stat" onClick={() => onNavigate(s.page)}>
+          <PrtsButton key={s.label} className="stat" onClick={() => onNavigate(s.page)}>
             <s.icon size={25} strokeWidth={1.2} />
             <div>
               <span>{s.label}</span>
@@ -162,7 +163,7 @@ export default function Overview({
             </div>
             <span className="stat-sub mono">{s.sub}</span>
             <ArrowUpRight className="stat-arrow" size={13} />
-          </button>
+          </PrtsButton>
         ))}
       </div>
       <div className="dashboard-grid">
@@ -185,10 +186,10 @@ export default function Overview({
                 </div>
               )}
             </div>
-            <button className="inline-add" onClick={onNewTask}>
+            <PrtsButton className="inline-add" onClick={onNewTask}>
               <Plus size={14} />
               添加一个新目标<span className="mono">NEW OBJECTIVE</span>
-            </button>
+            </PrtsButton>
           </section>
           <section className="panel recent-notes">
             <SectionTitle
@@ -199,7 +200,7 @@ export default function Overview({
             />
             <div className="note-previews">
               {notes.map((n) => (
-                <button key={n.id} className="note-preview" onClick={() => onNote(n.id)}>
+                <PrtsButton key={n.id} className="note-preview" onClick={() => onNote(n.id)}>
                   <div className="note-preview-top">
                     <FileText size={21} strokeWidth={1.3} />
                     <span className="note-tag">{n.tag || '笔记'}</span>
@@ -217,13 +218,13 @@ export default function Overview({
                     <time>{relativeTime(n.updatedAt)}</time>
                     <ArrowUpRight size={16} />
                   </div>
-                </button>
+                </PrtsButton>
               ))}
               {!notes.length && (
-                <button className="empty-note" onClick={() => onNavigate('notes')}>
+                <PrtsButton className="empty-note" onClick={() => onNavigate('notes')}>
                   <Plus size={20} />
                   记录你的第一个想法
-                </button>
+                </PrtsButton>
               )}
             </div>
           </section>

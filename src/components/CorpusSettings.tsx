@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Download, RefreshCw, Check, Database } from 'lucide-react'
 import { apiFetch } from '../lib/api'
@@ -148,22 +149,22 @@ export default function CorpusSettings() {
           )}
         </div>
         <div className="corpus-settings-actions">
-          <button
+          <PrtsButton
             className={`button ${knowledge?.ready ? 'button-ghost' : 'button-primary'}`}
             disabled={running || unavailable || knowledge?.ready}
             onClick={() => void start('install')}
           >
             <Download size={15} />
             首次下载语料
-          </button>
-          <button
+          </PrtsButton>
+          <PrtsButton
             className={`button ${knowledge?.ready ? 'button-primary' : 'button-ghost'}`}
             disabled={running || unavailable || !knowledge?.ready}
             onClick={() => void start('update')}
           >
             <RefreshCw size={15} />
             检查并更新语料
-          </button>
+          </PrtsButton>
         </div>
       </div>
       {knowledge?.release && (
@@ -218,7 +219,7 @@ export default function CorpusSettings() {
       {error && (
         <div className="corpus-settings-error">
           <p role="alert">{error}</p>
-          <button
+          <PrtsButton
             className="text-button"
             disabled={starting || checking}
             onClick={() => {
@@ -228,7 +229,7 @@ export default function CorpusSettings() {
           >
             <RefreshCw size={14} />
             重新连接
-          </button>
+          </PrtsButton>
         </div>
       )}
     </section>

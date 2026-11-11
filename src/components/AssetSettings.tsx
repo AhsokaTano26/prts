@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import { useEffect, useRef, useState } from 'react'
 import { Download, RefreshCw } from 'lucide-react'
 import { apiFetch } from '../lib/api'
@@ -104,14 +105,14 @@ export default function AssetSettings() {
           {error}
         </p>
       )}
-      <button
+      <PrtsButton
         className="button button-ghost"
         disabled={busy || running || !status}
         onClick={() => void start()}
       >
         {ready ? <RefreshCw size={15} /> : <Download size={15} />}
         {running ? '图片下载进行中' : ready ? '检查并更新图片' : '首次下载图片'}
-      </button>
+      </PrtsButton>
     </section>
   )
 }

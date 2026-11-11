@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import {
   useEffect,
   useLayoutEffect,
@@ -183,7 +184,7 @@ export default function CalendarTimeGrid({
       >
         <div className="timeline-corner mono">时间</div>
         {model.map(({ day }) => (
-          <button
+          <PrtsButton
             key={`heading-${day}`}
             className={`timeline-day-heading${day === today ? ' is-today' : ''}${day === selected ? ' is-selected' : ''}`}
             data-day={day}
@@ -199,7 +200,7 @@ export default function CalendarTimeGrid({
               })}
             </span>
             <strong>{Number(day.slice(-2))}</strong>
-          </button>
+          </PrtsButton>
         ))}
         <div className="timeline-all-day-label" style={{ height: floatingHeight }}>
           全天
@@ -212,17 +213,17 @@ export default function CalendarTimeGrid({
             aria-label={`${dateLabel(day)}全天安排`}
           >
             {allDay.map((event) => (
-              <button
+              <PrtsButton
                 key={event.id}
                 aria-label={event.title}
                 title={event.title}
                 onClick={() => onEdit(event)}
               >
                 {event.title}
-              </button>
+              </PrtsButton>
             ))}
             {dateTasks.map((task) => (
-              <button
+              <PrtsButton
                 className={`timeline-floating-task${task.done ? ' is-done' : ''}`}
                 key={`task-${task.id}`}
                 aria-label={task.title}
@@ -230,7 +231,7 @@ export default function CalendarTimeGrid({
                 onClick={() => onEditTask(task)}
               >
                 截止 · {task.title}
-              </button>
+              </PrtsButton>
             ))}
             {!allDay.length && !dateTasks.length && (
               <span className="timeline-floating-empty">—</span>
@@ -257,7 +258,7 @@ export default function CalendarTimeGrid({
             aria-label={`${dateLabel(day)}时间线`}
           >
             {daySlots.map(({ minute, available }) => (
-              <button
+              <PrtsButton
                 key={minute}
                 ref={(button) => {
                   if (button) slots.current.set(`${day}:${minute}`, button)
@@ -290,7 +291,7 @@ export default function CalendarTimeGrid({
                 MIN_BLOCK_HEIGHT,
               )
               return (
-                <button
+                <PrtsButton
                   className={`timeline-block${block.kind === 'task' ? ' timeline-task' : ''}${height < 42 ? ' is-short' : ''}${block.kind === 'task' && block.task.done ? ' is-done' : ''}`}
                   key={block.key}
                   data-event-id={block.kind === 'event' ? block.event.id : undefined}
@@ -316,7 +317,7 @@ export default function CalendarTimeGrid({
                   {block.offsetLabel && (
                     <span className="timeline-block-offset mono">{block.offsetLabel}</span>
                   )}
-                </button>
+                </PrtsButton>
               )
             })}
             {day === today && (

@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsInput, PrtsTextarea } from './PrtsFormControls'
 import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import {
   ArrowLeft,
@@ -155,10 +156,10 @@ export default function NotesView({
           <h1 id="notes-heading">个人思考</h1>
           <p className="muted">收集灵感，让每一个想法都有迹可循。</p>
         </div>
-        <button className="button button-primary" onClick={createNote}>
+        <PrtsButton className="button button-primary" onClick={createNote}>
           <Plus size={17} aria-hidden="true" />
           新建笔记
-        </button>
+        </PrtsButton>
       </div>
 
       <div className={`notes-workspace panel${mobileEditor ? ' notes-workspace--editing' : ''}`}>
@@ -170,7 +171,7 @@ export default function NotesView({
           <label className="workspace-search notes-search">
             <Search size={16} aria-hidden="true" />
             <span className="workspace-sr-only">搜索笔记</span>
-            <input
+            <PrtsInput
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="搜索标题、内容或标签…"
@@ -179,7 +180,7 @@ export default function NotesView({
           </label>
           <div className="notes-list">
             {visibleNotes.map((note) => (
-              <button
+              <PrtsButton
                 key={note.id}
                 className={`notes-list-item${selected?.id === note.id ? ' is-selected' : ''}`}
                 aria-current={selected?.id === note.id ? 'true' : undefined}
@@ -201,21 +202,21 @@ export default function NotesView({
                   <span className="notes-tag">{note.tag.trim() || '未分类'}</span>
                   <time dateTime={note.updatedAt}>{relativeTime(note.updatedAt)}</time>
                 </span>
-              </button>
+              </PrtsButton>
             ))}
             {!visibleNotes.length ? (
               <div className="notes-list-empty">
                 <Search size={24} aria-hidden="true" />
                 <p>{query ? '没有找到相关笔记' : '你的灵感档案从这里开始'}</p>
                 {query ? (
-                  <button className="button button-ghost" onClick={() => setQuery('')}>
+                  <PrtsButton className="button button-ghost" onClick={() => setQuery('')}>
                     清除搜索
-                  </button>
+                  </PrtsButton>
                 ) : (
-                  <button className="button button-ghost" onClick={createNote}>
+                  <PrtsButton className="button button-ghost" onClick={createNote}>
                     创建第一篇笔记
                     <ChevronRight size={14} aria-hidden="true" />
-                  </button>
+                  </PrtsButton>
                 )}
               </div>
             ) : null}
@@ -230,19 +231,19 @@ export default function NotesView({
           {selected ? (
             <>
               <div className="notes-editor-toolbar">
-                <button
+                <PrtsButton
                   className="icon-button notes-back"
                   onClick={() => setMobileEditor(false)}
                   aria-label="返回笔记列表"
                 >
                   <ArrowLeft size={18} />
-                </button>
+                </PrtsButton>
                 <span className="notes-save-status">
                   <Check size={14} aria-hidden="true" />
                   自动保存
                 </span>
                 <div className="notes-editor-actions">
-                  <button
+                  <PrtsButton
                     className={`button button-ghost notes-preview-button${preview ? ' is-active' : ''}`}
                     aria-pressed={preview}
                     aria-controls="note-document"
@@ -257,9 +258,9 @@ export default function NotesView({
                       <Eye size={15} aria-hidden="true" />
                     )}
                     {preview ? '编辑' : '预览'}
-                  </button>
+                  </PrtsButton>
                   <span className="notes-toolbar-divider" />
-                  <button
+                  <PrtsButton
                     className={`icon-button${selected.pinned ? ' notes-is-pinned' : ''}`}
                     aria-label={selected.pinned ? '取消置顶笔记' : '置顶笔记'}
                     title={selected.pinned ? '取消置顶' : '置顶笔记'}
@@ -267,8 +268,8 @@ export default function NotesView({
                     onClick={() => updateNote({ pinned: !selected.pinned })}
                   >
                     <Pin size={16} />
-                  </button>
-                  <button
+                  </PrtsButton>
+                  <PrtsButton
                     className="icon-button"
                     aria-label="删除笔记"
                     title="删除笔记"
@@ -277,23 +278,23 @@ export default function NotesView({
                     onClick={() => setConfirmDelete(!confirmDelete)}
                   >
                     <Trash2 size={16} />
-                  </button>
+                  </PrtsButton>
                 </div>
               </div>
               {confirmDelete ? (
                 <div id="note-delete-confirm" className="workspace-inline-confirm" role="alert">
                   <span>确定删除这篇笔记？此操作无法撤销。</span>
                   <div>
-                    <button className="button workspace-danger-button" onClick={deleteNote}>
+                    <PrtsButton className="button workspace-danger-button" onClick={deleteNote}>
                       确认删除
-                    </button>
-                    <button
+                    </PrtsButton>
+                    <PrtsButton
                       className="icon-button"
                       aria-label="取消删除笔记"
                       onClick={() => setConfirmDelete(false)}
                     >
                       <X size={16} />
-                    </button>
+                    </PrtsButton>
                   </div>
                 </div>
               ) : null}
@@ -305,7 +306,7 @@ export default function NotesView({
                 <label className="workspace-sr-only" htmlFor="note-title">
                   笔记标题
                 </label>
-                <input
+                <PrtsInput
                   ref={titleRef}
                   id="note-title"
                   className="notes-title-input"
@@ -318,7 +319,7 @@ export default function NotesView({
                   <label className="notes-tag-field">
                     <Tag size={13} aria-hidden="true" />
                     <span className="workspace-sr-only">笔记标签</span>
-                    <input
+                    <PrtsInput
                       value={selected.tag}
                       placeholder="添加标签"
                       maxLength={24}
@@ -347,7 +348,7 @@ export default function NotesView({
                     <label className="workspace-sr-only" htmlFor="note-content">
                       笔记正文
                     </label>
-                    <textarea
+                    <PrtsTextarea
                       id="note-content"
                       className="notes-content-input"
                       value={selected.content}
@@ -378,10 +379,10 @@ export default function NotesView({
                 <br />
                 从一篇笔记开始，建立你的个人知识档案。
               </p>
-              <button className="button button-primary" onClick={createNote}>
+              <PrtsButton className="button button-primary" onClick={createNote}>
                 <Plus size={16} aria-hidden="true" />
                 创建第一篇笔记
-              </button>
+              </PrtsButton>
             </div>
           )}
         </div>

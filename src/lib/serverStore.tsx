@@ -1,3 +1,4 @@
+import { PrtsButton } from '../components/PrtsFormControls'
 import {
   createContext,
   useCallback,
@@ -18,6 +19,7 @@ import { parseAssistantPreferences, type AssistantPreferences } from './assistan
 import { listLegacyFiles, type LegacyWorkspaceFile } from './legacyFiles'
 import { storeFileRecords } from './files'
 import { DEFAULT_APPEARANCE, parseAppearance, type AppearancePreferences } from './appearance'
+import { parseMapConfig, type MapConfig } from './placeMaps'
 import { Modal } from '../components/UI'
 import type { FocusState } from './focusTimer'
 export type { FocusState } from './focusTimer'
@@ -30,6 +32,7 @@ export type ServerPreferences = {
   assistantMode: AssistantMode
   assistantAutoConfirm?: boolean
   appearance: AppearancePreferences
+  map?: MapConfig
   migratedBrowserIds?: string[]
 }
 export type Values = { workspace: Workspace; preferences: ServerPreferences; focus: FocusState }
@@ -92,6 +95,7 @@ const defaults = (): ServerPreferences => ({
   assistantMode: 'local',
   assistantAutoConfirm: false,
   appearance: { ...DEFAULT_APPEARANCE },
+  map: parseMapConfig(undefined),
 })
 
 async function request(path: string, init?: RequestInit) {
@@ -266,6 +270,7 @@ export default function ServerStoreProvider({ children }: { children: ReactNode 
         value: {
           ...next.preferences.value,
           appearance: parseAppearance(next.preferences.value.appearance),
+          map: parseMapConfig(next.preferences.value.map),
           assistantAutoConfirm: next.preferences.value.assistantAutoConfirm === true,
         },
       }
@@ -505,6 +510,7 @@ export default function ServerStoreProvider({ children }: { children: ReactNode 
               ...previous.preferences,
               // Themes and portraits never existed in browser storage. Keep the server choice.
               appearance: current.preferences?.value.appearance || previous.preferences.appearance,
+              map: parseMapConfig(current.preferences?.value.map),
               assistantAutoConfirm: current.preferences?.value.assistantAutoConfirm === true,
               migratedBrowserIds,
             },
@@ -719,9 +725,9 @@ export default function ServerStoreProvider({ children }: { children: ReactNode 
           {!documents ? (
             <>
               <p>确认数据已载入后即可进入终端。</p>
-              <button className="button button-primary" onClick={() => void load()}>
+              <PrtsButton className="button button-primary" onClick={() => void load()}>
                 重新连接
-              </button>
+              </PrtsButton>
             </>
           ) : (
             <>
@@ -733,38 +739,38 @@ export default function ServerStoreProvider({ children }: { children: ReactNode 
               {legacy?.error && <p role="alert">{legacy.error}</p>}
               <div className="modal-actions">
                 {legacyAvailable && (
-                  <button
+                  <PrtsButton
                     disabled={initializing || migrationBusy || saving}
                     className="button button-primary"
                     onClick={() => void initialize(true)}
                   >
                     迁移浏览器数据并进入
-                  </button>
+                  </PrtsButton>
                 )}
-                <button
+                <PrtsButton
                   disabled={initializing || migrationBusy || saving}
                   className="button button-ghost"
                   onClick={() => void initialize(false)}
                 >
                   创建服务器工作台
-                </button>
+                </PrtsButton>
                 {legacy?.raw && (
-                  <button
+                  <PrtsButton
                     className="button button-ghost"
                     onClick={() => downloadJSON(legacy.raw, 'prts-browser-original.json')}
                   >
                     下载旧数据原文
-                  </button>
+                  </PrtsButton>
                 )}
                 {error && !conflict && (
-                  <button className="button button-ghost" onClick={retry}>
+                  <PrtsButton className="button button-ghost" onClick={retry}>
                     重试保存
-                  </button>
+                  </PrtsButton>
                 )}
                 {error && (
-                  <button className="button button-ghost" onClick={() => void reload()}>
+                  <PrtsButton className="button button-ghost" onClick={() => void reload()}>
                     重新载入
-                  </button>
+                  </PrtsButton>
                 )}
               </div>
               {migrationStatus && <p>{migrationStatus}</p>}
@@ -795,27 +801,27 @@ export default function ServerStoreProvider({ children }: { children: ReactNode 
           {legacy?.error && <p role="alert">{legacy.error}</p>}
           {migrationStatus && <p role="status">{migrationStatus}</p>}
           <div className="modal-actions">
-            <button
+            <PrtsButton
               disabled={migrationBusy}
               className="button button-ghost"
               onClick={() => setMigrationOpen(false)}
             >
               取消
-            </button>
-            <button
+            </PrtsButton>
+            <PrtsButton
               disabled={migrationBusy || saving || Boolean(error)}
               className="button button-primary"
               onClick={() => void migrate()}
             >
               确认迁移并替换工作台
-            </button>
+            </PrtsButton>
             {legacy?.raw && (
-              <button
+              <PrtsButton
                 className="button button-ghost"
                 onClick={() => downloadJSON(legacy.raw, 'prts-browser-original.json')}
               >
                 下载旧数据原文
-              </button>
+              </PrtsButton>
             )}
           </div>
         </Modal>

@@ -1,3 +1,4 @@
+import { PrtsButton } from './PrtsFormControls'
 import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { X, ArrowUpRight } from 'lucide-react'
 import { useAppearance } from '../lib/appearance'
@@ -33,10 +34,10 @@ export function SectionTitle({
         <span>/ {english}</span>
       </h2>
       {action && (
-        <button className="text-button" onClick={onAction}>
+        <PrtsButton className="text-button" onClick={onAction}>
           {action}
           <ArrowUpRight size={14} />
-        </button>
+        </PrtsButton>
       )}
     </div>
   )
@@ -85,9 +86,9 @@ export function Modal({
     >
       <div className="modal-heading">
         <h2 id={titleId}>{title}</h2>
-        <button className="icon-button" onClick={onClose} aria-label="关闭弹窗">
+        <PrtsButton className="icon-button" onClick={onClose} aria-label="关闭弹窗">
           <X size={20} />
-        </button>
+        </PrtsButton>
       </div>
       {children}
     </dialog>

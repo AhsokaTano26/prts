@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsDisclosure } from './PrtsFormControls'
 import { useEffect, useRef, useState } from 'react'
 import { Check, X, Wrench } from 'lucide-react'
 import { apiFetch, WORKSPACE_UPDATED_EVENT } from '../lib/api'
@@ -122,7 +123,7 @@ function BatchCard({
           )}
         </ul>
       )}
-      <details>
+      <PrtsDisclosure>
         <summary>查看修改预览</summary>
         <ol className="assistant-action-list" aria-label="操作修改预览" tabIndex={0}>
           {actions.map((action) => (
@@ -132,7 +133,7 @@ function BatchCard({
             </li>
           ))}
         </ol>
-      </details>
+      </PrtsDisclosure>
       {error && (
         <p role="alert" className="assistant-action-error">
           {error}
@@ -140,7 +141,7 @@ function BatchCard({
       )}
       {!!pending && (
         <div className="assistant-action-buttons">
-          <button
+          <PrtsButton
             type="button"
             className="button button-ghost"
             disabled={!ready || busy}
@@ -148,8 +149,8 @@ function BatchCard({
           >
             <X size={14} />
             {multiple ? '取消全部' : '取消操作'}
-          </button>
-          <button
+          </PrtsButton>
+          <PrtsButton
             type="button"
             className="button button-primary"
             disabled={!ready || busy}
@@ -157,7 +158,7 @@ function BatchCard({
           >
             <Check size={14} />
             {busy ? '正在处理…' : multiple ? '确认全部' : '确认执行'}
-          </button>
+          </PrtsButton>
         </div>
       )}
     </section>
@@ -178,7 +179,7 @@ export default function AssistantActions({
   return (
     <>
       {!!toolsUsed?.length && (
-        <details className="assistant-tool-usage">
+        <PrtsDisclosure className="assistant-tool-usage">
           <summary>工作台工具 · {toolsUsed.length} 次调用</summary>
           <ul>
             {toolsUsed.map((tool, index) => (
@@ -187,7 +188,7 @@ export default function AssistantActions({
               </li>
             ))}
           </ul>
-        </details>
+        </PrtsDisclosure>
       )}
       {!!actions?.length && (
         <BatchCard initial={actions} confirmation={confirmation} initialError={error} />

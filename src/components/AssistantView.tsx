@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsDisclosure, PrtsForm, PrtsInput, PrtsTextarea } from './PrtsFormControls'
 import { useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import {
   ArrowUp,
@@ -370,19 +371,19 @@ export default function AssistantView({
           </h1>
           <p>一个思考的伙伴，一处灵感的回声。</p>
         </div>
-        <button
+        <PrtsButton
           className="button button-ghost"
           onClick={() => setConfirmClear(true)}
           disabled={mode === 'knowledge' || !shown.length || busy || saving || !loaded}
         >
           <Trash2 size={15} />
           清空对话
-        </button>
+        </PrtsButton>
       </div>
       <section className="panel chat-shell">
         <div className="chat-toolbar">
           <div className="segmented">
-            <button
+            <PrtsButton
               className={mode === 'local' ? 'active' : ''}
               aria-pressed={mode === 'local'}
               disabled={busy || saving}
@@ -393,8 +394,8 @@ export default function AssistantView({
             >
               <Terminal size={15} />
               本地指令
-            </button>
-            <button
+            </PrtsButton>
+            <PrtsButton
               className={mode === 'ai' ? 'active' : ''}
               aria-pressed={mode === 'ai'}
               disabled={busy || saving}
@@ -405,8 +406,8 @@ export default function AssistantView({
             >
               <Sparkles size={15} />
               AI 对话
-            </button>
-            <button
+            </PrtsButton>
+            <PrtsButton
               className={mode === 'knowledge' ? 'active' : ''}
               aria-pressed={mode === 'knowledge'}
               disabled={busy || saving}
@@ -417,7 +418,7 @@ export default function AssistantView({
             >
               <BookOpen size={15} />
               语料检索
-            </button>
+            </PrtsButton>
           </div>
           <span
             className={`connection-status ${mode !== 'ai' || health.configured ? 'success' : ''}`}
@@ -497,7 +498,7 @@ export default function AssistantView({
             {mode === 'ai' && (
               <div className="assistant-confirmation-setting">
                 <label>
-                  <input
+                  <PrtsInput
                     type="checkbox"
                     checked={autoConfirm}
                     disabled={busy || saving || store.saving || !!store.error}
@@ -523,47 +524,47 @@ export default function AssistantView({
               </div>
             )}
             {mode === 'ai' && (
-              <details className="assistant-guidance">
+              <PrtsDisclosure className="assistant-guidance">
                 <summary>对话与操作说明</summary>
                 <p className="persona-description">
                   {persona.description}
                   <span>当前人格已启用 · 每个人格独立保留对话</span>
                 </p>
                 <p>
-                  开启自动确认后，后续回复中的任务、日程、笔记、分类、普通设置和计时修改会自动执行，包括删除。结果仍保留在对话中；已有待确认操作需手动处理。
+                  开启自动确认后，后续回复中的地点添加，以及任务、日程、笔记、分类、普通设置和计时修改会自动执行。原有模块仍支持删除，地点当前只支持新增。结果保留在对话中；已有待确认操作需手动处理。
                 </p>
                 <p>
-                  可以直接粘贴通知、聊天记录，或提供已上传的图片和笔记名称，让助手整理任务与日程。
+                  可以直接粘贴通知、聊天记录、地点推荐，或提供已上传的图片和笔记名称，让助手整理任务、日程与想去的地点。
                   一次最多整理 {ASSISTANT_LIMITS.maxActions}{' '}
                   项修改，合并预览；时间不明确时先补充，重复事项会跳过，日程重叠会提示核对。
                 </p>
                 <p className="assistant-access-note">
-                  已连接工作台：可按需读取任务、日程、笔记、文本附件与图片，相关内容会发送给你配置的
+                  已连接工作台：可按需读取任务、日程、地点、笔记、文本附件与图片，相关内容会发送给你配置的
                   AI 服务。图片支持 PNG、JPEG、WebP、GIF，单张最多 5 MB，每轮最多 4
                   张，需使用支持图片输入的模型。
                   {autoConfirm
                     ? '本轮修改将统一自动执行。'
                     : '本轮修改合并到一张操作卡片，统一确认。'}
                 </p>
-              </details>
+              </PrtsDisclosure>
             )}
             <div className="chat-messages" aria-live="polite" aria-relevant="additions">
               {!loaded && !historyError && <p role="status">正在读取对话记录…</p>}
               {historyError && (
                 <div className="inline-error" role="alert">
                   {historyError}
-                  <button className="button button-ghost" onClick={() => void loadMessages()}>
+                  <PrtsButton className="button button-ghost" onClick={() => void loadMessages()}>
                     重试读取
-                  </button>
+                  </PrtsButton>
                 </div>
               )}
               {hasMore && (
-                <button
+                <PrtsButton
                   className="button button-ghost"
                   onClick={() => void loadMessages(shown[0]?.id)}
                 >
                   加载更早记录
-                </button>
+                </PrtsButton>
               )}
               {!shown.length && loaded && (
                 <div className="chat-welcome">
@@ -579,15 +580,15 @@ export default function AssistantView({
                       ? '查看今天的任务，找回一个想法，或记录新的目标。'
                       : health.configured
                         ? autoConfirm
-                          ? '查看工作台、安排日程、整理任务与笔记，按你的要求自动执行修改。'
-                          : '查看工作台、安排日程、整理任务与笔记，或为你准备待确认的操作。'
+                          ? '安排日程、整理任务与笔记、收藏想去的地点，按你的要求自动执行。'
+                          : '安排日程、整理任务与笔记、收藏想去的地点，为你准备可核对的操作。'
                         : '连接你自己的 AI 服务，开启与 PRTS 的对话。'}
                   </p>
                   {mode === 'ai' && !health.configured ? (
-                    <button className="button button-ghost" onClick={onSettings}>
+                    <PrtsButton className="button button-ghost" onClick={onSettings}>
                       连接 AI 服务
                       <ArrowUpRight size={15} />
-                    </button>
+                    </PrtsButton>
                   ) : (
                     <div className="suggestion-grid">
                       {(mode === 'local'
@@ -595,14 +596,14 @@ export default function AssistantView({
                         : [
                             '根据我的任务和日程安排今天的计划',
                             '根据我提供的通知整理任务和日程，时间不明确的先问我',
-                            '阿米娅与罗德岛有什么关系？',
+                            '把成都的河畔饭馆加入想去，备注周末试试砂锅',
                             '帮我新建一个高优先级任务：整理本周计划',
                           ]
                       ).map((s) => (
-                        <button onClick={() => send(s)} key={s}>
+                        <PrtsButton onClick={() => send(s)} key={s}>
                           {s}
                           <ArrowUpRight size={14} />
-                        </button>
+                        </PrtsButton>
                       ))}
                     </div>
                   )}
@@ -634,10 +635,10 @@ export default function AssistantView({
                       />
                     )}
                     {!!m.sources?.length && (
-                      <details className="message-sources">
+                      <PrtsDisclosure className="message-sources">
                         <summary>参考资料 · {m.sources.length} 条</summary>
                         <KnowledgeSources sources={m.sources} compact />
-                      </details>
+                      </PrtsDisclosure>
                     )}
                   </div>
                 </article>
@@ -655,13 +656,13 @@ export default function AssistantView({
             {saveError && (
               <div className="inline-error" role="alert">
                 {saveError}
-                <button
+                <PrtsButton
                   className="button button-ghost"
                   disabled={saving}
                   onClick={() => void persistMessages([])}
                 >
                   重试保存
-                </button>
+                </PrtsButton>
               </div>
             )}
             {saving && <p role="status">正在保存对话…</p>}
@@ -670,7 +671,7 @@ export default function AssistantView({
                 {error}
               </div>
             )}
-            <form
+            <PrtsForm
               className="chat-composer"
               onSubmit={(e: FormEvent) => {
                 e.preventDefault()
@@ -680,7 +681,7 @@ export default function AssistantView({
               <label className="sr-only" htmlFor="chat-input">
                 发送给 PRTS 的消息
               </label>
-              <textarea
+              <PrtsTextarea
                 id="chat-input"
                 ref={inputRef}
                 value={input}
@@ -709,7 +710,7 @@ export default function AssistantView({
                   <span className="keyboard-hint"> · ENTER 发送 / SHIFT + ENTER 换行</span>
                 </span>
                 {busy ? (
-                  <button
+                  <PrtsButton
                     type="button"
                     className="send-button"
                     onClick={(event) => {
@@ -721,9 +722,9 @@ export default function AssistantView({
                     aria-label="停止生成"
                   >
                     <Square size={15} />
-                  </button>
+                  </PrtsButton>
                 ) : (
-                  <button
+                  <PrtsButton
                     type="submit"
                     className="send-button"
                     disabled={
@@ -736,10 +737,10 @@ export default function AssistantView({
                     aria-label="发送消息"
                   >
                     <ArrowUp size={20} />
-                  </button>
+                  </PrtsButton>
                 )}
               </div>
-            </form>
+            </PrtsForm>
           </>
         )}
       </section>
@@ -750,16 +751,16 @@ export default function AssistantView({
             ，所有设备都会同步此结果。其他人格的对话、任务和笔记会继续保留。
           </p>
           <div className="modal-actions">
-            <button className="button button-ghost" onClick={() => setConfirmClear(false)}>
+            <PrtsButton className="button button-ghost" onClick={() => setConfirmClear(false)}>
               取消
-            </button>
-            <button
+            </PrtsButton>
+            <PrtsButton
               className="button button-primary"
               disabled={saving}
               onClick={() => void clearMessages()}
             >
               确认清空
-            </button>
+            </PrtsButton>
           </div>
         </Modal>
       )}

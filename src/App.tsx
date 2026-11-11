@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { PrtsButton } from './components/PrtsFormControls'
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   LayoutDashboard,
   ListTodo,
@@ -15,6 +16,7 @@ import {
   LockKeyhole,
   CalendarDays,
   Grid2X2,
+  MapPin,
 } from 'lucide-react'
 import {
   makeId,
@@ -50,11 +52,15 @@ import { useServerStore } from './lib/serverStore'
 import { useAppearance } from './lib/appearance'
 import { themeIdentity } from './lib/themes'
 import { observeInterfaceMotion, stopInterfaceMotion, transitionView } from './lib/motion'
+import { placeMatchesTab, placeEventDraft, type Place } from './lib/places'
+import { allowWorkspaceNavigation } from './lib/navigationGuard'
+const PlacesView = lazy(() => import('./components/PlacesView'))
 const navItems = [
   { id: 'overview', label: '总览', en: 'OVERVIEW', icon: LayoutDashboard },
   { id: 'tasks', label: '任务中枢', en: 'TASK CENTER', icon: ListTodo },
   { id: 'quadrants', label: '四象限法', en: 'PRIORITY MATRIX', icon: Grid2X2 },
   { id: 'calendar', label: '日历日程', en: 'CALENDAR', icon: CalendarDays },
+  { id: 'places', label: '想去', en: 'PLACES', icon: MapPin },
   { id: 'notes', label: '个人思考', en: 'THOUGHTS', icon: FileText },
   { id: 'files', label: '文件资料库', en: 'FILE STORAGE', icon: FolderOpen },
   { id: 'assistant', label: 'PRTS 助手', en: 'INTELLIGENCE', icon: Sparkles },
@@ -64,6 +70,7 @@ const validPages = [
   'tasks',
   'quadrants',
   'calendar',
+  'places',
   'notes',
   'files',
   'assistant',
@@ -97,6 +104,7 @@ export default function App({ onLock }: { onLock: () => void }) {
       event: CalendarEvent | null
       day: string
       range?: TimeRange
+      prefill?: { title: string; location: string; description: string }
     } | null>(null),
     [newTaskCategoryId, setNewTaskCategoryId] = useState(''),
     [selectedNoteId, setSelectedNoteId] = useState<string | null>(null),
@@ -171,7 +179,7 @@ export default function App({ onLock }: { onLock: () => void }) {
     }
   }, [])
   const navigate = useCallback((target: string) => {
-    const targetPage = target.startsWith('settings/') ? 'settings' : target
+    const targetPage = target.startsWith('settings/') ? 'settings' : target.split('?')[0]
     if (!validPages.includes(targetPage)) return
     setMobileOpen(false)
     if (location.hash === `#${target}`) {
@@ -184,6 +192,7 @@ export default function App({ onLock }: { onLock: () => void }) {
   }, [])
   useEffect(() => {
     const onHash = () => {
+      if (!allowWorkspaceNavigation(location.hash)) return
       const next = readPage()
       setMobileOpen(false)
       if (next === pageRef.current) {
@@ -394,6 +403,21 @@ export default function App({ onLock }: { onLock: () => void }) {
   function saveSettings(settings: Settings) {
     void update((w) => ({ ...w, settings }), '个人偏好已保存')
   }
+  function savePlace(place: Place, message: string) {
+    return update(
+      (w) => ({
+        ...w,
+        places: w.places.some((item) => item.id === place.id)
+          ? w.places.map((item) => (item.id === place.id ? place : item))
+          : [place, ...w.places],
+        activities: [activity(`${message}「${place.name}」`, 'system'), ...w.activities].slice(
+          0,
+          100,
+        ),
+      }),
+      message,
+    )
+  }
   function openEvent(id: string) {
     const event = workspaceRef.current.calendarEvents.find((item) => item.id === id)
     if (!event) return
@@ -425,7 +449,7 @@ export default function App({ onLock }: { onLock: () => void }) {
           跳到主要内容
         </a>
         {mobileOpen && (
-          <button
+          <PrtsButton
             className="sidebar-overlay"
             aria-label="关闭导航"
             onClick={() => setMobileOpen(false)}
@@ -438,28 +462,32 @@ export default function App({ onLock }: { onLock: () => void }) {
           role={mobileOpen ? 'dialog' : undefined}
           aria-modal={mobileOpen ? true : undefined}
         >
-          <button
+          <PrtsButton
             className="sidebar-close icon-button"
             aria-label="关闭导航"
             onClick={() => setMobileOpen(false)}
           >
             <PanelLeftClose size={20} />
-          </button>
-          <button className="brand" onClick={() => navigate('overview')} aria-label="PRTS 返回总览">
+          </PrtsButton>
+          <PrtsButton
+            className="brand"
+            onClick={() => navigate('overview')}
+            aria-label="PRTS 返回总览"
+          >
             <Logo />
             <strong>
               {identity.brand}
               <span>®</span>
             </strong>
             <small className="mono">{identity.terminal}</small>
-          </button>
+          </PrtsButton>
           <div className="nav-section-label mono">
             {identity.index}
             <span>01—{String(navItems.length).padStart(2, '0')}</span>
           </div>
           <nav>
             {navItems.map((n) => (
-              <button
+              <PrtsButton
                 className={`nav-item ${page === n.id ? 'active' : ''}`}
                 onClick={() => navigate(n.id)}
                 aria-label={n.label}
@@ -476,8 +504,15 @@ export default function App({ onLock }: { onLock: () => void }) {
                     {String(workspace.tasks.filter((t) => !t.done).length).padStart(2, '0')}
                   </small>
                 )}
+                {n.id === 'places' && (
+                  <small className="nav-count mono">
+                    {String(
+                      workspace.places.filter((place) => placeMatchesTab(place, 'want')).length,
+                    ).padStart(2, '0')}
+                  </small>
+                )}
                 {page === n.id && <span className="nav-active-mark" />}
-              </button>
+              </PrtsButton>
             ))}
           </nav>
           <div className="sidebar-bottom">
@@ -486,7 +521,7 @@ export default function App({ onLock }: { onLock: () => void }) {
               {identity.status}
               <div>{identity.motto}</div>
             </div>
-            <button
+            <PrtsButton
               className="profile-button"
               onClick={() => navigate('settings')}
               aria-label={`个人设置：${workspace.settings.name}`}
@@ -500,13 +535,13 @@ export default function App({ onLock }: { onLock: () => void }) {
                 <span>{identity.profile}</span>
               </div>
               <ChevronRight size={15} />
-            </button>
+            </PrtsButton>
           </div>
         </aside>
         <div className="workspace-shell">
           <header className="topbar">
             <div className="breadcrumb">
-              <button
+              <PrtsButton
                 ref={menuRef}
                 className="icon-button mobile-menu"
                 onClick={() => setMobileOpen(true)}
@@ -514,14 +549,14 @@ export default function App({ onLock }: { onLock: () => void }) {
                 aria-expanded={mobileOpen}
               >
                 <Menu size={20} />
-              </button>
+              </PrtsButton>
               <span className="breadcrumb-icon">◈</span>
               <span>{identity.workspace}</span>
               <ChevronRight size={12} />
               <strong key={page}>{currentLabel}</strong>
             </div>
             <div className="topbar-right">
-              <button
+              <PrtsButton
                 className="icon-button"
                 onClick={() => {
                   stopInterfaceMotion()
@@ -531,16 +566,16 @@ export default function App({ onLock }: { onLock: () => void }) {
                 title="锁定终端"
               >
                 <LockKeyhole size={17} />
-              </button>
-              <button
+              </PrtsButton>
+              <PrtsButton
                 className="global-search"
                 onClick={() => setSearchOpen(true)}
-                aria-label="搜索任务、日程、笔记或文件"
+                aria-label="搜索任务、日程、地点、笔记或文件"
               >
                 <Search size={15} />
-                <span>搜索任务、日程、笔记或文件…</span>
+                <span>搜索任务、日程、地点、笔记或文件…</span>
                 <kbd>⌘ K</kbd>
-              </button>
+              </PrtsButton>
               <div className="topbar-date">
                 <span className="mono">
                   {time.toLocaleDateString('en-CA').replaceAll('-', ' / ')}
@@ -565,9 +600,9 @@ export default function App({ onLock }: { onLock: () => void }) {
               <div className="storage-warning" role="alert">
                 <WifiOff size={16} />
                 <span>{storageError}</span>
-                <button onClick={store.exportDraft}>下载未保存草稿</button>
-                {!store.conflict && <button onClick={store.retry}>重试保存</button>}
-                <button onClick={() => setConfirmReload(true)}>重新载入服务器</button>
+                <PrtsButton onClick={store.exportDraft}>下载未保存草稿</PrtsButton>
+                {!store.conflict && <PrtsButton onClick={store.retry}>重试保存</PrtsButton>}
+                <PrtsButton onClick={() => setConfirmReload(true)}>重新载入服务器</PrtsButton>
               </div>
             )}
             <TaskReminders
@@ -578,19 +613,19 @@ export default function App({ onLock }: { onLock: () => void }) {
             {store.recoveryAvailable && (
               <div className="storage-warning">
                 <span>上次锁定前有尚未保存的草稿，已保留在当前页面内存中。</span>
-                <button
+                <PrtsButton
                   disabled={store.saving || Boolean(store.error)}
                   onClick={store.recoverDraft}
                 >
                   恢复上次草稿
-                </button>
-                <button onClick={store.exportRecovery}>下载上次草稿</button>
+                </PrtsButton>
+                <PrtsButton onClick={store.exportRecovery}>下载上次草稿</PrtsButton>
               </div>
             )}
             {store.legacyAvailable && (
               <div className="storage-warning">
                 <span>检测到此浏览器的旧数据，可迁移到服务器。原数据会保留。</span>
-                <button onClick={store.showMigration}>迁移浏览器旧数据</button>
+                <PrtsButton onClick={store.showMigration}>迁移浏览器旧数据</PrtsButton>
               </div>
             )}
             <div
@@ -655,6 +690,42 @@ export default function App({ onLock }: { onLock: () => void }) {
                   onSelectNote={setSelectedNoteId}
                 />
               )}{' '}
+              {page === 'places' && (
+                <Suspense
+                  fallback={
+                    <div className="page-content" role="status">
+                      正在载入想去…
+                    </div>
+                  }
+                >
+                  <PlacesView
+                    places={workspace.places}
+                    config={preferences.map}
+                    onSave={savePlace}
+                    onDelete={(place) =>
+                      update(
+                        (w) => ({
+                          ...w,
+                          places: w.places.filter((item) => item.id !== place.id),
+                          activities: [
+                            activity(`删除了地点「${place.name}」`, 'system'),
+                            ...w.activities,
+                          ].slice(0, 100),
+                        }),
+                        '地点已永久删除',
+                      )
+                    }
+                    onEvent={(place) =>
+                      setEventDialog({
+                        event: null,
+                        day: dateKey(new Date()),
+                        prefill: placeEventDraft(place),
+                      })
+                    }
+                    onNotify={notify}
+                  />
+                </Suspense>
+              )}
               {page === 'calendar' && (
                 <CalendarView
                   workspace={workspace}
@@ -733,10 +804,10 @@ export default function App({ onLock }: { onLock: () => void }) {
             </span>
             <span className="mono">
               {timer.running && (
-                <button onClick={() => navigate('overview')} className="footer-focus">
+                <PrtsButton onClick={() => navigate('overview')} className="footer-focus">
                   {timer.mode === 'countup' ? 'COUNT UP' : 'FOCUS'} {timer.display}
                   <span> / </span>
-                </button>
+                </PrtsButton>
               )}
               PRTS <span className="muted">//</span> <AppVersion />
             </span>
@@ -746,9 +817,9 @@ export default function App({ onLock }: { onLock: () => void }) {
           <div className="toast" role="status">
             <Check size={17} />
             <span>{toast}</span>
-            <button className="icon-button" aria-label="关闭提示" onClick={() => setToast('')}>
+            <PrtsButton className="icon-button" aria-label="关闭提示" onClick={() => setToast('')}>
               <X size={14} />
-            </button>
+            </PrtsButton>
           </div>
         )}
         {taskDialog !== undefined && (
@@ -788,6 +859,7 @@ export default function App({ onLock }: { onLock: () => void }) {
             event={eventDialog.event}
             defaultDate={eventDialog.day}
             defaultRange={eventDialog.range}
+            initialValues={eventDialog.prefill}
             onSave={saveEvent}
             onClose={() => setEventDialog(null)}
             onDelete={
@@ -825,6 +897,8 @@ export default function App({ onLock }: { onLock: () => void }) {
             onNote={openNote}
             onNewTask={() => openNewTask()}
             onNewNote={newNote}
+            onPlace={(id) => navigate(`places?place=${encodeURIComponent(id)}`)}
+            onNewPlace={() => navigate('places?new=1')}
             onEvent={openEvent}
             onNewEvent={() => {
               navigate('calendar')
@@ -839,13 +913,13 @@ export default function App({ onLock }: { onLock: () => void }) {
             重新载入会放弃此页面尚未保存的修改。请先下载草稿保留内容，再继续。
           </p>
           <div className="modal-actions">
-            <button className="button button-ghost" onClick={store.exportDraft}>
+            <PrtsButton className="button button-ghost" onClick={store.exportDraft}>
               下载未保存草稿
-            </button>
-            <button className="button button-ghost" onClick={() => setConfirmReload(false)}>
+            </PrtsButton>
+            <PrtsButton className="button button-ghost" onClick={() => setConfirmReload(false)}>
               取消
-            </button>
-            <button
+            </PrtsButton>
+            <PrtsButton
               className="button button-primary"
               onClick={() => {
                 setConfirmReload(false)
@@ -853,7 +927,7 @@ export default function App({ onLock }: { onLock: () => void }) {
               }}
             >
               确认重新载入
-            </button>
+            </PrtsButton>
           </div>
         </Modal>
       )}

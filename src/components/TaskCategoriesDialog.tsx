@@ -1,3 +1,4 @@
+import { PrtsButton, PrtsForm, PrtsInput } from './PrtsFormControls'
 import { useId, useRef, useState, type FormEvent } from 'react'
 import { Plus } from 'lucide-react'
 import type { TaskCategory } from '../lib/workspace'
@@ -65,10 +66,10 @@ export default function TaskCategoriesDialog({
         按工作或生活场景整理任务。最多 50 个分类，名称最多 40 个字符。
       </p>
 
-      <form className="task-category-create-form" onSubmit={createCategory}>
+      <PrtsForm className="task-category-create-form" onSubmit={createCategory}>
         <label htmlFor={`${formId}-create`}>新分类名称</label>
         <div className="task-category-create-controls">
-          <input
+          <PrtsInput
             ref={createInput}
             id={`${formId}-create`}
             className="task-category-input"
@@ -83,21 +84,21 @@ export default function TaskCategoriesDialog({
               setCreateError(undefined)
             }}
           />
-          <button
+          <PrtsButton
             type="submit"
             className="task-category-button task-category-button-primary"
             disabled={!newName.trim()}
           >
             <Plus size={15} aria-hidden="true" />
             添加分类
-          </button>
+          </PrtsButton>
         </div>
         {createError !== undefined && (
           <p id={`${formId}-create-error`} className="task-category-error" role="alert">
             {createError}
           </p>
         )}
-      </form>
+      </PrtsForm>
 
       <div className="task-category-list-heading">
         <h3>已有分类</h3>
@@ -110,12 +111,12 @@ export default function TaskCategoriesDialog({
           {categories.map((category) => (
             <li key={category.id} className="task-category-row">
               {editingId === category.id ? (
-                <form
+                <PrtsForm
                   className="task-category-edit-form"
                   onSubmit={(event) => renameCategory(event, category.id)}
                 >
                   <label htmlFor={`${formId}-edit-${category.id}`}>修改分类名称</label>
-                  <input
+                  <PrtsInput
                     id={`${formId}-edit-${category.id}`}
                     className="task-category-input"
                     value={editName}
@@ -136,29 +137,29 @@ export default function TaskCategoriesDialog({
                     </p>
                   )}
                   <div className="task-category-row-actions">
-                    <button
+                    <PrtsButton
                       type="button"
                       className="task-category-button"
                       onClick={() => setEditingId(undefined)}
                     >
                       取消
-                    </button>
-                    <button
+                    </PrtsButton>
+                    <PrtsButton
                       type="submit"
                       className="task-category-button task-category-button-primary"
                       disabled={!editName.trim()}
                     >
                       保存分类名称
-                    </button>
+                    </PrtsButton>
                   </div>
-                </form>
+                </PrtsForm>
               ) : (
                 <div className="task-category-row-main">
                   <span className="task-category-name" title={category.name}>
                     {category.name}
                   </span>
                   <div className="task-category-row-actions">
-                    <button
+                    <PrtsButton
                       type="button"
                       className="task-category-button"
                       aria-label={`重命名分类：${category.name}`}
@@ -171,8 +172,8 @@ export default function TaskCategoriesDialog({
                       }}
                     >
                       重命名
-                    </button>
-                    <button
+                    </PrtsButton>
+                    <PrtsButton
                       type="button"
                       className="task-category-button task-category-button-danger"
                       aria-label={`删除分类：${category.name}`}
@@ -184,7 +185,7 @@ export default function TaskCategoriesDialog({
                       }}
                     >
                       删除
-                    </button>
+                    </PrtsButton>
                   </div>
                 </div>
               )}
@@ -205,7 +206,7 @@ export default function TaskCategoriesDialog({
                     </p>
                   )}
                   <div className="task-category-row-actions">
-                    <button
+                    <PrtsButton
                       type="button"
                       className="task-category-button"
                       onClick={() => {
@@ -214,14 +215,14 @@ export default function TaskCategoriesDialog({
                       }}
                     >
                       取消
-                    </button>
-                    <button
+                    </PrtsButton>
+                    <PrtsButton
                       type="button"
                       className="task-category-button task-category-button-danger"
                       onClick={() => deleteCategory(category.id)}
                     >
                       确认删除分类
-                    </button>
+                    </PrtsButton>
                   </div>
                 </div>
               )}

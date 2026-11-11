@@ -1,3 +1,6 @@
+import { validatePlace, type Place } from './places.ts'
+export type { Place, PlaceVisit, PlaceType, PlaceDesire } from './places.ts'
+
 export type Priority = 'high' | 'medium' | 'low'
 
 export interface TaskCategory {
@@ -59,6 +62,7 @@ export interface Workspace {
   taskCategories: TaskCategory[]
   tasks: Task[]
   calendarEvents: CalendarEvent[]
+  places: Place[]
   notes: Note[]
   activities: Activity[]
   settings: Settings
@@ -103,6 +107,7 @@ export function createInitialWorkspace(): Workspace {
     schemaVersion: 2,
     taskCategories,
     calendarEvents: [],
+    places: [],
     tasks: [
       {
         id: makeId(),
@@ -348,6 +353,7 @@ export function validateWorkspace(data: unknown): Workspace {
   return {
     schemaVersion: 2,
     taskCategories,
+    places: root.places === undefined ? [] : collection(root.places, '地点', validatePlace),
     calendarEvents:
       root.calendarEvents === undefined
         ? []
