@@ -13,7 +13,7 @@
   --radius: 0px;
   --endfield-yellow: #f5df20;
   --endfield-ink: #20231e;
-  --endfield-grid: #30362c0b;
+  --endfield-topography: url('/branding/endfield-contours.svg');
   color-scheme: light;
 }
 [data-theme='endfield'] ::selection {
@@ -118,10 +118,10 @@
 [data-theme='endfield'] .main-content,
 [data-theme='endfield'] .auth-screen {
   background-color: var(--bg);
-  background-image:
-    linear-gradient(var(--endfield-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--endfield-grid) 1px, transparent 1px);
-  background-size: 28px 28px;
+  background-image: var(--endfield-topography);
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
 }
 [data-theme='endfield'] .view-heading h1 {
   font-weight: 750;

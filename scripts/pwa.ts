@@ -23,6 +23,8 @@ const publicAssets = [
   '/offline-endfield.html',
   '/manifest-endfield.webmanifest',
   '/branding/endfield.svg',
+  '/branding/endfield-contours.svg',
+  '/branding/endfield-topography.js',
   '/branding/endfield-opening.mp4',
   '/icons/endfield-192.png',
   '/icons/endfield-512.png',

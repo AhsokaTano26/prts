@@ -30,6 +30,8 @@ async function buildWorker(t) {
     'offline-endfield.html',
     'manifest-endfield.webmanifest',
     'branding/endfield.svg',
+    'branding/endfield-contours.svg',
+    'branding/endfield-topography.js',
     'branding/endfield-opening.mp4',
     'icons/endfield-192.png',
     'icons/endfield-512.png',
@@ -142,6 +144,8 @@ test('worker precaches only public install/offline assets and never handles priv
   assert.ok(worker.cached.includes('/offline-endfield.html'))
   assert.ok(worker.cached.includes('/manifest-endfield.webmanifest'))
   assert.ok(worker.cached.includes('/branding/endfield.svg'))
+  assert.ok(worker.cached.includes('/branding/endfield-contours.svg'))
+  assert.ok(worker.cached.includes('/branding/endfield-topography.js'))
   assert.ok(worker.cached.includes('/branding/endfield-opening.mp4'))
   assert.ok(worker.cached.includes('/icons/endfield-192.png'))
   assert.ok(worker.cached.includes('/icons/endfield-512.png'))

@@ -25,10 +25,12 @@
 .endfield-boot-grid {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(#d9d9a508 1px, transparent 1px),
-    linear-gradient(90deg, #d9d9a508 1px, transparent 1px);
-  background-size: 64px 64px;
+  background-image: var(--endfield-topography);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: invert(1);
+  opacity: 0.6;
   mask-image: radial-gradient(ellipse at center, transparent 20%, #000 85%);
 }
 .endfield-boot-contours {

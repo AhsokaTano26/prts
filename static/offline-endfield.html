@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="endfield">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -19,10 +19,10 @@
         padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
           max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
         background: #ecece7;
-        background-image:
-          linear-gradient(#20221f0a 1px, transparent 1px),
-          linear-gradient(90deg, #20221f0a 1px, transparent 1px);
-        background-size: 32px 32px;
+        background-image: var(--endfield-topography, url('/branding/endfield-contours.svg'));
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center top;
         color: #20221f;
         font:
           16px/1.8 system-ui,
@@ -145,5 +145,6 @@
       </section>
       <footer><span>ENDFIELD · ENGINEERING TERMINAL</span><span>等待恢复连接</span></footer>
     </main>
+    <script type="module" src="/branding/endfield-topography.js"></script>
   </body>
 </html>
